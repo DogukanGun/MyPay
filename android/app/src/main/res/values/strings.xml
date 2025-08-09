@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MyPayAndroid</string>
+    <string name="alert_dialog_user_input">Please write here …</string>
+</resources>
