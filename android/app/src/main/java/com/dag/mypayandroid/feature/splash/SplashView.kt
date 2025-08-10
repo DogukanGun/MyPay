@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.dag.mypayandroid.R
 import com.dag.mypayandroid.base.navigation.Destination
 import com.dag.mypayandroid.ui.theme.iconGradient
 import com.dag.mypayandroid.feature.splash.SplashVM
@@ -79,15 +80,15 @@ fun SplashView(
             .fillMaxSize()
             .background(brush = iconGradient)
     ) {
-//        Image(
-//            painter = painterResource(R),
-//            contentDescription = "CarbonMapper Logo",
-//            contentScale = ContentScale.Fit,
-//            modifier = Modifier
-//                .size(600.dp)
-//                .scale(scale)
-//                .alpha(alpha)
-//        )
+        Image(
+            painter = painterResource(R.drawable.maypay_logo),
+            contentDescription = "CarbonMapper Logo",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .size(600.dp)
+                .scale(scale)
+                .alpha(alpha)
+        )
     }
 }
 

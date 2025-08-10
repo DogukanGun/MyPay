@@ -27,9 +27,10 @@ import com.dag.mypayandroid.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReceiveView(
-    navController: NavController,
     backgroundColor: Color = Color.Transparent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit,
+    onContinueClick: () -> Unit
 ) {
     var amount by remember { mutableStateOf("") }
     
@@ -47,7 +48,7 @@ fun ReceiveView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { navController.popBackStack() },
+                onClick = onBackClick,
                 modifier = Modifier
                     .clip(CircleShape)
                     .background(Color(0xFF1F1F1F))
@@ -75,7 +76,7 @@ fun ReceiveView(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF0FFF0))
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp)
@@ -129,8 +130,8 @@ fun ReceiveView(
 
                     // Amount Input
                     CustomTextField(
-                        modifier = Modifier.weight(0.6f),
-                        label = "0.4325",
+                        modifier = Modifier.weight(0.8f),
+                        label = "Amount",
                         onTextChange = { amount = it }
                     )
                 }
@@ -198,7 +199,7 @@ fun ReceiveView(
             text = "Continue",
             textColor = Color.Black
         ) {
-            // Handle continue action
+            onContinueClick()
         }
         Spacer(modifier = Modifier.height(64.dp))
     }
@@ -208,7 +209,7 @@ fun ReceiveView(
 @Preview
 fun ReceiveViewPreview() {
     ReceiveView(
-        rememberNavController(),
-        DarkBackground
-    )
+        DarkBackground,
+        onBackClick = {}
+    ) {}
 }

@@ -20,17 +20,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.dag.mypayandroid.feature.home.presentation.CardView
 import com.dag.mypayandroid.ui.theme.*
+
 
 @Composable
 fun SendView(
-    navController: NavController,
-    amount: String = "0.4325 SPOT",
+    amount: String? = null,
     backgroundColor: Color = DarkBackground,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit
 ) {
     // Animation states
     val nfcIconScale = remember { Animatable(1f) }
@@ -74,7 +72,7 @@ fun SendView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { navController.popBackStack() },
+                onClick = onBackClick,
                 modifier = Modifier
                     .clip(CircleShape)
                     .background(Color(0xFF1F1F1F))
@@ -97,16 +95,19 @@ fun SendView(
         }
 
         // Amount Display
-        Text(
-            text = amount,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 32.dp),
-            fontSize = 40.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            textAlign = TextAlign.Center
-        )
+        amount?.let {
+            Text(
+                text = it,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 32.dp),
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
+        }
+
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -135,6 +136,7 @@ fun SendView(
         Box(
             modifier = Modifier
                 .scale(cardScale.value)
+                .background(Color.Transparent)
                 .padding(vertical = 16.dp)
         ) {
             CardView()
@@ -144,7 +146,7 @@ fun SendView(
 
         // Cancel Button (optional)
         TextButton(
-            onClick = { navController.popBackStack() },
+            onClick = onBackClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -161,5 +163,5 @@ fun SendView(
 @Preview
 @Composable
 fun SendViewPreview() {
-    SendView(rememberNavController())
+    SendView(onBackClick = {})
 } 
