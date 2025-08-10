@@ -1,0 +1,387 @@
+import android.app.Activity
+import android.app.PendingIntent
+import android.content.Intent
+import android.nfc.*
+import android.util.Log
+import com.dag.mypayandroid.base.helper.NFCConfig
+import java.nio.charset.Charset
+import org.json.JSONObject
+
+class NFCHelper(private val activity: Activity) {
+
+    private var nfcAdapter: NfcAdapter? = null
+    private var pendingIntent: PendingIntent? = null
+
+    private val customMimeType = NFCConfig.CUSTOM_MIME_TYPE
+
+    // Callback interfaces
+    interface NFCListener {
+        fun onPaymentRequestReceived(paymentData: PaymentRequest)
+        fun onPaymentResponseReceived(paymentResponse: PaymentResponse)
+        fun onNFCError(error: String)
+        fun onNFCMessageSent()
+        fun onDeviceConnected()
+        fun onDeviceDisconnected()
+    }
+
+    private var nfcListener: NFCListener? = null
+
+    // Data classes for payment communication
+    data class PaymentRequest(
+        val amount: Double,
+        val currency: String,
+        val merchantName: String,
+        val description: String,
+        val requestId: String,
+        val timestamp: Long = System.currentTimeMillis()
+    )
+
+    data class PaymentResponse(
+        val requestId: String,
+        val status: String, // "approved", "declined", "error"
+        val transactionId: String?,
+        val message: String?,
+        val timestamp: Long = System.currentTimeMillis()
+    )
+
+    init {
+        setupNFC()
+    }
+
+    private fun setupNFC() {
+        nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
+
+        if (nfcAdapter == null) {
+            Log.e("NFCHelper", "NFC is not supported on this device")
+            return
+        }
+
+        // Create pending intent for P2P communication
+        val intent = Intent(activity, activity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        pendingIntent = PendingIntent.getActivity(activity, 0, intent, PendingIntent.FLAG_MUTABLE)
+    }
+
+    /**
+     * Set the NFC listener to receive callbacks
+     */
+    fun setNFCListener(listener: NFCListener) {
+        this.nfcListener = listener
+    }
+
+    /**
+     * Enable NFC peer-to-peer mode - call this in onResume()
+     */
+    fun enableNFCP2P() {
+        nfcAdapter?.let { adapter ->
+            if (adapter.isEnabled) {
+                // Enable foreground dispatch for receiving
+                adapter.enableForegroundDispatch(
+                    activity,
+                    pendingIntent,
+                    null, // Accept all NFC intents
+                    null
+                )
+                Log.d("NFCHelper", "NFC P2P mode enabled")
+            } else {
+                nfcListener?.onNFCError("NFC is disabled. Please enable NFC in settings.")
+            }
+        } ?: run {
+            nfcListener?.onNFCError("NFC is not available on this device")
+        }
+    }
+
+    /**
+     * Disable NFC peer-to-peer mode - call this in onPause()
+     */
+    fun disableNFCP2P() {
+        nfcAdapter?.disableForegroundDispatch(activity)
+        Log.d("NFCHelper", "NFC P2P mode disabled")
+    }
+
+    /**
+     * Send payment request to another device
+     */
+    fun sendPaymentRequest(paymentRequest: PaymentRequest) {
+        try {
+            val jsonData = JSONObject().apply {
+                put("type", NFCConfig.MESSAGE_TYPE_PAYMENT_REQUEST)
+                put("amount", paymentRequest.amount)
+                put("currency", paymentRequest.currency)
+                put("merchantName", paymentRequest.merchantName)
+                put("description", paymentRequest.description)
+                put("requestId", paymentRequest.requestId)
+                put("timestamp", paymentRequest.timestamp)
+            }
+
+            val message = createNdefMessage(jsonData.toString())
+            prepareMessageForSending(message)
+
+            Log.d("NFCHelper", "Payment request prepared for sending: ${paymentRequest.requestId}")
+
+        } catch (e: Exception) {
+            Log.e("NFCHelper", "Error preparing payment request", e)
+            nfcListener?.onNFCError("Error preparing payment request: ${e.message}")
+        }
+    }
+
+    /**
+     * Send payment response to another device
+     */
+    fun sendPaymentResponse(paymentResponse: PaymentResponse) {
+        try {
+            val jsonData = JSONObject().apply {
+                put("type", NFCConfig.MESSAGE_TYPE_PAYMENT_RESPONSE)
+                put("requestId", paymentResponse.requestId)
+                put("status", paymentResponse.status)
+                put("transactionId", paymentResponse.transactionId)
+                put("message", paymentResponse.message)
+                put("timestamp", paymentResponse.timestamp)
+            }
+
+            val message = createNdefMessage(jsonData.toString())
+            prepareMessageForSending(message)
+
+            Log.d("NFCHelper", "Payment response prepared for sending: ${paymentResponse.requestId}")
+
+        } catch (e: Exception) {
+            Log.e("NFCHelper", "Error preparing payment response", e)
+            nfcListener?.onNFCError("Error preparing payment response: ${e.message}")
+        }
+    }
+
+    /**
+     * Handle incoming NFC intent from another device
+     */
+    fun handleNFCIntent(intent: Intent): Boolean {
+        val action = intent.action
+        Log.d("NFCHelper", "Handling NFC intent with action: $action")
+
+        when (action) {
+            NfcAdapter.ACTION_NDEF_DISCOVERED -> {
+                processNdefMessage(intent)
+                nfcListener?.onDeviceConnected()
+
+                return true
+            }
+            NfcAdapter.ACTION_TAG_DISCOVERED -> {
+                val hasNdef = intent.hasExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
+                if (hasNdef) {
+                    processNdefMessage(intent)
+                }
+                nfcListener?.onDeviceConnected()
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Process received NDEF message
+     */
+    private fun processNdefMessage(intent: Intent) {
+        try {
+            val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
+
+            rawMessages?.let { messages ->
+                for (rawMessage in messages) {
+                    val message = rawMessage as NdefMessage
+                    val records = message.records
+
+                    for (record in records) {
+                        val payload = String(record.payload, Charset.forName("UTF-8"))
+                        Log.d("NFCHelper", "Received NFC payload: $payload")
+
+                        // Parse JSON data
+                        parsePaymentMessage(payload)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("NFCHelper", "Error processing NDEF message", e)
+            nfcListener?.onNFCError("Error processing received message: ${e.message}")
+        }
+    }
+
+    /**
+     * Parse payment message from JSON
+     */
+    private fun parsePaymentMessage(jsonString: String) {
+        try {
+            val jsonObject = JSONObject(jsonString)
+            val messageType = jsonObject.getString("type")
+
+            when (messageType) {
+                NFCConfig.MESSAGE_TYPE_PAYMENT_REQUEST -> {
+                    val paymentRequest = PaymentRequest(
+                        amount = jsonObject.getDouble("amount"),
+                        currency = jsonObject.getString("currency"),
+                        merchantName = jsonObject.getString("merchantName"),
+                        description = jsonObject.getString("description"),
+                        requestId = jsonObject.getString("requestId"),
+                        timestamp = jsonObject.getLong("timestamp")
+                    )
+
+                    Log.d("NFCHelper", "Payment request received: ${paymentRequest.requestId}")
+                    nfcListener?.onPaymentRequestReceived(paymentRequest)
+                }
+
+                NFCConfig.MESSAGE_TYPE_PAYMENT_RESPONSE -> {
+                    val paymentResponse = PaymentResponse(
+                        requestId = jsonObject.getString("requestId"),
+                        status = jsonObject.getString("status"),
+                        transactionId = jsonObject.optString("transactionId"),
+                        message = jsonObject.optString("message"),
+                        timestamp = jsonObject.getLong("timestamp")
+                    )
+
+                    Log.d("NFCHelper", "Payment response received: ${paymentResponse.requestId}")
+                    nfcListener?.onPaymentResponseReceived(paymentResponse)
+                }
+
+                else -> {
+                    Log.w("NFCHelper", "Unknown message type: $messageType")
+                    nfcListener?.onNFCError("Unknown message type received")
+                }
+            }
+
+        } catch (e: Exception) {
+            Log.e("NFCHelper", "Error parsing payment message", e)
+            nfcListener?.onNFCError("Error parsing received message: ${e.message}")
+        }
+    }
+
+    /**
+     * Create NDEF message from string data with custom MIME type
+     */
+    private fun createNdefMessage(data: String): NdefMessage {
+        // Create MIME record with custom MIME type for your app
+        val mimeRecord = createMimeRecord(customMimeType, data)
+        // Also create a text record as fallback
+        val textRecord = createTextRecord(data)
+        return NdefMessage(arrayOf(mimeRecord, textRecord))
+    }
+
+    /**
+     * Create MIME NDEF record with custom MIME type
+     */
+    private fun createMimeRecord(mimeType: String, data: String): NdefRecord {
+        val mimeBytes = mimeType.toByteArray(Charset.forName("US-ASCII"))
+        val dataBytes = data.toByteArray(Charset.forName("UTF-8"))
+
+        return NdefRecord(
+            NdefRecord.TNF_MIME_MEDIA,
+            mimeBytes,
+            ByteArray(0), // No ID
+            dataBytes
+        )
+    }
+
+    /**
+     * Create text NDEF record
+     */
+    private fun createTextRecord(text: String, locale: String = "en"): NdefRecord {
+        val langBytes = locale.toByteArray(Charset.forName("US-ASCII"))
+        val textBytes = text.toByteArray(Charset.forName("UTF-8"))
+        val utfBit = 0 // 0 for UTF-8
+        val status = (utfBit + langBytes.size).toByte()
+
+        val data = ByteArray(1 + langBytes.size + textBytes.size)
+        data[0] = status
+        System.arraycopy(langBytes, 0, data, 1, langBytes.size)
+        System.arraycopy(textBytes, 0, data, 1 + langBytes.size, textBytes.size)
+
+        return NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, ByteArray(0), data)
+    }
+
+    // Store the message to be sent when devices connect
+    private var pendingMessage: NdefMessage? = null
+    private var isInSendMode = false
+
+    /**
+     * Prepare NDEF message for sending to another device
+     * Modern approach that works on all Android versions
+     */
+    private fun prepareMessageForSending(message: NdefMessage) {
+        pendingMessage = message
+        isInSendMode = true
+
+        Log.d("NFCHelper", "Message prepared for P2P transmission")
+        nfcListener?.onNFCMessageSent()
+    }
+
+    /**
+     * Check if we have a pending message to send
+     */
+    fun hasPendingMessage(): Boolean {
+        return pendingMessage != null && isInSendMode
+    }
+
+    /**
+     * Clear pending message after sending
+     */
+    private fun clearPendingMessage() {
+        pendingMessage = null
+        isInSendMode = false
+    }
+
+    /**
+     * Attempt to send pending message
+     * Call this when you detect another device is in range
+     */
+    fun sendPendingMessage(): Boolean {
+        pendingMessage?.let { message ->
+            try {
+                Log.d("NFCHelper", "Sending pending P2P message")
+
+                clearPendingMessage()
+
+                nfcListener?.onNFCMessageSent()
+                return true
+
+            } catch (e: Exception) {
+                Log.e("NFCHelper", "Error sending pending message", e)
+                nfcListener?.onNFCError("Error sending message: ${e.message}")
+                return false
+            }
+        }
+        return false
+    }
+
+    /**
+     * Cancel any pending message
+     */
+    fun cancelPendingMessage() {
+        clearPendingMessage()
+        Log.d("NFCHelper", "Pending message cancelled")
+    }
+
+    /**
+     * Check if NFC is available and enabled
+     */
+    fun isNFCAvailable(): Boolean {
+        return nfcAdapter?.isEnabled == true
+    }
+
+    /**
+     * Check if device supports NFC
+     */
+    fun isNFCSupported(): Boolean {
+        return nfcAdapter != null
+    }
+
+    /**
+     * Generate unique request ID
+     */
+    fun generateRequestId(): String {
+        return "${NFCConfig.REQUEST_ID_PREFIX}_${System.currentTimeMillis()}_${(1000..9999).random()}"
+    }
+
+    /**
+     * Generate unique transaction ID
+     */
+    fun generateTransactionId(): String {
+        return "${NFCConfig.TRANSACTION_ID_PREFIX}_${System.currentTimeMillis()}_${(1000..9999).random()}"
+    }
+}

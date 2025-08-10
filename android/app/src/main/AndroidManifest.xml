@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <!-- NFC Permissions -->
+    <uses-permission android:name="android.permission.NFC" />
+
+    <!-- Require NFC feature (optional - remove if you want to support non-NFC devices) -->
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
