@@ -13,15 +13,12 @@ import android.content.Context
 import androidx.core.app.ActivityCompat
 import com.dag.mypayandroid.base.notification.NotificationStateManager
 import com.dag.mypayandroid.base.helper.ActivityHolder
-import com.dag.mypayandroid.base.helper.WalletManagement
-import io.metamask.androidsdk.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
 class HomeVM @Inject constructor(
     private val activityHolder: ActivityHolder,
-    private val walletManagementImpl: WalletManagement,
     private val notificationStateManager: NotificationStateManager
 ) : BaseVM<HomeVS>(initialValue = HomeVS.Companion.initial()) {
 
@@ -48,21 +45,6 @@ class HomeVM @Inject constructor(
 
     fun startPayment() {
 
-    }
-
-    private fun checkMetamaskConnection() {
-        viewModelScope.launch {
-            if (!walletManagementImpl.isConnected()) {
-                val currentState =  _viewState.value as HomeVS.Success
-                walletManagementImpl.connect {
-                    if (it is Result.Success.Item) {
-                        currentState.walletAddress = it.value
-                    } else if (it is Result.Success.Items) {
-                        currentState.walletAddress = it.value.first()
-                    }
-                }
-            }
-        }
     }
 
     private fun observeNotificationState() {

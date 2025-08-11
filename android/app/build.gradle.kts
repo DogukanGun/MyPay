@@ -79,4 +79,7 @@ dependencies {
 
     //web3j
     implementation(libs.core)
+    implementation(libs.sol4k)
+    implementation(libs.web3auth.android.sdk)
+
 }
