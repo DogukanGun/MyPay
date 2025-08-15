@@ -163,17 +163,6 @@ class MainActivity : ComponentActivity() {
                                             )
                                         },
                                         actions = {
-                                            // Notification icon
-                                            IconButton(
-                                                onClick = { /* Handle notifications */ }
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Notifications,
-                                                    contentDescription = "Notifications",
-                                                    tint = Color.White,
-                                                    modifier = Modifier.size(24.dp)
-                                                )
-                                            }
                                             IconButton(
                                                 onClick = { }
                                             ) {

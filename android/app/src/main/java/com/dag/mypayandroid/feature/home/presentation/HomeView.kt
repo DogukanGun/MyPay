@@ -3,6 +3,8 @@ package com.dag.mypayandroid.feature.home.presentation
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,30 +70,37 @@ fun HomeView(
                         .fillMaxSize()
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = "Welcome to MyPay",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier.padding(bottom = 32.dp)
-                    )
-                    
-                    Text(
-                        text = "Please enter your email to continue",
-                        fontSize = 16.sp,
-                        color = Color.White.copy(alpha = 0.8f),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 32.dp)
-                    )
+                    Column(
+                        modifier = Modifier
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = "Welcome to MyPay",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = primaryText,
+                            modifier = Modifier.padding(bottom = 32.dp)
+                        )
 
-                    CustomTextField(
-                        modifier = Modifier,
-                        label = "Email Address",
-                        isPassword = false
-                    ) { email = email.copy(text = it) }
+                        Text(
+                            text = "Please enter your email to continue",
+                            fontSize = 16.sp,
+                            color = primaryText,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 32.dp)
+                        )
 
+                        CustomTextField(
+                            modifier = Modifier
+                                .padding(bottom = 32.dp),
+                            label = "Email Address",
+                            isPassword = false
+                        ) { email = email.copy(text = it) }
+
+                    }
                     Button(
                         onClick = {
                             viewModel.login(web3Auth, email.text)
@@ -99,6 +108,7 @@ fun HomeView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = gradientStart
                         ),
@@ -111,7 +121,12 @@ fun HomeView(
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Text("Continue")
+                            Text(
+                                text = "Continue",
+                                fontSize = 16.sp,
+                                color = primaryText,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }

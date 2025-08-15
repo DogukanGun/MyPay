@@ -130,7 +130,7 @@ fun HomeSuccessScreen(
                 
                 // Show user email if available
                 state.userInfo?.let { userInfo ->
-                    userInfo.email?.let { email ->
+                    userInfo.email.let { email ->
                         if (email.isNotEmpty()) {
                             Text(
                                 text = email,
@@ -296,7 +296,7 @@ fun HomeSuccessScreen(
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        userInfo.name?.let {
+                        userInfo.name.let {
                             if (it.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -314,7 +314,7 @@ fun HomeSuccessScreen(
                             }
                         }
                         
-                        userInfo.email?.let {
+                        userInfo.email.let {
                             if (it.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -332,7 +332,7 @@ fun HomeSuccessScreen(
                             }
                         }
                         
-                        userInfo.verifier?.let {
+                        userInfo.verifier.let {
                             if (it.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp)
