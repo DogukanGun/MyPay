@@ -239,6 +239,7 @@ class HomeVM @Inject constructor(
                     _isLoggedIn.emit(false)
                 }
             } else {
+
                 _viewState.value = HomeVS.LoginRequired()
                 _isLoggedIn.emit(false)
             }

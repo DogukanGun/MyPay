@@ -98,14 +98,14 @@ class MainActivity : ComponentActivity() {
         // Handle user signing in when app is not alive
         web3Auth = Web3Auth(
             Web3AuthOptions(
-                clientId = "BA9xeMJywIhhPXFqQgaKkEAVncYvt_BkBSS7QayewvEaKJUs1EvwZutoXJvCWRl9b8X81YLpxfPjeDrkjIv3Xi0",
+                clientId = BuildConfig.web3auth_key,
                 network = Network.SAPPHIRE_DEVNET,
                 redirectUrl = "com.dag.mypayandroid://auth".toUri(),
             ), this
         )
         web3Auth.setResultUrl(intent?.data)
         // Call initialize() in onCreate() to check for any existing session.
-        val sessionResponse: CompletableFuture<Void> = web3AuthHelper.initialize()
+        val sessionResponse: CompletableFuture<Void> = web3Auth.initialize()
         sessionResponse.whenComplete { _, error ->
             if (error == null) {
                 println("PrivKey: " + web3Auth.getPrivkey())
@@ -116,7 +116,6 @@ class MainActivity : ComponentActivity() {
                 // Ideally, you should initiate the login function here.
             }
         }
-        
         // Initialize the lifecycle scope coroutine only after alertDialogManager is available
         if (::alertDialogManager.isInitialized && lifecycleScope.isActive) {
             lifecycleScope.launch {

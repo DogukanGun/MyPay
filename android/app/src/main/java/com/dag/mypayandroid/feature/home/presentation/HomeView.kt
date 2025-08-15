@@ -17,7 +17,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
 import com.dag.mypayandroid.base.components.CustomTextField
 import com.dag.mypayandroid.ui.theme.*
 import com.web3auth.core.Web3Auth
