@@ -1,6 +1,7 @@
 package com.dag.mypayandroid.base.helper
 
 import android.net.Uri
+import com.web3auth.core.Web3Auth
 import com.web3auth.core.types.LoginParams
 import com.web3auth.core.types.UserInfo
 import com.web3auth.core.types.Web3AuthResponse
@@ -12,8 +13,10 @@ interface Web3AuthHelper {
     fun getSolanaPrivateKey(): String
 
     fun getUserInfo(): UserInfo
-    suspend fun initialize(): CompletableFuture<Void>
+    fun initialize(): CompletableFuture<Void>
 
     suspend fun setResultUrl(uri: Uri?): Unit
     suspend fun isUserAuthenticated(): Boolean
+
+    fun getWeb3Auth(): Web3Auth
 }

@@ -1,6 +1,9 @@
 package com.dag.mypayandroid
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -32,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.dag.mypayandroid.base.bottomnav.BottomNavMessageManager
 import com.dag.mypayandroid.base.bottomnav.BottomNavigationBar
@@ -39,6 +43,7 @@ import com.dag.mypayandroid.base.components.CustomAlertDialog
 import com.dag.mypayandroid.base.data.AlertDialogModel
 import com.dag.mypayandroid.base.helper.ActivityHolder
 import com.dag.mypayandroid.base.helper.AlertDialogManager
+import com.dag.mypayandroid.base.helper.Web3AuthHelper
 import com.dag.mypayandroid.base.navigation.DefaultNavigationHost
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
@@ -48,9 +53,13 @@ import com.dag.mypayandroid.base.scroll.ScrollStateManager
 import com.dag.mypayandroid.ui.theme.Background
 import com.dag.mypayandroid.ui.theme.DarkBackground
 import com.dag.mypayandroid.ui.theme.MyPayAndroidTheme
+import com.web3auth.core.Web3Auth
+import com.web3auth.core.types.Network
+import com.web3auth.core.types.Web3AuthOptions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import kotlin.getValue
 
@@ -75,12 +84,39 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var activityHolder: ActivityHolder
 
+    lateinit var web3Auth: Web3Auth
+
+    @Inject
+    lateinit var web3AuthHelper: Web3AuthHelper
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityHolder.setActivity(this)
         val showAlert = mutableStateOf(false)
         val alertDialogModel = mutableStateOf<AlertDialogModel?>(null)
+        // Handle user signing in when app is not alive
+        web3Auth = Web3Auth(
+            Web3AuthOptions(
+                clientId = "BA9xeMJywIhhPXFqQgaKkEAVncYvt_BkBSS7QayewvEaKJUs1EvwZutoXJvCWRl9b8X81YLpxfPjeDrkjIv3Xi0",
+                network = Network.SAPPHIRE_DEVNET,
+                redirectUrl = "com.dag.mypayandroid://auth".toUri(),
+            ), this
+        )
+        web3Auth.setResultUrl(intent?.data)
+        // Call initialize() in onCreate() to check for any existing session.
+        val sessionResponse: CompletableFuture<Void> = web3AuthHelper.initialize()
+        sessionResponse.whenComplete { _, error ->
+            if (error == null) {
+                println("PrivKey: " + web3Auth.getPrivkey())
+                println("ed25519PrivKey: " + web3Auth.getEd25519PrivKey())
+                println("Web3Auth UserInfo" + web3Auth.getUserInfo())
+            } else {
+                Log.d("MainActivity_Web3Auth", error.message ?: "Something went wrong")
+                // Ideally, you should initiate the login function here.
+            }
+        }
+        
         // Initialize the lifecycle scope coroutine only after alertDialogManager is available
         if (::alertDialogManager.isInitialized && lifecycleScope.isActive) {
             lifecycleScope.launch {
@@ -92,7 +128,6 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             val scrollState = scrollStateManager.scrollState.collectAsState()
-
             CompositionLocalProvider(
                 LocalScrollStateManager provides scrollStateManager
             ) {
@@ -157,7 +192,8 @@ class MainActivity : ComponentActivity() {
                                 DefaultNavigationHost(
                                     navigator = defaultNavigator,
                                     modifier = Modifier.weight(1f),
-                                    startDestination = Destination.Splash
+                                    startDestination = Destination.Splash,
+                                    web3Auth = web3Auth
                                 ) {
                                     currentRoute.value = it.destination.route
                                         ?.split(".")?.last()
@@ -204,6 +240,21 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (Web3Auth.getCustomTabsClosed()) {
+            Toast.makeText(this, "User closed the browser.", Toast.LENGTH_SHORT).show()
+            web3Auth.setResultUrl(null)
+            Web3Auth.setCustomTabsClosed(false)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        web3Auth.setResultUrl(intent.data)
     }
 
     override fun onDestroy() {

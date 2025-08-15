@@ -2,18 +2,24 @@ package com.dag.mypayandroid.di
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.net.Uri
+
+import com.dag.mypayandroid.base.helper.ActivityHolder
 import com.dag.mypayandroid.base.helper.AlertDialogManager
+import com.dag.mypayandroid.base.helper.BiometricHelper
 import com.dag.mypayandroid.base.helper.SolanaHelper
 import com.dag.mypayandroid.base.helper.SolanaHelperImpl
+import com.dag.mypayandroid.base.helper.WalletManager
 import com.dag.mypayandroid.base.helper.Web3AuthHelper
 import com.dag.mypayandroid.base.helper.Web3AuthHelperImpl
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
 import com.dag.mypayandroid.base.scroll.ScrollStateManager
 import com.web3auth.core.Web3Auth
+import com.web3auth.core.types.LoginConfigItem
 import com.web3auth.core.types.Network
+import com.web3auth.core.types.TypeOfLogin
 import com.web3auth.core.types.Web3AuthOptions
+import com.web3auth.core.types.WhiteLabelData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +27,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.sol4k.Connection
 import javax.inject.Singleton
+import androidx.core.net.toUri
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -55,13 +62,23 @@ class ObjectModules {
     @Provides
     @Singleton
     fun provideWeb3Auth(@ApplicationContext context: Context): Web3Auth{
-        return Web3Auth(
-            Web3AuthOptions(
-                clientId = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ",
-                network = Network.SAPPHIRE_MAINNET,
-                redirectUrl = Uri.parse( "com.dag.mypayandroid://auth")
-            ), context
+        val options = Web3AuthOptions(
+            clientId = "BA9xeMJywIhhPXFqQgaKkEAVncYvt_BkBSS7QayewvEaKJUs1EvwZutoXJvCWRl9b8X81YLpxfPjeDrkjIv3Xi0",
+            network = Network.SAPPHIRE_DEVNET,
+            redirectUrl = "com.dag.mypayandroid://auth".toUri(),
+            whiteLabel = WhiteLabelData(
+                appName = "MyPayAndroid",
+            ),
+            loginConfig = hashMapOf(
+                "google" to LoginConfigItem(
+                    verifier = "google-vfy",
+                    typeOfLogin = TypeOfLogin.GOOGLE,
+                    name = "Google Login",
+                    clientId = "BA9xeMJywIhhPXFqQgaKkEAVncYvt_BkBSS7QayewvEaKJUs1EvwZutoXJvCWRl9b8X81YLpxfPjeDrkjIv3Xi0"
+                )
+            )
         )
+        return Web3Auth(options, context)
     }
 
     @Provides
@@ -74,5 +91,21 @@ class ObjectModules {
     @Singleton
     fun provideSolanaHelper(): SolanaHelper {
         return SolanaHelperImpl(Connection(""))
+    }
+
+    @Provides
+    @Singleton
+    fun provideBiometricHelper(): BiometricHelper {
+        return BiometricHelper()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideWalletManager(
+        biometricHelper: BiometricHelper,
+        activityHolder: ActivityHolder,
+        @ApplicationContext context: Context
+    ): WalletManager {
+        return WalletManager(biometricHelper, activityHolder, context)
     }
 }

@@ -80,6 +80,6 @@ dependencies {
     //web3j
     implementation(libs.core)
     implementation(libs.sol4k)
-    implementation(libs.web3auth.android.sdk)
-
+    implementation("com.github.web3auth:web3auth-android-sdk:9.0.4")
+    implementation("androidx.biometric:biometric:1.4.0-alpha03")
 }

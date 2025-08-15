@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,27 +95,51 @@ fun HomeSuccessScreen(
                     color = secondaryText,
                     fontSize = 14.sp
                 )
-                Text(
-                    text = "$112,340.00",
-                    color = primaryText,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 4.dp)
-                ) {
+                
+                if (state.isLoadingBalance) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        color = PrimaryColor
+                    )
+                } else {
                     Text(
-                        text = "$10,240.00",
+                        text = state.balance ?: "0 SOL",
                         color = primaryText,
-                        fontSize = 14.sp
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                    Text(
-                        text = " +12%",
-                        color = Color(0xFF22C55E),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                }
+                
+                // Display wallet address
+                state.walletAddress?.let { address ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Text(
+                            text = if (address.length > 20) address.take(8) + "..." + address.takeLast(8) else address,
+                            color = secondaryText,
+                            fontSize = 14.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
+                        )
+                    }
+                }
+                
+                // Show user email if available
+                state.userInfo?.let { userInfo ->
+                    userInfo.email?.let { email ->
+                        if (email.isNotEmpty()) {
+                            Text(
+                                text = email,
+                                color = secondaryText,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -166,7 +192,7 @@ fun HomeSuccessScreen(
                     .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Sbux Card
+                // Solana Card
                 Card(
                     modifier = Modifier
                         .weight(1f)
@@ -188,26 +214,30 @@ fun HomeSuccessScreen(
                             ) { }
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Sbux",
+                                text = "Solana",
                                 color = primaryText,
                                 fontWeight = FontWeight.Medium
                             )
                         }
-                        Text(
-                            text = "$80,30",
-                            color = primaryText,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "+1.80 (+1.32%)",
-                            color = Color(0xFF22C55E),
-                            fontSize = 14.sp
-                        )
+                        if (state.isLoadingBalance) {
+                            LinearProgressIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                color = PrimaryColor
+                            )
+                        } else {
+                            Text(
+                                text = state.balance ?: "0 SOL",
+                                color = primaryText,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
 
-                // Nike Card
+                // Additional Card - Could be other tokens
                 Card(
                     modifier = Modifier
                         .weight(1f)
@@ -229,22 +259,96 @@ fun HomeSuccessScreen(
                             ) { }
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Nike",
+                                text = "USDC",
                                 color = primaryText,
                                 fontWeight = FontWeight.Medium
                             )
                         }
                         Text(
-                            text = "$111,05",
+                            text = "0 USDC",
                             color = primaryText,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            text = "-2.85 (-0.32%)",
-                            color = Color.Red,
-                            fontSize = 14.sp
-                        )
+                    }
+                }
+            }
+        }
+        
+        // User Information Section if available
+        state.userInfo?.let { userInfo ->
+            item {
+                Text(
+                    text = "Account Information",
+                    color = primaryText,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp, top = 8.dp)
+                )
+                
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                        .shadow(4.dp, RoundedCornerShape(16.dp)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFEEF2F6))
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        userInfo.name?.let {
+                            if (it.isNotEmpty()) {
+                                Row(
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "Name: ",
+                                        color = secondaryText,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = it,
+                                        color = primaryText
+                                    )
+                                }
+                            }
+                        }
+                        
+                        userInfo.email?.let {
+                            if (it.isNotEmpty()) {
+                                Row(
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "Email: ",
+                                        color = secondaryText,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = it,
+                                        color = primaryText
+                                    )
+                                }
+                            }
+                        }
+                        
+                        userInfo.verifier?.let {
+                            if (it.isNotEmpty()) {
+                                Row(
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "Verifier: ",
+                                        color = secondaryText,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = it,
+                                        color = primaryText
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -334,7 +438,9 @@ fun HomeSuccessScreenPreview() {
     val animatedProgress = remember { Animatable(1f) }
     HomeSuccessScreen(
         state = HomeVS.Success(
-            shouldShowPopup = true
+            shouldShowPopup = true,
+            walletAddress = "123456789abcdefghijklmnopqrstuvwxyz",
+            balance = "123.45 SOL"
         ),
         askForPermission = false,
         animatedProgress = animatedProgress,

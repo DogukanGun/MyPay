@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">MyPayAndroid</string>
     <string name="alert_dialog_user_input">Please write here …</string>
+    <string name="web3auth_project_id">BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ</string>
+
 </resources>
