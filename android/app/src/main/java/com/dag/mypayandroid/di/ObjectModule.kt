@@ -28,6 +28,8 @@ import dagger.hilt.components.SingletonComponent
 import org.sol4k.Connection
 import javax.inject.Singleton
 import androidx.core.net.toUri
+import com.dag.mypayandroid.BuildConfig
+import org.sol4k.RpcUrl
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -61,28 +63,6 @@ class ObjectModules {
 
     @Provides
     @Singleton
-    fun provideWeb3Auth(@ApplicationContext context: Context): Web3Auth{
-        val options = Web3AuthOptions(
-            clientId = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ",
-            network = Network.SAPPHIRE_DEVNET,
-            redirectUrl = "com.dag.mypayandroid://auth".toUri(),
-            whiteLabel = WhiteLabelData(
-                appName = "MyPayAndroid",
-            ),
-            loginConfig = hashMapOf(
-                "google" to LoginConfigItem(
-                    verifier = "google-vfy",
-                    typeOfLogin = TypeOfLogin.GOOGLE,
-                    name = "Google Login",
-                    clientId = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ"
-                )
-            )
-        )
-        return Web3Auth(options, context)
-    }
-
-    @Provides
-    @Singleton
     fun provideWeb3AuthHelperImpl(web3Auth: Web3Auth): Web3AuthHelper {
         return Web3AuthHelperImpl(web3Auth)
     }
@@ -90,7 +70,7 @@ class ObjectModules {
     @Provides
     @Singleton
     fun provideSolanaHelper(): SolanaHelper {
-        return SolanaHelperImpl(Connection(""))
+        return SolanaHelperImpl(Connection(RpcUrl.DEVNET))
     }
 
     @Provides

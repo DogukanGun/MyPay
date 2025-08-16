@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,7 +87,9 @@ class MainActivity : FragmentActivity() {
     @Inject
     lateinit var activityHolder: ActivityHolder
 
-    lateinit var web3Auth: Web3Auth
+    companion object {
+        lateinit var web3Auth: Web3Auth
+    }
 
     @Inject
     lateinit var intentManager: IntentManager
@@ -181,6 +184,23 @@ class MainActivity : FragmentActivity() {
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                                    contentDescription = "Sign Out",
+                                                    tint = Color.White,
+                                                    modifier = Modifier.size(24.dp)
+                                                )
+                                            }
+                                            IconButton(
+                                                onClick = {
+                                                    lifecycleScope.launch {
+                                                        intentManager
+                                                            .requestIntent(
+                                                                com.dag.mypayandroid.base.data.Intent.Web3WalletManagement(web3Auth)
+                                                            )
+                                                    }
+                                                }
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.baseline_wallet),
                                                     contentDescription = "Sign Out",
                                                     tint = Color.White,
                                                     modifier = Modifier.size(24.dp)

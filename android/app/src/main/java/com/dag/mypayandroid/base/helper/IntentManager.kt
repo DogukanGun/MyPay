@@ -1,30 +1,30 @@
 package com.dag.mypayandroid.base.helper
 
 import com.dag.mypayandroid.base.data.Intent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import com.web3auth.core.types.ChainConfig
+import com.web3auth.core.types.ChainNamespace
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.withContext
+import org.sol4k.RpcUrl
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 class IntentManager @Inject constructor(
     private val activityHolder: ActivityHolder
 ) {
-    private val _intentFlow = MutableSharedFlow<Intent>(replay = 0)
-    val intent: SharedFlow<Intent> = _intentFlow
-
     suspend fun requestIntent(intent: Intent) {
-        _intentFlow.emit(intent)
+        executeIntent(intent)
     }
 
-    private suspend fun executeIntent() {
-        _intentFlow.collect {
-            when (it) {
-                is Intent.Web3AuthLogout -> {
-                    it.web3Auth.logout().await()
-                }
+    private suspend fun executeIntent(intent: Intent) {
+        when (intent) {
+            is Intent.Web3AuthLogout -> {
+                intent.web3Auth.logout().await()
+            }
+            is Intent.Web3WalletManagement -> {
+                intent.web3Auth.launchWalletServices(ChainConfig(
+                    chainNamespace = ChainNamespace.SOLANA,
+                    chainId = "0x2",
+                    rpcTarget = RpcUrl.DEVNET.value,
+                ))
             }
         }
     }

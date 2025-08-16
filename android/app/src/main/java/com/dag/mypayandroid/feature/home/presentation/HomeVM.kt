@@ -23,6 +23,7 @@ import com.web3auth.core.types.UserInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.sol4k.Keypair
+import org.sol4k.PublicKey
 
 @HiltViewModel
 class HomeVM @Inject constructor(
@@ -82,7 +83,7 @@ class HomeVM @Inject constructor(
             )
         } else {
             _viewState.value = HomeVS.Success(
-                walletAddress = walletAddress,
+                walletAddress = walletAddress ?: walletManager.getPublicKey(),
                 shouldShowPopup = shouldShowPopup == true,
                 balance = balance,
                 userInfo = userInfo,
@@ -115,9 +116,11 @@ class HomeVM @Inject constructor(
             updateSuccessState(isLoadingBalance = true)
             _isAccountLoaded.emit(false)
             try {
-                balance = solanaHelper.getBalance(solanaKeyPair.publicKey)
-                _isAccountLoaded.emit(true)
-                updateSuccessState(balance = balance, isLoadingBalance = false)
+                walletManager.getPublicKey()?.let {
+                    balance = solanaHelper.getBalance(PublicKey(it))
+                    _isAccountLoaded.emit(true)
+                    updateSuccessState(balance = balance, isLoadingBalance = false)
+                }
             } catch (e: Exception) {
                 _isAccountLoaded.emit(false)
                 updateSuccessState(isLoadingBalance = false)

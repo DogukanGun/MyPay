@@ -3,6 +3,7 @@ package com.dag.mypayandroid.feature.splash
 import android.content.pm.PackageManager
 import androidx.lifecycle.viewModelScope
 import com.dag.mypayandroid.BuildConfig
+import com.dag.mypayandroid.MainActivity
 import com.dag.mypayandroid.base.helper.ActivityHolder
 import com.dag.mypayandroid.base.helper.AlertDialogManager
 import com.dag.mypayandroid.base.BaseVM
@@ -11,6 +12,7 @@ import com.dag.mypayandroid.base.data.AlertDialogButtonType
 import com.dag.mypayandroid.base.data.AlertDialogModel
 import com.dag.mypayandroid.base.helper.WalletManager
 import com.dag.mypayandroid.base.navigation.Destination
+import com.web3auth.core.Web3Auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -20,7 +22,6 @@ import javax.inject.Inject
 class SplashVM @Inject constructor(
     private val packageManager: PackageManager,
     private val alertDialogManager: AlertDialogManager,
-    private val walletManager: WalletManager,
     private val activityHolder: ActivityHolder
 ): BaseVM<SplashVS>(){
 
@@ -63,8 +64,8 @@ class SplashVM @Inject constructor(
     fun startApp() {
         viewModelScope.launch {
             delay(SPLASH_DELAY) // Wait for 3 seconds
-            val publicKey = walletManager.getPublicKey()
-            val destination = if (publicKey == null) Destination.LoginScreen else Destination.HomeScreen
+            val isAuthenticated = MainActivity.web3Auth.getPrivkey().isNotEmpty()
+            val destination = if (!isAuthenticated) Destination.LoginScreen else Destination.HomeScreen
             _viewState.value = SplashVS.StartApp(destination)
         }
     }

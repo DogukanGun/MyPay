@@ -80,6 +80,9 @@ fun HomeView(
                     onReceive = { 
                         isSendMode = false
                         showPaymentSheet = true 
+                    },
+                    onRefresh = {
+                        viewModel.fetchUserDataAfterAuth(web3Auth)
                     }
                 )
                 

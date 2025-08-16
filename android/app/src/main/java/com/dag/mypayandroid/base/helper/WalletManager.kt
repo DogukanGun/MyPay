@@ -82,6 +82,7 @@ class WalletManager @Inject constructor(
                                 putString(KEY_ENCRYPTED_PRIVATE_KEY, encryptedData.encryptedData.toHexString())
                                 putString(KEY_ENCRYPTED_IV, encryptedData.iv.toHexString())
                                 putString(KEY_PUBLIC_KEY, publicKey)
+                                putString(KEY_PUBLIC_KEY, publicKey)
                                 apply()
                             }
                             

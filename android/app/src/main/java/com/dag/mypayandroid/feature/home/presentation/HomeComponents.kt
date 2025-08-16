@@ -7,11 +7,15 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,8 +25,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +40,7 @@ import com.dag.mypayandroid.base.components.CustomButton
 import com.dag.mypayandroid.base.scroll.ReportScrollState
 import com.dag.mypayandroid.ui.theme.*
 import com.dag.mypayandroid.R
+import org.bouncycastle.math.raw.Mod
 
 @Composable
 fun HomeSuccessScreen(
@@ -41,9 +48,11 @@ fun HomeSuccessScreen(
     askForPermission: Boolean,
     animatedProgress: Animatable<Float, AnimationVector1D>,
     onReceive: () -> Unit,
-    onSend: () -> Unit
+    onSend: () -> Unit,
+    onRefresh: () -> Unit
 ) {
     val scrollState = rememberLazyListState()
+    val clipboardManager = LocalClipboardManager.current
 
     // Monitor scroll state for bottom navigation bar
     val isScrolling = scrollState.isScrollInProgress
@@ -85,63 +94,79 @@ fun HomeSuccessScreen(
     ) {
         // Balance Section
         item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Available Balance",
-                    color = primaryText,
-                    fontSize = 14.sp
-                )
-                
-                if (state.isLoadingBalance) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        color = PrimaryColor
-                    )
-                } else {
+                Column(
+                    modifier = Modifier
+                        .padding(bottom = 24.dp)
+                ) {
                     Text(
-                        text = state.balance ?: "0 SOL",
+                        text = "Available Balance",
                         color = primaryText,
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 14.sp
                     )
-                }
-                
-                // Display wallet address
-                state.walletAddress?.let { address ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 4.dp)
-                    ) {
+
+                    if (state.isLoadingBalance) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            color = PrimaryColor
+                        )
+                    } else {
                         Text(
-                            text = if (address.length > 20) address.take(8) + "..." + address.takeLast(8) else address,
+                            text = state.balance.plus(" SOL") ?: "0 SOL",
                             color = primaryText,
-                            fontSize = 14.sp,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
-                }
-                
-                // Show user email if available
-                state.userInfo?.let { userInfo ->
-                    userInfo.email.let { email ->
-                        if (email.isNotEmpty()) {
+
+                    // Display wallet address
+                    state.walletAddress?.let { address ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
                             Text(
-                                text = email,
+                                text = if (address.length > 20) address.take(8) + "..." + address.takeLast(8) else address,
                                 color = primaryText,
                                 fontSize = 14.sp,
-                                modifier = Modifier.padding(top = 4.dp)
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1
                             )
                         }
                     }
+
+                    // Show user email if available
+                    state.userInfo?.let { userInfo ->
+                        userInfo.email.let { email ->
+                            if (email.isNotEmpty()) {
+                                Text(
+                                    text = email,
+                                    color = primaryText,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                Column(
+                    modifier = Modifier.width(32.dp)
+                ) {
+                    IconButton(onClick = onRefresh) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh"
+                        )
+                    }
                 }
             }
+
         }
 
         // Action Buttons
@@ -228,7 +253,7 @@ fun HomeSuccessScreen(
                             )
                         } else {
                             Text(
-                                text = state.balance ?: "0 SOL",
+                                text = state.balance.plus(" SOL") ?: "0 SOL",
                                 color = primaryText,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
@@ -303,12 +328,18 @@ fun HomeSuccessScreen(
                                 ) {
                                     Text(
                                         text = "Name: ",
-                                        color = secondaryText,
-                                        fontWeight = FontWeight.Medium
+                                        color = primaryText,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.clickable {
+                                            clipboardManager.setText(AnnotatedString(it))
+                                        }
                                     )
                                     Text(
                                         text = it,
-                                        color = primaryText
+                                        color = primaryText,
+                                        modifier = Modifier.clickable {
+                                            clipboardManager.setText(AnnotatedString(it))
+                                        }
                                     )
                                 }
                             }
@@ -319,13 +350,19 @@ fun HomeSuccessScreen(
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 ) {
                                     Text(
-                                        text = "Email: ",
-                                        color = secondaryText,
-                                        fontWeight = FontWeight.Medium
+                                        text = "Wallet: ",
+                                        color = primaryText,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.clickable {
+                                            clipboardManager.setText(AnnotatedString(it))
+                                        }
                                     )
                                     Text(
                                         text = it,
-                                        color = primaryText
+                                        color = primaryText,
+                                        modifier = Modifier.clickable {
+                                            clipboardManager.setText(AnnotatedString(it))
+                                        }
                                     )
                                 }
                             }
@@ -337,12 +374,18 @@ fun HomeSuccessScreen(
                                 ) {
                                     Text(
                                         text = "Verifier: ",
-                                        color = secondaryText,
-                                        fontWeight = FontWeight.Medium
+                                        color = primaryText,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.clickable {
+                                            clipboardManager.setText(AnnotatedString(it))
+                                        }
                                     )
                                     Text(
                                         text = it,
-                                        color = primaryText
+                                        color = primaryText,
+                                        modifier = Modifier.clickable {
+                                            clipboardManager.setText(AnnotatedString(it))
+                                        }
                                     )
                                 }
                             }
@@ -443,6 +486,7 @@ fun HomeSuccessScreenPreview() {
         askForPermission = false,
         animatedProgress = animatedProgress,
         onSend = {},
-        onReceive = {}
+        onReceive = {},
+        onRefresh = {}
     )
 }

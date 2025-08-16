@@ -31,7 +31,7 @@ class LoginVM @Inject constructor(
 ): BaseVM<LoginVS>(LoginVS.StartLogin()) {
     private val _isLoggedIn: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
-
+    lateinit var solanaKeyPair: Keypair
 
     private fun isUserLoggedIn(web3Auth: Web3Auth): Boolean {
         return try {
@@ -64,6 +64,10 @@ class LoginVM @Inject constructor(
         return web3Auth.getEd25519PrivKey()
     }
 
+    private fun prepareKeyPair(web3Auth: Web3Auth) {
+        solanaKeyPair = Keypair.fromSecretKey(solanaPrivateKey(web3Auth).hexToByteArray())
+    }
+
     @RequiresApi(Build.VERSION_CODES.R)
     fun login(web3Auth: Web3Auth, email: String = ""){
         // First validate email format
@@ -83,9 +87,6 @@ class LoginVM @Inject constructor(
                     web3Auth.login(loginParams)
                 loginCompletableFuture.whenComplete { response, error ->
                     if (error == null) {
-                        val credentials = Credentials.create(web3Auth.getPrivkey())
-                        Log.d("Web3Auth", "Login successful, credentials address: ${credentials.address}")
-
                         viewModelScope.launch {
                             _isLoggedIn.emit(true)
                             // Store wallet credentials securely after successful login
@@ -98,9 +99,13 @@ class LoginVM @Inject constructor(
                                         positiveButton = AlertDialogButton(
                                             text = "Create Wallet",
                                             onClick = {
-                                                val credentials = Credentials.create(web3Auth.getPrivkey())
-                                                storeWalletCredentials(web3Auth.getPrivkey(), credentials.address)
-                                                _viewState.value = LoginVS.StartHomePage
+                                                prepareKeyPair(web3Auth)
+                                                storeWalletCredentials(
+                                                    solanaKeyPair.secret.toHexString(),
+                                                    solanaKeyPair.publicKey.toBase58()
+                                                ) {
+                                                    _viewState.value = LoginVS.StartHomePage
+                                                }
                                             },
                                             type = AlertDialogButtonType.CUSTOM
                                         )
@@ -130,13 +135,14 @@ class LoginVM @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    private fun storeWalletCredentials(privateKey: String, publicKey: String) {
+    private fun storeWalletCredentials(privateKey: String, publicKey: String,onSuccess:() -> Unit) {
         if (walletManager.isBiometricAvailable()) {
             walletManager.storeWalletCredentials(
                 privateKey = privateKey,
                 publicKey = publicKey,
                 onSuccess = {
                     Log.d("HomeVM", "Wallet credentials stored securely")
+                    onSuccess()
                 },
                 onError = { errorMessage ->
                     Log.e("HomeVM", "Failed to store wallet credentials: $errorMessage")
