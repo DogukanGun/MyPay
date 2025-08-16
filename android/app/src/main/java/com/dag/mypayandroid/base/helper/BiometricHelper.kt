@@ -1,9 +1,11 @@
 package com.dag.mypayandroid.base.helper
 
 import android.content.Context
+import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
+import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager.*
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
@@ -126,6 +128,7 @@ class BiometricHelper @Inject constructor() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun createKey(): Boolean {
         try {
             val keyGenerator = KeyGenerator.getInstance(
@@ -162,6 +165,7 @@ class BiometricHelper @Inject constructor() {
         ).also { mCipher = it }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun initEncryptionCipher(): Boolean {
         return try {
             getCipher().init(Cipher.ENCRYPT_MODE, mCipherKey)
@@ -196,6 +200,7 @@ class BiometricHelper @Inject constructor() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     fun getEncryptionCryptoObject(): BiometricPrompt.CryptoObject? {
         loadKeyStore()
         
@@ -261,6 +266,7 @@ class BiometricHelper @Inject constructor() {
             .build()
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     fun showBiometricPrompt() {
         val cryptoObject = getEncryptionCryptoObject()
         if (cryptoObject != null) {

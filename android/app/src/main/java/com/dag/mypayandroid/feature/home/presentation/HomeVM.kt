@@ -10,15 +10,12 @@ import javax.inject.Inject
 import androidx.core.net.toUri
 import com.dag.mypayandroid.base.BaseVM
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.core.util.PatternsCompat.EMAIL_ADDRESS
 import com.dag.mypayandroid.base.notification.NotificationStateManager
 import com.dag.mypayandroid.base.helper.ActivityHolder
 import com.dag.mypayandroid.base.helper.SolanaHelper
 import com.dag.mypayandroid.base.helper.WalletManager
-import com.dag.mypayandroid.base.helper.Web3AuthHelper
 import com.web3auth.core.Web3Auth
 import com.web3auth.core.types.ExtraLoginOptions
 import com.web3auth.core.types.LoginParams
@@ -31,10 +28,11 @@ import kotlinx.coroutines.future.await
 import org.sol4k.Keypair
 import org.web3j.crypto.Credentials
 import java.util.concurrent.CompletableFuture
+
+
 @HiltViewModel
 class HomeVM @Inject constructor(
     private val activityHolder: ActivityHolder,
-    private val web3AuthHelper: Web3AuthHelper,
     private val solanaHelper: SolanaHelper,
     private val walletManager: WalletManager,
     private val notificationStateManager: NotificationStateManager
@@ -69,11 +67,11 @@ class HomeVM @Inject constructor(
         _viewState.value = HomeVS.Success()
     }
 
-    fun solanaPrivateKey(): String {
-        return web3AuthHelper.getSolanaPrivateKey()
+    fun solanaPrivateKey(web3Auth: Web3Auth): String {
+        return web3Auth.getEd25519PrivKey()
     }
 
-    private fun prepareKeyPair() {
+    private fun prepareKeyPair(web3Auth: Web3Auth) {
         // Try to get private key from WalletManager first with biometric authentication
         if (walletManager.walletState.value == WalletManager.WalletState.Locked) {
             _isBiometricAuthInProgress.value = true
@@ -83,32 +81,32 @@ class HomeVM @Inject constructor(
                     _isBiometricAuthInProgress.value = false
                     viewModelScope.launch {
                         updateSuccessState(walletAddress = solanaKeyPair.publicKey.toBase58())
-                        fetchUserDataAfterAuth()
+                        fetchUserDataAfterAuth(web3Auth)
                     }
                 },
                 onError = { errorMessage ->
                     Log.e("HomeVM", "Biometric authentication failed: $errorMessage")
                     _isBiometricAuthInProgress.value = false
                     // Fall back to Web3Auth if biometric authentication fails
-                    solanaKeyPair = Keypair.fromSecretKey(solanaPrivateKey().hexToByteArray())
+                    solanaKeyPair = Keypair.fromSecretKey(solanaPrivateKey(web3Auth).hexToByteArray())
                     viewModelScope.launch {
                         updateSuccessState(walletAddress = solanaKeyPair.publicKey.toBase58())
-                        fetchUserDataAfterAuth()
+                        fetchUserDataAfterAuth(web3Auth)
                     }
                 }
             )
         } else {
             // If no securely stored key, use Web3Auth
-            solanaKeyPair = Keypair.fromSecretKey(solanaPrivateKey().hexToByteArray())
+            solanaKeyPair = Keypair.fromSecretKey(solanaPrivateKey(web3Auth).hexToByteArray())
             viewModelScope.launch {
                 updateSuccessState(walletAddress = solanaKeyPair.publicKey.toBase58())
-                fetchUserDataAfterAuth()
+                fetchUserDataAfterAuth(web3Auth)
             }
         }
     }
 
-    private fun fetchUserDataAfterAuth() {
-        fetchUserInfo()
+    private fun fetchUserDataAfterAuth(web3Auth: Web3Auth) {
+        fetchUserInfo(web3Auth)
         getBalance()
     }
 
@@ -139,9 +137,9 @@ class HomeVM @Inject constructor(
         }
     }
 
-    private fun fetchUserInfo() {
+    private fun fetchUserInfo(web3Auth: Web3Auth) {
         try {
-            val info = web3AuthHelper.getUserInfo()
+            val info = web3Auth.getUserInfo()
             userInfoData = info
             updateSuccessState(userInfo = info)
         } catch (e: Exception) {
@@ -180,10 +178,10 @@ class HomeVM @Inject constructor(
                             storeWalletCredentials(web3Auth.getPrivkey(), credentials.address)
                             
                             // Initialize the Solana keypair
-                            solanaKeyPair = Keypair.fromSecretKey(solanaPrivateKey().hexToByteArray())
+                            solanaKeyPair = Keypair.fromSecretKey(solanaPrivateKey(web3Auth).hexToByteArray())
                             
                             // Fetch user data after authentication
-                            fetchUserDataAfterAuth()
+                            fetchUserDataAfterAuth(web3Auth)
                         }
                     } else {
                         Log.e("Web3Auth", error.message ?: "Something went wrong")
@@ -225,13 +223,13 @@ class HomeVM @Inject constructor(
         _viewState.value = HomeVS.LoginRequired()
     }
 
-    fun initialise() {
+    fun initialise(web3Auth: Web3Auth) {
         viewModelScope.launch {
-            val isUserLoggedIn = isUserLoggedIn()
+            val isUserLoggedIn = isUserLoggedIn(web3Auth)
 
             if (isUserLoggedIn) {
                 try {
-                    prepareKeyPair()
+                    prepareKeyPair(web3Auth)
                     _isLoggedIn.emit(true)
                 } catch (e: Exception) {
                     Log.e("HomeVM", "Error preparing keypair: ${e.message}", e)
@@ -246,10 +244,9 @@ class HomeVM @Inject constructor(
         }
     }
 
-    private suspend fun isUserLoggedIn(): Boolean {
+    private fun isUserLoggedIn(web3Auth: Web3Auth): Boolean {
         return try {
-            val isLoggedIn = web3AuthHelper.isUserAuthenticated()
-            return isLoggedIn
+            return web3Auth.getPrivkey().isNotEmpty()
         }  catch (e: Exception) {
             return false
         }
@@ -271,10 +268,10 @@ class HomeVM @Inject constructor(
         }
     }
 
-    fun logOut() {
+    fun logOut(web3Auth: Web3Auth) {
         viewModelScope.launch {
             try {
-                web3AuthHelper.logOut().await()
+                web3Auth.logout().await()
                 walletManager.clearWallet() // Clear securely stored wallet data
                 _isLoggedIn.emit(false)
                 _viewState.value = HomeVS.LoggedOut
@@ -282,12 +279,6 @@ class HomeVM @Inject constructor(
                 Log.e("Logout", e.toString())
                 _isLoggedIn.emit(true)
             }
-        }
-    }
-
-    fun setResultUrl(uri: Uri?) {
-        viewModelScope.launch {
-            web3AuthHelper.setResultUrl(uri)
         }
     }
 
@@ -363,14 +354,14 @@ class HomeVM @Inject constructor(
         }
     }
 
-    fun userInfo(onAvailable:(userInfo: UserInfo?, error: String?) -> Unit) {
+    fun userInfo(web3Auth: Web3Auth, onAvailable:(userInfo: UserInfo?, error: String?) -> Unit) {
         if (userInfoData != null) {
             onAvailable(userInfoData, null)
             return
         }
         
         try {
-            val info = web3AuthHelper.getUserInfo()
+            val info = web3Auth.getUserInfo()
             userInfoData = info
             updateSuccessState(userInfo = info)
             onAvailable(info, null)

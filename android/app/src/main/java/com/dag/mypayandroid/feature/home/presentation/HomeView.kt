@@ -32,10 +32,7 @@ fun HomeView(
 ) {
     val state by viewModel.viewState.collectAsState()
     val askForPermission by viewModel.askForPermission.collectAsState()
-    val shouldShowPopup by viewModel.shouldShowPopup.collectAsState()
-    val context = LocalContext.current
-    val packageManager = context.packageManager
-    
+
     // Email input state 
     var email by remember { mutableStateOf(TextFieldValue("")) }
     
@@ -48,7 +45,7 @@ fun HomeView(
         )
         
         // Initialize the ViewModel to check login state
-        viewModel.initialise()
+        viewModel.initialise(web3Auth)
     }
 
     // Bottom sheet state

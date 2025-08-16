@@ -92,7 +92,7 @@ fun HomeSuccessScreen(
             ) {
                 Text(
                     text = "Available Balance",
-                    color = secondaryText,
+                    color = primaryText,
                     fontSize = 14.sp
                 )
                 
@@ -120,7 +120,7 @@ fun HomeSuccessScreen(
                     ) {
                         Text(
                             text = if (address.length > 20) address.take(8) + "..." + address.takeLast(8) else address,
-                            color = secondaryText,
+                            color = primaryText,
                             fontSize = 14.sp,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 1
@@ -134,7 +134,7 @@ fun HomeSuccessScreen(
                         if (email.isNotEmpty()) {
                             Text(
                                 text = email,
-                                color = secondaryText,
+                                color = primaryText,
                                 fontSize = 14.sp,
                                 modifier = Modifier.padding(top = 4.dp)
                             )

@@ -29,8 +29,8 @@ android {
         if (localPropertiesFile.exists()) {
             localProperties.load(FileInputStream(localPropertiesFile))
         }
-        val web3authKey = System.getenv("web3auth_key") ?: localProperties.getProperty("web3auth_key")
-        buildConfigField("String", "web3auth_key", "\"$web3authKey\"")
+        val web3authKey = System.getenv("web3authKey") ?: localProperties.getProperty("web3authKey")
+        buildConfigField("String", "web3authKey", "\"$web3authKey\"")
 
     }
 

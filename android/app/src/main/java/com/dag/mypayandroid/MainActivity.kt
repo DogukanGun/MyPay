@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
         // Handle user signing in when app is not alive
         web3Auth = Web3Auth(
             Web3AuthOptions(
-                clientId = BuildConfig.web3auth_key,
+                clientId = BuildConfig.web3authKey,
                 network = Network.SAPPHIRE_DEVNET,
                 redirectUrl = "com.dag.mypayandroid://auth".toUri(),
             ), this
