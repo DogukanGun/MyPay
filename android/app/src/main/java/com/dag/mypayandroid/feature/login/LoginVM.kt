@@ -1,0 +1,150 @@
+package com.dag.mypayandroid.feature.login
+
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.viewModelScope
+import com.dag.mypayandroid.base.BaseVM
+import com.dag.mypayandroid.base.data.AlertDialogButton
+import com.dag.mypayandroid.base.data.AlertDialogButtonType
+import com.dag.mypayandroid.base.data.AlertDialogModel
+import com.dag.mypayandroid.base.helper.AlertDialogManager
+import com.dag.mypayandroid.base.helper.WalletManager
+import com.web3auth.core.Web3Auth
+import com.web3auth.core.types.ExtraLoginOptions
+import com.web3auth.core.types.LoginParams
+import com.web3auth.core.types.Provider
+import com.web3auth.core.types.Web3AuthResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import org.sol4k.Keypair
+import org.web3j.crypto.Credentials
+import java.util.concurrent.CompletableFuture
+import javax.inject.Inject
+
+@HiltViewModel
+class LoginVM @Inject constructor(
+    private val walletManager: WalletManager,
+    private val alertDialogManager: AlertDialogManager
+): BaseVM<LoginVS>(LoginVS.StartLogin()) {
+    private val _isLoggedIn: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
+
+
+    private fun isUserLoggedIn(web3Auth: Web3Auth): Boolean {
+        return try {
+            return web3Auth.getPrivkey().isNotEmpty()
+        }  catch (e: Exception) {
+            return false
+        }
+    }
+
+    fun initialise(web3Auth: Web3Auth) {
+        viewModelScope.launch {
+            val isUserLoggedIn = isUserLoggedIn(web3Auth)
+            if (isUserLoggedIn) {
+                try {
+                    _isLoggedIn.emit(true)
+                } catch (e: Exception) {
+                    Log.e("HomeVM", "Error preparing keypair: ${e.message}", e)
+                    _viewState.value = LoginVS.StartHomePage
+                    _isLoggedIn.emit(false)
+                }
+            } else {
+
+                _viewState.value = LoginVS.StartHomePage
+                _isLoggedIn.emit(false)
+            }
+        }
+    }
+
+    fun solanaPrivateKey(web3Auth: Web3Auth): String {
+        return web3Auth.getEd25519PrivKey()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun login(web3Auth: Web3Auth, email: String = ""){
+        // First validate email format
+        if (email.isEmpty()) {
+            _viewState.value = LoginVS.StartLogin(emailError = "Email is required")
+            return
+        }
+
+        // Update UI to loading state
+        _viewState.value = LoginVS.StartLogin(isLoading = true)
+
+        viewModelScope.launch {
+            try {
+                val selectedLoginProvider = Provider.EMAIL_PASSWORDLESS
+                val loginParams = LoginParams(selectedLoginProvider, extraLoginOptions = ExtraLoginOptions(login_hint = email))
+                val loginCompletableFuture: CompletableFuture<Web3AuthResponse> =
+                    web3Auth.login(loginParams)
+                loginCompletableFuture.whenComplete { response, error ->
+                    if (error == null) {
+                        val credentials = Credentials.create(web3Auth.getPrivkey())
+                        Log.d("Web3Auth", "Login successful, credentials address: ${credentials.address}")
+
+                        viewModelScope.launch {
+                            _isLoggedIn.emit(true)
+                            // Store wallet credentials securely after successful login
+                            val publicKey = walletManager.getPublicKey()
+                            if (publicKey == null) {
+                                alertDialogManager.showAlert(
+                                    AlertDialogModel(
+                                        title = "Dont have wallet",
+                                        message = "You dont have wallet, lets create one",
+                                        positiveButton = AlertDialogButton(
+                                            text = "Create Wallet",
+                                            onClick = {
+                                                val credentials = Credentials.create(web3Auth.getPrivkey())
+                                                storeWalletCredentials(web3Auth.getPrivkey(), credentials.address)
+                                                _viewState.value = LoginVS.StartHomePage
+                                            },
+                                            type = AlertDialogButtonType.CUSTOM
+                                        )
+                                    )
+                                )
+                            } else {
+                                _viewState.value = LoginVS.StartHomePage
+                            }
+                        }
+                    } else {
+                        Log.e("Web3Auth", error.message ?: "Something went wrong")
+                        viewModelScope.launch {
+                            _viewState.value = LoginVS.StartLogin(
+                                emailError = "Login failed: ${error.message ?: "Unknown error"}"
+                            )
+                            _isLoggedIn.emit(false)
+                        }
+                    }
+                }
+            } catch (error: Exception){
+                _viewState.value = LoginVS.StartLogin(
+                    emailError = "Login failed: ${error.message ?: "Unknown error"}"
+                )
+                _isLoggedIn.emit(false)
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun storeWalletCredentials(privateKey: String, publicKey: String) {
+        if (walletManager.isBiometricAvailable()) {
+            walletManager.storeWalletCredentials(
+                privateKey = privateKey,
+                publicKey = publicKey,
+                onSuccess = {
+                    Log.d("HomeVM", "Wallet credentials stored securely")
+                },
+                onError = { errorMessage ->
+                    Log.e("HomeVM", "Failed to store wallet credentials: $errorMessage")
+                }
+            )
+        } else {
+            Log.d("HomeVM", "Biometric authentication not available, skipping secure storage")
+        }
+    }
+
+}

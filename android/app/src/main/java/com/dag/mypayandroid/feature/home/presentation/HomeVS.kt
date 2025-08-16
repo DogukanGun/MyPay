@@ -7,13 +7,6 @@ sealed class HomeVS : BaseVS {
     data object Loading : HomeVS()
     data object LoggedOut: HomeVS()
     data class Error(val message: String) : HomeVS()
-    
-    // Login-related states
-    data class LoginRequired(
-        val isLoading: Boolean = false,
-        val emailError: String? = null
-    ) : HomeVS()
-    
     data class Success(
         var walletAddress: String? = null,
         val shouldShowPopup: Boolean = false,
@@ -23,6 +16,6 @@ sealed class HomeVS : BaseVS {
     ) : HomeVS()
 
     companion object {
-        fun initial() = LoginRequired()
+        fun initial() = Loading
     }
 }

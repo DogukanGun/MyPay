@@ -313,8 +313,7 @@ fun HomeSuccessScreen(
                                 }
                             }
                         }
-                        
-                        userInfo.email.let {
+                        state.walletAddress?.let {
                             if (it.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -331,7 +330,6 @@ fun HomeSuccessScreen(
                                 }
                             }
                         }
-                        
                         userInfo.verifier.let {
                             if (it.isNotEmpty()) {
                                 Row(

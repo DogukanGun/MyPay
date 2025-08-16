@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.core.net.toUri
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.dag.mypayandroid.base.bottomnav.BottomNavMessageManager
 import com.dag.mypayandroid.base.bottomnav.BottomNavigationBar
@@ -43,6 +44,7 @@ import com.dag.mypayandroid.base.components.CustomAlertDialog
 import com.dag.mypayandroid.base.data.AlertDialogModel
 import com.dag.mypayandroid.base.helper.ActivityHolder
 import com.dag.mypayandroid.base.helper.AlertDialogManager
+import com.dag.mypayandroid.base.helper.IntentManager
 import com.dag.mypayandroid.base.helper.Web3AuthHelper
 import com.dag.mypayandroid.base.navigation.DefaultNavigationHost
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
@@ -64,7 +66,7 @@ import javax.inject.Inject
 import kotlin.getValue
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val currentRoute = mutableStateOf<String?>(null)
     private val mainVM: MainVM by viewModels()
@@ -87,7 +89,7 @@ class MainActivity : ComponentActivity() {
     lateinit var web3Auth: Web3Auth
 
     @Inject
-    lateinit var web3AuthHelper: Web3AuthHelper
+    lateinit var intentManager: IntentManager
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,7 +166,18 @@ class MainActivity : ComponentActivity() {
                                         },
                                         actions = {
                                             IconButton(
-                                                onClick = { }
+                                                onClick = {
+                                                    lifecycleScope.launch {
+                                                        intentManager
+                                                            .requestIntent(
+                                                                com.dag.mypayandroid.base.data.Intent.Web3AuthLogout(web3Auth)
+                                                            )
+                                                        defaultNavigator.navigate(Destination.LoginScreen) {
+                                                            launchSingleTop = true
+                                                            popUpTo(0) { inclusive = true }
+                                                        }
+                                                    }
+                                                }
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,

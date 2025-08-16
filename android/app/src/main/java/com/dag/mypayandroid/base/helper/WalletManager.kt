@@ -2,6 +2,8 @@ package com.dag.mypayandroid.base.helper
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -56,6 +58,7 @@ class WalletManager @Inject constructor(
     /**
      * Store wallet credentials securely with biometric authentication
      */
+    @RequiresApi(Build.VERSION_CODES.R)
     fun storeWalletCredentials(
         privateKey: String,
         publicKey: String,

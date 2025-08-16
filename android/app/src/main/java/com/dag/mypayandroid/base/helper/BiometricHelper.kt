@@ -257,11 +257,15 @@ class BiometricHelper @Inject constructor() {
                     onError(errorCode, errString)
                 }
             })
-
-        promptInfo = BiometricPrompt.PromptInfo.Builder()
+        val promptInfoBuilder = BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
             .setSubtitle(subtitle)
-            .setNegativeButtonText(negativeButtonText)
+
+        if (!isHardwareSupported(activity)) {
+            promptInfoBuilder
+                .setNegativeButtonText(negativeButtonText)
+        }
+        promptInfo = promptInfoBuilder
             .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
             .build()
     }

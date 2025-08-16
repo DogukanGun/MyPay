@@ -9,8 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -33,9 +31,7 @@ fun HomeView(
     val state by viewModel.viewState.collectAsState()
     val askForPermission by viewModel.askForPermission.collectAsState()
 
-    // Email input state 
-    var email by remember { mutableStateOf(TextFieldValue("")) }
-    
+
     // Animation properties
     val animatedProgress = remember { Animatable(0f) }
     LaunchedEffect(true) {
@@ -43,11 +39,11 @@ fun HomeView(
             targetValue = 1f,
             animationSpec = tween(800, easing = FastOutSlowInEasing)
         )
-        
-        // Initialize the ViewModel to check login state
-        viewModel.initialise(web3Auth)
     }
 
+    LaunchedEffect(true) {
+        viewModel.fetchUserDataAfterAuth(web3Auth)
+    }
     // Bottom sheet state
     var showPaymentSheet by remember { mutableStateOf(false) }
     var isSendMode by remember { mutableStateOf(true) }
@@ -58,77 +54,6 @@ fun HomeView(
             .background(Background)
     ) {
         when (state) {
-            is HomeVS.LoginRequired -> {
-                val loginState = state as HomeVS.LoginRequired
-                
-                // Login Screen
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = "Welcome to MyPay",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = primaryText,
-                            modifier = Modifier.padding(bottom = 32.dp)
-                        )
-
-                        Text(
-                            text = "Please enter your email to continue",
-                            fontSize = 16.sp,
-                            color = primaryText,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(bottom = 32.dp)
-                        )
-
-                        CustomTextField(
-                            modifier = Modifier
-                                .padding(bottom = 32.dp),
-                            label = "Email Address",
-                            isPassword = false
-                        ) { email = email.copy(text = it) }
-
-                    }
-                    Button(
-                        onClick = {
-                            viewModel.login(web3Auth, email.text)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = gradientStart
-                        ),
-                        enabled = !loginState.isLoading
-                    ) {
-                        if (loginState.isLoading) {
-                            CircularProgressIndicator(
-                                color = Color.White,
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = "Continue",
-                                fontSize = 16.sp,
-                                color = primaryText,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
-            }
-            
             null, HomeVS.Loading -> {
                 CircularProgressIndicator(
                     modifier = Modifier

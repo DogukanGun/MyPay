@@ -39,9 +39,10 @@ fun SplashView(
     // Handle navigation effects
     LaunchedEffect(viewState) {
         when(viewState) {
-            SplashVS.StartApp -> {
+            is SplashVS.StartApp -> {
+                val destination = (viewState as SplashVS.StartApp).destination
                 try {
-                    navController.navigate(Destination.HomeScreen){
+                    navController.navigate(destination){
                         launchSingleTop = true
                         popUpTo(0) { inclusive = true }
                     }
