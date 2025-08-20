@@ -3,28 +3,22 @@ package com.dag.mypayandroid.feature.home.presentation
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dag.mypayandroid.base.components.CustomTextField
+import com.dag.mypayandroid.feature.home.presentation.components.HomeErrorView
+import com.dag.mypayandroid.feature.home.presentation.components.HomeSuccessScreen
+import com.dag.mypayandroid.feature.home.presentation.components.PaymentBottomSheet
 import com.dag.mypayandroid.ui.theme.*
 import com.web3auth.core.Web3Auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(
-    navController: NavController,
     web3Auth: Web3Auth,
     viewModel: HomeVM = hiltViewModel()
 ) {
@@ -65,7 +59,7 @@ fun HomeView(
             }
             
             is HomeVS.Error -> {
-                HomeErrorView(state, viewModel)
+                HomeErrorView(state)
             }
             
             is HomeVS.Success -> {
@@ -73,19 +67,19 @@ fun HomeView(
                     state = (state as HomeVS.Success),
                     askForPermission = askForPermission,
                     animatedProgress = animatedProgress,
-                    onSend = { 
+                    onSend = {
                         isSendMode = true
                         showPaymentSheet = true
                     },
-                    onReceive = { 
+                    onReceive = {
                         isSendMode = false
-                        showPaymentSheet = true 
+                        showPaymentSheet = true
                     },
                     onRefresh = {
                         viewModel.fetchUserDataAfterAuth(web3Auth)
                     }
                 )
-                
+
                 PaymentBottomSheet(
                     isVisible = showPaymentSheet,
                     isSendMode = isSendMode,

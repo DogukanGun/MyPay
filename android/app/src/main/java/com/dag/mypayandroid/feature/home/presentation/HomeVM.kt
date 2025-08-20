@@ -37,15 +37,6 @@ class HomeVM @Inject constructor(
     private var _askForPermission = MutableStateFlow(false)
     val askForPermission:StateFlow<Boolean> = _askForPermission
 
-    private val _shouldShowPopup = MutableStateFlow(false)
-    val shouldShowPopup: StateFlow<Boolean> = _shouldShowPopup
-
-    private val _isAccountLoaded: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isAccountLoaded: StateFlow<Boolean> = _isAccountLoaded
-
-    private val _isBiometricAuthInProgress = MutableStateFlow(false)
-    val isBiometricAuthInProgress: StateFlow<Boolean> = _isBiometricAuthInProgress
-
     lateinit var solanaKeyPair: Keypair
     lateinit var balance: String
     private var userInfoData: UserInfo? = null
@@ -114,15 +105,12 @@ class HomeVM @Inject constructor(
     fun getBalance() {
         viewModelScope.launch {
             updateSuccessState(isLoadingBalance = true)
-            _isAccountLoaded.emit(false)
             try {
                 walletManager.getPublicKey()?.let {
                     balance = solanaHelper.getBalance(PublicKey(it))
-                    _isAccountLoaded.emit(true)
                     updateSuccessState(balance = balance, isLoadingBalance = false)
                 }
             } catch (e: Exception) {
-                _isAccountLoaded.emit(false)
                 updateSuccessState(isLoadingBalance = false)
                 Log.e("HomeVM", "Error getting balance: ${e.message}", e)
             }
@@ -132,11 +120,9 @@ class HomeVM @Inject constructor(
     fun signAndSendTransaction(onSign: (hash: String?, error: String?) -> Unit) {
         // Use biometric authentication for secure key access when signing
         if (walletManager.walletState.value == WalletManager.WalletState.Locked) {
-            _isBiometricAuthInProgress.value = true
             walletManager.getPrivateKey(
                 onSuccess = { privateKey ->
                     val keypair = Keypair.fromSecretKey(privateKey.hexToByteArray())
-                    _isBiometricAuthInProgress.value = false
                     viewModelScope.launch {
                         try {
                             val signedTransaction = solanaHelper.signAndSendSol(keypair)
@@ -147,7 +133,6 @@ class HomeVM @Inject constructor(
                     }
                 },
                 onError = { errorMessage ->
-                    _isBiometricAuthInProgress.value = false
                     Log.e("HomeVM", "Biometric authentication failed for signing: $errorMessage")
                     onSign(null, "Authentication failed: $errorMessage")
                 }
@@ -168,11 +153,9 @@ class HomeVM @Inject constructor(
     fun signTransaction(onSign: (signedTransaction: String?, error: String?) -> Unit) {
         // Use biometric authentication for secure key access when signing
         if (walletManager.walletState.value == WalletManager.WalletState.Locked) {
-            _isBiometricAuthInProgress.value = true
             walletManager.getPrivateKey(
                 onSuccess = { privateKey ->
                     val keypair = Keypair.fromSecretKey(privateKey.hexToByteArray())
-                    _isBiometricAuthInProgress.value = false
                     viewModelScope.launch {
                         try {
                             val signedTransaction = solanaHelper.signSendSol(keypair)
@@ -183,7 +166,6 @@ class HomeVM @Inject constructor(
                     }
                 },
                 onError = { errorMessage ->
-                    _isBiometricAuthInProgress.value = false
                     Log.e("HomeVM", "Biometric authentication failed for signing: $errorMessage")
                     onSign(null, "Authentication failed: $errorMessage")
                 }
@@ -220,7 +202,6 @@ class HomeVM @Inject constructor(
     private fun observeNotificationState() {
         viewModelScope.launch {
             notificationStateManager.shouldShowPopup.collect { shouldShow ->
-                _shouldShowPopup.value = shouldShow
                 updateSuccessState(shouldShowPopup = shouldShow)
             }
         }

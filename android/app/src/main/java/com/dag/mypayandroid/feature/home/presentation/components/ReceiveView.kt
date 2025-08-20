@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.feature.home.presentation
+package com.dag.mypayandroid.feature.home.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,8 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.dag.mypayandroid.base.components.CustomButton
 import com.dag.mypayandroid.base.components.CustomTextField
 import com.dag.mypayandroid.ui.theme.*

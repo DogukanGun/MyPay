@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.feature.home.presentation
+package com.dag.mypayandroid.feature.home.presentation.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background

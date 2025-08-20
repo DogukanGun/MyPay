@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.feature.home.presentation
+package com.dag.mypayandroid.feature.home.presentation.components
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -24,13 +24,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,7 +38,8 @@ import com.dag.mypayandroid.base.components.CustomButton
 import com.dag.mypayandroid.base.scroll.ReportScrollState
 import com.dag.mypayandroid.ui.theme.*
 import com.dag.mypayandroid.R
-import org.bouncycastle.math.raw.Mod
+import com.dag.mypayandroid.feature.home.presentation.HomeVM
+import com.dag.mypayandroid.feature.home.presentation.HomeVS
 
 @Composable
 fun HomeSuccessScreen(
@@ -401,7 +400,6 @@ fun HomeSuccessScreen(
 @Composable
 fun BoxScope.HomeErrorView(
     state: HomeVS?,
-    viewModel: HomeVM
 ) {
     Card(
         modifier = Modifier

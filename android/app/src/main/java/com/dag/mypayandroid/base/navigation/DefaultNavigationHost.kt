@@ -11,6 +11,7 @@ import com.dag.mypayandroid.feature.splash.SplashView
 import com.dag.mypayandroid.feature.home.presentation.HomeView
 import com.dag.mypayandroid.base.extensions.ObserveAsEvents
 import com.dag.mypayandroid.feature.login.LoginView
+import com.dag.mypayandroid.feature.settings.presentation.SettingsView
 import com.web3auth.core.Web3Auth
 
 @Composable
@@ -47,7 +48,6 @@ fun DefaultNavigationHost(
 
             composableWithAnimations<Destination.HomeScreen> {
                 HomeView(
-                    navController = navController,
                     web3Auth = web3Auth
                 )
             }
@@ -57,6 +57,10 @@ fun DefaultNavigationHost(
                     web3Auth = web3Auth,
                     navController = navController
                 )
+            }
+
+            composableWithAnimations<Destination.SettingsScreen> {
+                SettingsView()
             }
         }
     }
