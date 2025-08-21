@@ -2,15 +2,6 @@ package com.dag.mypayandroid.base.helper
 
 object NFCConfig {
 
-    /**
-     * Custom MIME type for your app's NFC messages
-     * Format: application/vnd.[company].[app].[datatype]
-     *
-     * Change these values to match your app:
-     * - Replace "mycompany" with your company/developer name (lowercase, no spaces)
-     * - Replace "nfcpay" with your app name (lowercase, no spaces)
-     * - Keep "payment" as it describes the data type
-     */
     const val CUSTOM_MIME_TYPE = "application/vnd.dag.mypayandroid.payment"
 
     /**
@@ -24,13 +15,13 @@ object NFCConfig {
      */
     const val MESSAGE_TYPE_PAYMENT_REQUEST = "payment_request"
     const val MESSAGE_TYPE_PAYMENT_RESPONSE = "payment_response"
+    const val MESSAGE_TYPE_KEY = "type"
 
     /**
      * Payment status constants
      */
-    const val PAYMENT_STATUS_APPROVED = "approved"
-    const val PAYMENT_STATUS_DECLINED = "declined"
-    const val PAYMENT_STATUS_ERROR = "error"
+    const val PAYMENT_TX = "tx"
+    const val PAYMENT_URI = "uri"
 
     /**
      * Request/Transaction ID prefixes
@@ -73,16 +64,3 @@ object NFCConfig {
         return pattern.matches(mimeType)
     }
 }
-
-/**
- * Example usage and customization:
- *
- * 1. For a company called "Tech Solutions" with app "PayFast":
- *    NFCConfig.generateCustomMimeType("Tech Solutions", "PayFast")
- *    Result: "application/vnd.techsolutions.payfast.payment"
- *
- * 2. For your specific case, update the CUSTOM_MIME_TYPE constant above to:
- *    const val CUSTOM_MIME_TYPE = "application/vnd.[yourcompany].[yourapp].payment"
- *
- * 3. Make sure to update the AndroidManifest.xml with the same MIME type
- */

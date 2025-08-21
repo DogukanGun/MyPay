@@ -16,8 +16,8 @@ class NFCHelper(private val activity: Activity) {
 
     // Callback interfaces
     interface NFCListener {
-        fun onPaymentRequestReceived(paymentData: PaymentRequest)
-        fun onPaymentResponseReceived(paymentResponse: PaymentResponse)
+        fun onPaymentRequestReceived(paymentUrl: String)
+        fun onPaymentResponseReceived(paymentUrl: String)
         fun onNFCError(error: String)
         fun onNFCMessageSent()
         fun onDeviceConnected()
@@ -25,24 +25,6 @@ class NFCHelper(private val activity: Activity) {
     }
 
     private var nfcListener: NFCListener? = null
-
-    // Data classes for payment communication
-    data class PaymentRequest(
-        val amount: Double,
-        val currency: String,
-        val merchantName: String,
-        val description: String,
-        val requestId: String,
-        val timestamp: Long = System.currentTimeMillis()
-    )
-
-    data class PaymentResponse(
-        val requestId: String,
-        val status: String, // "approved", "declined", "error"
-        val transactionId: String?,
-        val message: String?,
-        val timestamp: Long = System.currentTimeMillis()
-    )
 
     init {
         setupNFC()
@@ -103,22 +85,17 @@ class NFCHelper(private val activity: Activity) {
     /**
      * Send payment request to another device
      */
-    fun sendPaymentRequest(paymentRequest: PaymentRequest) {
+    fun sendPaymentRequest(paymentUri: String) {
         try {
             val jsonData = JSONObject().apply {
-                put("type", NFCConfig.MESSAGE_TYPE_PAYMENT_REQUEST)
-                put("amount", paymentRequest.amount)
-                put("currency", paymentRequest.currency)
-                put("merchantName", paymentRequest.merchantName)
-                put("description", paymentRequest.description)
-                put("requestId", paymentRequest.requestId)
-                put("timestamp", paymentRequest.timestamp)
+                put(NFCConfig.MESSAGE_TYPE_KEY, NFCConfig.MESSAGE_TYPE_PAYMENT_REQUEST)
+                put(NFCConfig.PAYMENT_URI, paymentUri)
             }
 
             val message = createNdefMessage(jsonData.toString())
             prepareMessageForSending(message)
 
-            Log.d("NFCHelper", "Payment request prepared for sending: ${paymentRequest.requestId}")
+            Log.d("NFCHelper", "Payment request prepared for sending: $paymentUri")
 
         } catch (e: Exception) {
             Log.e("NFCHelper", "Error preparing payment request", e)
@@ -129,21 +106,17 @@ class NFCHelper(private val activity: Activity) {
     /**
      * Send payment response to another device
      */
-    fun sendPaymentResponse(paymentResponse: PaymentResponse) {
+    fun sendPaymentResponse(paymentTx: String) {
         try {
             val jsonData = JSONObject().apply {
-                put("type", NFCConfig.MESSAGE_TYPE_PAYMENT_RESPONSE)
-                put("requestId", paymentResponse.requestId)
-                put("status", paymentResponse.status)
-                put("transactionId", paymentResponse.transactionId)
-                put("message", paymentResponse.message)
-                put("timestamp", paymentResponse.timestamp)
+                put(NFCConfig.MESSAGE_TYPE_KEY, NFCConfig.MESSAGE_TYPE_PAYMENT_RESPONSE)
+                put(NFCConfig.PAYMENT_TX, paymentTx)
             }
 
             val message = createNdefMessage(jsonData.toString())
             prepareMessageForSending(message)
 
-            Log.d("NFCHelper", "Payment response prepared for sending: ${paymentResponse.requestId}")
+            Log.d("NFCHelper", "Payment response prepared for sending: $paymentTx")
 
         } catch (e: Exception) {
             Log.e("NFCHelper", "Error preparing payment response", e)
@@ -214,29 +187,16 @@ class NFCHelper(private val activity: Activity) {
 
             when (messageType) {
                 NFCConfig.MESSAGE_TYPE_PAYMENT_REQUEST -> {
-                    val paymentRequest = PaymentRequest(
-                        amount = jsonObject.getDouble("amount"),
-                        currency = jsonObject.getString("currency"),
-                        merchantName = jsonObject.getString("merchantName"),
-                        description = jsonObject.getString("description"),
-                        requestId = jsonObject.getString("requestId"),
-                        timestamp = jsonObject.getLong("timestamp")
-                    )
+                    val paymentRequest = jsonObject.getString("url")
 
-                    Log.d("NFCHelper", "Payment request received: ${paymentRequest.requestId}")
+                    Log.d("NFCHelper", "Payment request received: $paymentRequest")
                     nfcListener?.onPaymentRequestReceived(paymentRequest)
                 }
 
                 NFCConfig.MESSAGE_TYPE_PAYMENT_RESPONSE -> {
-                    val paymentResponse = PaymentResponse(
-                        requestId = jsonObject.getString("requestId"),
-                        status = jsonObject.getString("status"),
-                        transactionId = jsonObject.optString("transactionId"),
-                        message = jsonObject.optString("message"),
-                        timestamp = jsonObject.getLong("timestamp")
-                    )
+                    val paymentResponse = jsonObject.getString(NFCConfig.PAYMENT_TX)
 
-                    Log.d("NFCHelper", "Payment response received: ${paymentResponse.requestId}")
+                    Log.d("NFCHelper", "Payment response received: $paymentResponse")
                     nfcListener?.onPaymentResponseReceived(paymentResponse)
                 }
 
