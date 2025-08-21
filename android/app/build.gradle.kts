@@ -94,4 +94,7 @@ dependencies {
     implementation(libs.sol4k)
     implementation("com.github.web3auth:web3auth-android-sdk:9.0.4")
     implementation("androidx.biometric:biometric:1.4.0-alpha03")
+    implementation("com.solanamobile:web3-solana:0.2.5")
+    implementation("com.solanamobile:rpc-core:0.2.7")
+
 }
