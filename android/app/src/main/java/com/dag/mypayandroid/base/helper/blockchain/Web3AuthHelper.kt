@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.base.helper
+package com.dag.mypayandroid.base.helper.blockchain
 
 import android.net.Uri
 import com.web3auth.core.Web3Auth

@@ -3,7 +3,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.*
 import android.util.Log
-import com.dag.mypayandroid.base.helper.NFCConfig
+import com.dag.mypayandroid.base.helper.security.NFCConfig
 import java.nio.charset.Charset
 import org.json.JSONObject
 

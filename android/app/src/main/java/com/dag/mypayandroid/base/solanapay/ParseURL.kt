@@ -9,7 +9,7 @@ import java.net.URLDecoder
 
 class ParseURLError(message: String) : Exception(message)
 
-object URLParser {
+object SolanaPayURLParser {
     fun parseURL(url: String): Any {
         val parsedUrl = if (url.length > 2048) {
             throw ParseURLError("URL length invalid")

@@ -3,23 +3,18 @@ package com.dag.mypayandroid.di
 import android.content.Context
 import android.content.pm.PackageManager
 
-import com.dag.mypayandroid.base.helper.ActivityHolder
-import com.dag.mypayandroid.base.helper.AlertDialogManager
-import com.dag.mypayandroid.base.helper.BiometricHelper
-import com.dag.mypayandroid.base.helper.SolanaHelper
-import com.dag.mypayandroid.base.helper.SolanaHelperImpl
-import com.dag.mypayandroid.base.helper.WalletManager
-import com.dag.mypayandroid.base.helper.Web3AuthHelper
-import com.dag.mypayandroid.base.helper.Web3AuthHelperImpl
+import com.dag.mypayandroid.base.helper.system.ActivityHolder
+import com.dag.mypayandroid.base.helper.system.AlertDialogManager
+import com.dag.mypayandroid.base.helper.security.BiometricHelper
+import com.dag.mypayandroid.base.helper.blockchain.SolanaHelper
+import com.dag.mypayandroid.base.helper.blockchain.SolanaHelperImpl
+import com.dag.mypayandroid.base.helper.blockchain.WalletManager
+import com.dag.mypayandroid.base.helper.blockchain.Web3AuthHelper
+import com.dag.mypayandroid.base.helper.blockchain.Web3AuthHelperImpl
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
 import com.dag.mypayandroid.base.scroll.ScrollStateManager
 import com.web3auth.core.Web3Auth
-import com.web3auth.core.types.LoginConfigItem
-import com.web3auth.core.types.Network
-import com.web3auth.core.types.TypeOfLogin
-import com.web3auth.core.types.Web3AuthOptions
-import com.web3auth.core.types.WhiteLabelData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,8 +22,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.sol4k.Connection
 import javax.inject.Singleton
-import androidx.core.net.toUri
-import com.dag.mypayandroid.BuildConfig
 import org.sol4k.RpcUrl
 
 @Module

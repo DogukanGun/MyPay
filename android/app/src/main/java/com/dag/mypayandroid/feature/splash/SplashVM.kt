@@ -4,15 +4,13 @@ import android.content.pm.PackageManager
 import androidx.lifecycle.viewModelScope
 import com.dag.mypayandroid.BuildConfig
 import com.dag.mypayandroid.MainActivity
-import com.dag.mypayandroid.base.helper.ActivityHolder
-import com.dag.mypayandroid.base.helper.AlertDialogManager
+import com.dag.mypayandroid.base.helper.system.ActivityHolder
+import com.dag.mypayandroid.base.helper.system.AlertDialogManager
 import com.dag.mypayandroid.base.BaseVM
 import com.dag.mypayandroid.base.data.AlertDialogButton
 import com.dag.mypayandroid.base.data.AlertDialogButtonType
 import com.dag.mypayandroid.base.data.AlertDialogModel
-import com.dag.mypayandroid.base.helper.WalletManager
 import com.dag.mypayandroid.base.navigation.Destination
-import com.web3auth.core.Web3Auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay

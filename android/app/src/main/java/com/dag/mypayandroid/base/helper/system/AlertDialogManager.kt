@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.base.helper
+package com.dag.mypayandroid.base.helper.system
 
 import com.dag.mypayandroid.base.data.AlertDialogButton
 import com.dag.mypayandroid.base.data.AlertDialogButtonType

@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.base.helper
+package com.dag.mypayandroid.base.helper.blockchain
 
 import android.net.Uri
 import android.util.Log

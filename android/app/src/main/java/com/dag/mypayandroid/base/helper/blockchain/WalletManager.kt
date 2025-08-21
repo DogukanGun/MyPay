@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.base.helper
+package com.dag.mypayandroid.base.helper.blockchain
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,6 +8,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.dag.mypayandroid.base.extensions.toHexString
+import com.dag.mypayandroid.base.helper.security.BiometricHelper
+import com.dag.mypayandroid.base.helper.system.ActivityHolder
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -179,14 +181,14 @@ class WalletManager @Inject constructor(
      * Check if biometric authentication is available on the device
      */
     fun isBiometricAvailable(): Boolean {
-        return BiometricHelper.isBiometricAvailable(context)
+        return BiometricHelper.Companion.isBiometricAvailable(context)
     }
 
     /**
      * Check if the device has biometric hardware
      */
     fun isBiometricHardwareSupported(): Boolean {
-        return BiometricHelper.isHardwareSupported(context)
+        return BiometricHelper.Companion.isHardwareSupported(context)
     }
 
     private fun hexStringToByteArray(hex: String): ByteArray {

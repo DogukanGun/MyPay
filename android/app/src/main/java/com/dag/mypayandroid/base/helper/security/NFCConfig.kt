@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.base.helper
+package com.dag.mypayandroid.base.helper.security
 
 object NFCConfig {
 

@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.base.helper
+package com.dag.mypayandroid.base.helper.system
 
 import android.app.Activity
 import java.lang.ref.WeakReference

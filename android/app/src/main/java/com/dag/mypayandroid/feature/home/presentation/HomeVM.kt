@@ -13,22 +13,24 @@ import android.content.Context
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.dag.mypayandroid.base.notification.NotificationStateManager
-import com.dag.mypayandroid.base.helper.ActivityHolder
-import com.dag.mypayandroid.base.helper.SolanaHelper
-import com.dag.mypayandroid.base.helper.WalletManager
+import com.dag.mypayandroid.base.helper.system.ActivityHolder
+import com.dag.mypayandroid.base.helper.blockchain.SolanaHelper
+import com.dag.mypayandroid.base.helper.blockchain.WalletManager
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
 import com.web3auth.core.Web3Auth
 import com.web3auth.core.types.UserInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.sol4k.Connection
 import org.sol4k.Keypair
 import org.sol4k.PublicKey
+import org.sol4k.RpcUrl
+import java.math.BigDecimal
 
 @HiltViewModel
 class HomeVM @Inject constructor(
     private val activityHolder: ActivityHolder,
-    private val solanaHelper: SolanaHelper,
     private val walletManager: WalletManager,
     private val defaultNavigator: DefaultNavigator,
     private val notificationStateManager: NotificationStateManager
@@ -107,7 +109,9 @@ class HomeVM @Inject constructor(
             updateSuccessState(isLoadingBalance = true)
             try {
                 walletManager.getPublicKey()?.let {
-                    balance = solanaHelper.getBalance(PublicKey(it))
+                    val connection = Connection(RpcUrl.DEVNET)
+                    val balanceResponse = connection.getBalance(PublicKey(it)).toBigDecimal()
+                    balance = balanceResponse.divide(BigDecimal.TEN.pow(9)).toString()
                     updateSuccessState(balance = balance, isLoadingBalance = false)
                 }
             } catch (e: Exception) {
@@ -125,8 +129,8 @@ class HomeVM @Inject constructor(
                     val keypair = Keypair.fromSecretKey(privateKey.hexToByteArray())
                     viewModelScope.launch {
                         try {
-                            val signedTransaction = solanaHelper.signAndSendSol(keypair)
-                            onSign(signedTransaction, null)
+                            //val signedTransaction = solanaHelper.signAndSendSol(keypair)
+                            //onSign(signedTransaction, null)
                         } catch (e: Exception) {
                             e.localizedMessage?.let { onSign(null, it) }
                         }
@@ -141,8 +145,8 @@ class HomeVM @Inject constructor(
             // Fall back to Web3Auth if biometric isn't available
             viewModelScope.launch {
                 try {
-                    val signedTransaction = solanaHelper.signAndSendSol(solanaKeyPair)
-                    onSign(signedTransaction, null)
+                    //val signedTransaction = solanaHelper.signAndSendSol(solanaKeyPair)
+                    //onSign(signedTransaction, null)
                 } catch (e: Exception) {
                     e.localizedMessage?.let { onSign(null, it) }
                 }
@@ -158,8 +162,8 @@ class HomeVM @Inject constructor(
                     val keypair = Keypair.fromSecretKey(privateKey.hexToByteArray())
                     viewModelScope.launch {
                         try {
-                            val signedTransaction = solanaHelper.signSendSol(keypair)
-                            onSign(signedTransaction, null)
+                            //val signedTransaction = solanaHelper.signSendSol(keypair)
+                            //onSign(signedTransaction, null)
                         } catch (e: Exception) {
                             e.localizedMessage?.let { onSign(null, it) }
                         }
@@ -174,8 +178,8 @@ class HomeVM @Inject constructor(
             // Fall back to Web3Auth if biometric isn't available
             viewModelScope.launch {
                 try {
-                    val signedTransaction = solanaHelper.signSendSol(solanaKeyPair)
-                    onSign(signedTransaction, null)
+                    //val signedTransaction = solanaHelper.signSendSol(solanaKeyPair)
+                    //onSign(signedTransaction, null)
                 } catch (e: Exception) {
                     e.localizedMessage?.let { onSign(null, it) }
                 }

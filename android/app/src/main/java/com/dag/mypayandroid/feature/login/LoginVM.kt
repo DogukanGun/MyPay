@@ -8,8 +8,8 @@ import com.dag.mypayandroid.base.BaseVM
 import com.dag.mypayandroid.base.data.AlertDialogButton
 import com.dag.mypayandroid.base.data.AlertDialogButtonType
 import com.dag.mypayandroid.base.data.AlertDialogModel
-import com.dag.mypayandroid.base.helper.AlertDialogManager
-import com.dag.mypayandroid.base.helper.WalletManager
+import com.dag.mypayandroid.base.helper.system.AlertDialogManager
+import com.dag.mypayandroid.base.helper.blockchain.WalletManager
 import com.web3auth.core.Web3Auth
 import com.web3auth.core.types.ExtraLoginOptions
 import com.web3auth.core.types.LoginParams
@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.sol4k.Keypair
-import org.web3j.crypto.Credentials
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 

@@ -4,7 +4,7 @@ import com.dag.mypayandroid.base.solanapay.SolanaPayConstants.SOLANA_PROTOCOL
 import java.net.URL
 import java.net.URLEncoder
 
-object URLEncoder {
+object SolanaPayURLEncoder {
     fun encodeURL(fields: TransactionRequestURLFields): URL {
         return encodeTransactionRequestURL(fields)
     }

@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.base.helper
+package com.dag.mypayandroid.base.helper.system
 
 import com.dag.mypayandroid.base.data.Intent
 import com.web3auth.core.types.ChainConfig
@@ -20,11 +20,13 @@ class IntentManager @Inject constructor(
                 intent.web3Auth.logout().await()
             }
             is Intent.Web3WalletManagement -> {
-                intent.web3Auth.launchWalletServices(ChainConfig(
-                    chainNamespace = ChainNamespace.SOLANA,
-                    chainId = "0x2",
-                    rpcTarget = RpcUrl.DEVNET.value,
-                ))
+                intent.web3Auth.launchWalletServices(
+                    ChainConfig(
+                        chainNamespace = ChainNamespace.SOLANA,
+                        chainId = "0x2",
+                        rpcTarget = RpcUrl.DEVNET.value,
+                    )
+                )
             }
         }
     }

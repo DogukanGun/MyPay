@@ -1,4 +1,4 @@
-package com.dag.mypayandroid.base.helper
+package com.dag.mypayandroid.base.helper.security
 
 import android.content.Context
 import android.os.Build
@@ -19,6 +19,7 @@ import androidx.core.content.edit
 import androidx.core.content.ContextCompat
 import java.nio.charset.Charset
 import java.util.concurrent.Executor
+import javax.crypto.spec.IvParameterSpec
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -192,7 +193,7 @@ class BiometricHelper @Inject constructor() {
     private fun initDecryptionCipher(iv: ByteArray): Boolean {
         return try {
             val cipher = getCipher()
-            val spec = javax.crypto.spec.IvParameterSpec(iv)
+            val spec = IvParameterSpec(iv)
             cipher.init(Cipher.DECRYPT_MODE, mCipherKey, spec)
             true
         } catch (e: Exception) {
