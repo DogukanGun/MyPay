@@ -62,8 +62,10 @@ class ObjectModules {
 
     @Provides
     @Singleton
-    fun provideSolanaHelper(): SolanaHelper {
-        return SolanaHelperImpl(Connection(RpcUrl.DEVNET))
+    fun provideSolanaHelper(
+        walletManager: WalletManager
+    ): SolanaHelper {
+        return SolanaHelperImpl(Connection(RpcUrl.DEVNET),walletManager)
     }
 
     @Provides

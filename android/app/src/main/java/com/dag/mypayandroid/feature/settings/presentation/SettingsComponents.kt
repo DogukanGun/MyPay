@@ -14,25 +14,31 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dag.mypayandroid.feature.settings.data.SettingCellData
+import com.dag.mypayandroid.feature.settings.data.SettingCellType
 import com.dag.mypayandroid.ui.theme.Background
 import com.dag.mypayandroid.ui.theme.DarkBackground
-import com.dag.mypayandroid.ui.theme.SecondaryColor
-import com.dag.mypayandroid.ui.theme.gradientStart
-import com.dag.mypayandroid.ui.theme.iconGradient
-
 
 @Composable
 fun SettingCell(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    settingCellData: SettingCellData
 ) {
+
+    var isChecked by remember { mutableStateOf(false) }
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -43,20 +49,31 @@ fun SettingCell(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            "test",
+            settingCellData.text,
             color = Color.White
         )
-
-        IconButton(
-            onClick = {}
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Next",
-                tint = Color.White
-            )
+        when(settingCellData.cellType) {
+            SettingCellType.SWITCH -> {
+                Switch(
+                    checked = isChecked,
+                    onCheckedChange = { newValue ->
+                        isChecked = newValue
+                        settingCellData.onValueChange?.let { it(newValue) }
+                                      },
+                )
+            }
+            SettingCellType.EXTERNAL_LINK -> {
+                IconButton(
+                    onClick = settingCellData.onClicked
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Next",
+                        tint = Color.White
+                    )
+                }       
+            }
         }
-
     }
 }
 
@@ -73,13 +90,17 @@ fun SettingCellPreview() {
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(2){
+            items(2) { index->
                 SettingCell(
-                    modifier = Modifier
+                    modifier = Modifier,
+                    settingCellData = SettingCellData(
+                        text = "test",
+                        cellType = if (index == 1) SettingCellType.EXTERNAL_LINK else SettingCellType.SWITCH ,
+                        onClicked = {},
+                        onValueChange = {}
+                    )
                 )
             }
-
         }
-
     }
 }

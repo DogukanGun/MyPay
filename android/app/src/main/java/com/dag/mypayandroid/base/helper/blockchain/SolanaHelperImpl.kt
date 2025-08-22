@@ -1,20 +1,13 @@
 package com.dag.mypayandroid.base.helper.blockchain
 
-import NFCHelper
-import com.dag.mypayandroid.base.helper.system.ActivityHolder
 import com.dag.mypayandroid.base.solanapay.SolanaPayURLEncoder
 import com.dag.mypayandroid.base.solanapay.SolanaPayURLParser
 import com.dag.mypayandroid.base.solanapay.TransferCreator
 import com.dag.mypayandroid.base.solanapay.TransferRequestURLFields
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.sol4k.Base58
 import org.sol4k.Connection
 import org.sol4k.Keypair
 import org.sol4k.PublicKey
 import org.sol4k.Transaction
-import org.sol4k.instruction.TransferInstruction
-import java.math.BigDecimal
 import java.net.URL
 
 class SolanaHelperImpl(
