@@ -28,6 +28,7 @@ fun SendView(
     amount: String? = null,
     backgroundColor: Color = DarkBackground,
     modifier: Modifier = Modifier,
+    title: String = "Pay",
     onBackClick: () -> Unit
 ) {
     // Animation states
@@ -86,7 +87,7 @@ fun SendView(
             }
             
             Text(
-                text = "Pay",
+                text = title,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,

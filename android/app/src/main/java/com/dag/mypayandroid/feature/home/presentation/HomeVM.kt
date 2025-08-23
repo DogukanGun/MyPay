@@ -1,5 +1,6 @@
 package com.dag.mypayandroid.feature.home.presentation
 
+import com.dag.mypayandroid.base.helper.security.NFCHelper
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,26 +15,31 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.dag.mypayandroid.base.notification.NotificationStateManager
 import com.dag.mypayandroid.base.helper.system.ActivityHolder
-import com.dag.mypayandroid.base.helper.blockchain.SolanaHelper
 import com.dag.mypayandroid.base.helper.blockchain.WalletManager
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
+import com.dag.mypayandroid.base.solanapay.SolanaPayURLEncoder
+import com.dag.mypayandroid.base.solanapay.TransferRequestURLFields
 import com.web3auth.core.Web3Auth
 import com.web3auth.core.types.UserInfo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import org.sol4k.Connection
 import org.sol4k.Keypair
 import org.sol4k.PublicKey
 import org.sol4k.RpcUrl
 import java.math.BigDecimal
+import com.dag.mypayandroid.base.solanapay.SolanaPayURLParser
 
 @HiltViewModel
 class HomeVM @Inject constructor(
     private val activityHolder: ActivityHolder,
     private val walletManager: WalletManager,
     private val defaultNavigator: DefaultNavigator,
-    private val notificationStateManager: NotificationStateManager
+    private val notificationStateManager: NotificationStateManager,
+    private val nfcHelper: NFCHelper
 ) : BaseVM<HomeVS>(initialValue = HomeVS.Companion.initial()) {
 
     private var _askForPermission = MutableStateFlow(false)
@@ -43,10 +49,14 @@ class HomeVM @Inject constructor(
     lateinit var balance: String
     private var userInfoData: UserInfo? = null
 
+    private val _nfcPaymentState = MutableStateFlow<NFCPaymentState>(NFCPaymentState.Idle)
+    val nfcPaymentState: StateFlow<NFCPaymentState> = _nfcPaymentState
+
     init {
         switchToSuccessState()
         checkPermission()
         observeNotificationState()
+        setupNFCListener()
     }
 
     private fun switchToSuccessState() {
@@ -104,15 +114,32 @@ class HomeVM @Inject constructor(
         }
     }
 
+    fun sendPayment(amount: Int, recipient: PublicKey) {
+        if (nfcHelper.isNFCAvailable()) {
+            val url = SolanaPayURLEncoder.encodeURL(
+                fields = TransferRequestURLFields(
+                    recipient = recipient,
+                    amount = BigDecimal.valueOf(amount.toLong()),
+                    tokenDecimal = 9
+                )
+            )
+            nfcHelper.sendPaymentRequest(url.toString())
+        } else {
+            //TODO trigger settings to turn on nfc
+        }
+    }
+
     fun getBalance() {
         viewModelScope.launch {
             updateSuccessState(isLoadingBalance = true)
             try {
                 walletManager.getPublicKey()?.let {
-                    val connection = Connection(RpcUrl.DEVNET)
-                    val balanceResponse = connection.getBalance(PublicKey(it)).toBigDecimal()
-                    balance = balanceResponse.divide(BigDecimal.TEN.pow(9)).toString()
-                    updateSuccessState(balance = balance, isLoadingBalance = false)
+                    withContext(Dispatchers.IO) {
+                        val connection = Connection(RpcUrl.DEVNET)
+                        val balanceResponse = connection.getBalance(PublicKey(it)).toBigDecimal()
+                        balance = balanceResponse.divide(BigDecimal.TEN.pow(9)).toString()
+                        updateSuccessState(balance = balance, isLoadingBalance = false)
+                    }
                 }
             } catch (e: Exception) {
                 updateSuccessState(isLoadingBalance = false)
@@ -241,5 +268,95 @@ class HomeVM @Inject constructor(
         ) {
             _askForPermission.value = true
         }
+    }
+
+    // NFC payment methods
+    fun initiateNFCPayment(amount: Int, recipient: PublicKey) {
+        if (nfcHelper.isNFCAvailable()) {
+            val url = SolanaPayURLEncoder.encodeURL(
+                fields = TransferRequestURLFields(
+                    recipient = recipient,
+                    amount = BigDecimal.valueOf(amount.toLong()),
+                    tokenDecimal = 9
+                )
+            )
+            
+            nfcHelper.initiatePaymentRequest(url.toString(), BigDecimal.valueOf(amount.toLong())) { paymentState ->
+                when (paymentState) {
+                    NFCHelper.PaymentState.WAITING_FOR_REQUEST -> {
+                        _nfcPaymentState.value = NFCPaymentState.Sending
+                    }
+                    NFCHelper.PaymentState.ERROR -> {
+                        _nfcPaymentState.value = NFCPaymentState.Error("NFC Payment request failed")
+                    }
+                    else -> {}
+                }
+            }
+        } else {
+            _nfcPaymentState.value = NFCPaymentState.Error("NFC is not available")
+        }
+    }
+
+    fun processNFCPaymentRequest(paymentUrl: String, amount: BigDecimal) {
+        _nfcPaymentState.value = NFCPaymentState.RequestReceived(paymentUrl, amount)
+    }
+
+    fun confirmNFCPayment() {
+        viewModelScope.launch {
+            try {
+                // Here you would typically validate the transaction and sign it
+                val transactionId = nfcHelper.generateTransactionId()
+                nfcHelper.sendPaymentResponse(transactionId)
+                _nfcPaymentState.value = NFCPaymentState.Completed(transactionId)
+            } catch (e: Exception) {
+                _nfcPaymentState.value = NFCPaymentState.Error("Payment confirmation failed")
+            }
+        }
+    }
+
+    fun resetNFCPaymentState() {
+        nfcHelper.resetPaymentState()
+        _nfcPaymentState.value = NFCPaymentState.Idle
+    }
+
+    // Update NFC listener setup
+    private fun setupNFCListener() {
+        nfcHelper.setNFCListener(object : NFCHelper.NFCPaymentListener {
+            override fun onPaymentRequestReceived(paymentUrl: String) {
+                // Parse the payment URL to get details
+                try {
+                    val parsedRequest = SolanaPayURLParser.parseURL(paymentUrl)
+                    if (parsedRequest is TransferRequestURLFields) {
+                        processNFCPaymentRequest(paymentUrl, parsedRequest.amount)
+                    }
+                } catch (e: Exception) {
+                    _nfcPaymentState.value = NFCPaymentState.Error("Invalid payment request")
+                }
+            }
+
+            override fun onPaymentResponseReceived(transactionId: String) {
+                _nfcPaymentState.value = NFCPaymentState.Completed(transactionId)
+            }
+
+            override fun onNFCError(error: String) {
+                _nfcPaymentState.value = NFCPaymentState.Error(error)
+            }
+
+            override fun onNFCMessageSent() {
+                _nfcPaymentState.value = NFCPaymentState.Sending
+            }
+
+            override fun onDeviceConnected() {
+                // Optional: Handle device connection
+            }
+
+            override fun onDeviceDisconnected() {
+                // Optional: Handle device disconnection
+            }
+
+            override fun onPaymentStateChanged(state: NFCHelper.PaymentState) {
+                // Optional: Additional state tracking
+            }
+        })
     }
 }

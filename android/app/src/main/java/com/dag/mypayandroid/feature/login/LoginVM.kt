@@ -4,6 +4,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewModelScope
+import com.dag.mypayandroid.BuildConfig
 import com.dag.mypayandroid.base.BaseVM
 import com.dag.mypayandroid.base.data.AlertDialogButton
 import com.dag.mypayandroid.base.data.AlertDialogButtonType
@@ -33,27 +34,30 @@ class LoginVM @Inject constructor(
     lateinit var solanaKeyPair: Keypair
 
     private fun isUserLoggedIn(web3Auth: Web3Auth): Boolean {
-        return try {
-            return web3Auth.getPrivkey().isNotEmpty()
-        }  catch (e: Exception) {
-            return false
-        }
+        var flag = false
+        try {
+            flag = web3Auth.getPrivkey().isNotEmpty()
+        }  catch (e: Exception) { }
+        return flag
+    }
+
+    private suspend fun startHomePage() {
+        _isLoggedIn.emit(true)
+        _viewState.value = LoginVS.StartHomePage
+    }
+
+    private suspend fun startLoginPage() {
+        _viewState.value = LoginVS.StartLogin()
+        _isLoggedIn.emit(false)
     }
 
     fun initialise(web3Auth: Web3Auth) {
         viewModelScope.launch {
             val isUserLoggedIn = isUserLoggedIn(web3Auth)
             if (isUserLoggedIn) {
-                try {
-                    _isLoggedIn.emit(true)
-                } catch (e: Exception) {
-                    Log.e("HomeVM", "Error preparing keypair: ${e.message}", e)
-                    _viewState.value = LoginVS.StartHomePage
-                    _isLoggedIn.emit(false)
-                }
+                startHomePage()
             } else {
-                _viewState.value = LoginVS.StartLogin()
-                _isLoggedIn.emit(false)
+                startLoginPage()
             }
         }
     }

@@ -2,6 +2,7 @@ package com.dag.mypayandroid.feature.home.presentation
 
 import com.dag.mypayandroid.base.BaseVS
 import com.web3auth.core.types.UserInfo
+import java.math.BigDecimal
 
 sealed class HomeVS : BaseVS {
     data object Loading : HomeVS()
@@ -18,4 +19,13 @@ sealed class HomeVS : BaseVS {
     companion object {
         fun initial() = Loading
     }
+}
+
+sealed class NFCPaymentState {
+    object Idle : NFCPaymentState()
+    data class RequestReceived(val paymentUrl: String, val amount: BigDecimal) : NFCPaymentState()
+    object Sending : NFCPaymentState()
+    object Receiving : NFCPaymentState()
+    data class Completed(val transactionId: String) : NFCPaymentState()
+    data class Error(val message: String) : NFCPaymentState()
 }

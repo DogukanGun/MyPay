@@ -24,7 +24,7 @@ fun HomeView(
 ) {
     val state by viewModel.viewState.collectAsState()
     val askForPermission by viewModel.askForPermission.collectAsState()
-
+    val nfcPaymentState by viewModel.nfcPaymentState.collectAsState()
 
     // Animation properties
     val animatedProgress = remember { Animatable(0f) }
@@ -83,7 +83,10 @@ fun HomeView(
                 PaymentBottomSheet(
                     isVisible = showPaymentSheet,
                     isSendMode = isSendMode,
-                    onDismiss = { showPaymentSheet = false }
+                    onDismiss = { showPaymentSheet = false },
+                    nfcPaymentState = nfcPaymentState,
+                    resetNFCPaymentState = { viewModel.resetNFCPaymentState() },
+                    initiateNFCPayment = { amount, pk -> viewModel.initiateNFCPayment(amount,pk) }
                 )
             }
 

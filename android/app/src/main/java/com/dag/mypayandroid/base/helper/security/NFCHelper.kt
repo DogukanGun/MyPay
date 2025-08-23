@@ -1,13 +1,15 @@
+package com.dag.mypayandroid.base.helper.security
+
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.nfc.*
 import android.util.Log
-import com.dag.mypayandroid.base.helper.security.NFCConfig
 import java.nio.charset.Charset
 import org.json.JSONObject
+import java.math.BigDecimal
 
-class NFCHelper(private val activity: Activity) {
+class NFCHelper(private val activity: Activity?) {
 
     private var nfcAdapter: NfcAdapter? = null
     private var pendingIntent: PendingIntent? = null
@@ -26,6 +28,21 @@ class NFCHelper(private val activity: Activity) {
 
     private var nfcListener: NFCListener? = null
 
+    // Add new enum for payment states
+    enum class PaymentState {
+        IDLE, WAITING_FOR_REQUEST, WAITING_FOR_CONFIRMATION, COMPLETED, ERROR
+    }
+
+    // Add payment-specific callback interface
+    interface NFCPaymentListener : NFCListener {
+        fun onPaymentStateChanged(state: PaymentState)
+    }
+
+    // Add payment-specific fields
+    private var currentPaymentState: PaymentState = PaymentState.IDLE
+    private var currentPaymentRequest: String? = null
+    private var currentPaymentAmount: BigDecimal? = null
+
     init {
         setupNFC()
     }
@@ -35,6 +52,11 @@ class NFCHelper(private val activity: Activity) {
 
         if (nfcAdapter == null) {
             Log.e("NFCHelper", "NFC is not supported on this device")
+            return
+        }
+
+        if (activity == null) {
+            Log.e("NFCHelper", "Activity is empty for NFC Helper")
             return
         }
 
@@ -83,6 +105,60 @@ class NFCHelper(private val activity: Activity) {
     }
 
     /**
+     * Initiate a payment request with specific details
+     */
+    fun initiatePaymentRequest(
+        paymentUri: String,
+        amount: BigDecimal,
+        onStateChange: (PaymentState) -> Unit
+    ) {
+        try {
+            currentPaymentAmount = amount
+            currentPaymentRequest = paymentUri
+            currentPaymentState = PaymentState.WAITING_FOR_REQUEST
+
+            val jsonData = JSONObject().apply {
+                put(NFCConfig.MESSAGE_TYPE_KEY, NFCConfig.MESSAGE_TYPE_PAYMENT_REQUEST)
+                put(NFCConfig.PAYMENT_URI, paymentUri)
+                put("amount", amount.toPlainString())
+            }
+
+            val message = createNdefMessage(jsonData.toString())
+            prepareMessageForSending(message)
+
+            Log.d("NFCHelper", "Payment request prepared: $paymentUri, Amount: $amount")
+            onStateChange(currentPaymentState)
+
+        } catch (e: Exception) {
+            currentPaymentState = PaymentState.ERROR
+            Log.e("NFCHelper", "Error preparing payment request", e)
+            onStateChange(currentPaymentState)
+        }
+    }
+
+    /**
+     * Confirm and send payment response
+     */
+    fun sendPaymentResponse(transactionId: String) {
+        try {
+            val jsonData = JSONObject().apply {
+                put(NFCConfig.MESSAGE_TYPE_KEY, NFCConfig.MESSAGE_TYPE_PAYMENT_RESPONSE)
+                put(NFCConfig.PAYMENT_TX, transactionId)
+            }
+
+            val message = createNdefMessage(jsonData.toString())
+            prepareMessageForSending(message)
+
+            currentPaymentState = PaymentState.COMPLETED
+            Log.d("NFCHelper", "Payment response sent: $transactionId")
+
+        } catch (e: Exception) {
+            currentPaymentState = PaymentState.ERROR
+            Log.e("NFCHelper", "Error sending payment response", e)
+        }
+    }
+
+    /**
      * Send payment request to another device
      */
     fun sendPaymentRequest(paymentUri: String) {
@@ -100,27 +176,6 @@ class NFCHelper(private val activity: Activity) {
         } catch (e: Exception) {
             Log.e("NFCHelper", "Error preparing payment request", e)
             nfcListener?.onNFCError("Error preparing payment request: ${e.message}")
-        }
-    }
-
-    /**
-     * Send payment response to another device
-     */
-    fun sendPaymentResponse(paymentTx: String) {
-        try {
-            val jsonData = JSONObject().apply {
-                put(NFCConfig.MESSAGE_TYPE_KEY, NFCConfig.MESSAGE_TYPE_PAYMENT_RESPONSE)
-                put(NFCConfig.PAYMENT_TX, paymentTx)
-            }
-
-            val message = createNdefMessage(jsonData.toString())
-            prepareMessageForSending(message)
-
-            Log.d("NFCHelper", "Payment response prepared for sending: $paymentTx")
-
-        } catch (e: Exception) {
-            Log.e("NFCHelper", "Error preparing payment response", e)
-            nfcListener?.onNFCError("Error preparing payment response: ${e.message}")
         }
     }
 
@@ -178,7 +233,7 @@ class NFCHelper(private val activity: Activity) {
     }
 
     /**
-     * Parse payment message from JSON
+     * Enhanced message parsing with more detailed state management
      */
     private fun parsePaymentMessage(jsonString: String) {
         try {
@@ -188,25 +243,32 @@ class NFCHelper(private val activity: Activity) {
             when (messageType) {
                 NFCConfig.MESSAGE_TYPE_PAYMENT_REQUEST -> {
                     val paymentRequest = jsonObject.getString("url")
+                    val amount = jsonObject.optString("amount", null)?.let { BigDecimal(it) }
 
-                    Log.d("NFCHelper", "Payment request received: $paymentRequest")
+                    currentPaymentRequest = paymentRequest
+                    currentPaymentAmount = amount
+                    currentPaymentState = PaymentState.WAITING_FOR_CONFIRMATION
+
+                    Log.d("NFCHelper", "Payment request received: $paymentRequest, Amount: $amount")
                     nfcListener?.onPaymentRequestReceived(paymentRequest)
                 }
 
                 NFCConfig.MESSAGE_TYPE_PAYMENT_RESPONSE -> {
                     val paymentResponse = jsonObject.getString(NFCConfig.PAYMENT_TX)
 
+                    currentPaymentState = PaymentState.COMPLETED
                     Log.d("NFCHelper", "Payment response received: $paymentResponse")
                     nfcListener?.onPaymentResponseReceived(paymentResponse)
                 }
 
                 else -> {
+                    currentPaymentState = PaymentState.ERROR
                     Log.w("NFCHelper", "Unknown message type: $messageType")
                     nfcListener?.onNFCError("Unknown message type received")
                 }
             }
-
         } catch (e: Exception) {
+            currentPaymentState = PaymentState.ERROR
             Log.e("NFCHelper", "Error parsing payment message", e)
             nfcListener?.onNFCError("Error parsing received message: ${e.message}")
         }
@@ -343,5 +405,14 @@ class NFCHelper(private val activity: Activity) {
      */
     fun generateTransactionId(): String {
         return "${NFCConfig.TRANSACTION_ID_PREFIX}_${System.currentTimeMillis()}_${(1000..9999).random()}"
+    }
+
+    /**
+     * Reset payment state
+     */
+    fun resetPaymentState() {
+        currentPaymentState = PaymentState.IDLE
+        currentPaymentRequest = null
+        currentPaymentAmount = null
     }
 }

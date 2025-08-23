@@ -1,8 +1,9 @@
 package com.dag.mypayandroid.base.components
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
@@ -21,6 +22,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +34,7 @@ fun CustomTextField(
     modifier: Modifier = Modifier,
     label:String,
     isPassword:Boolean = false,
+    onlyNumberKeyboard: Boolean = false,
     onTextChange:(String)->Unit
 ) {
     val text = remember { mutableStateOf("") }
@@ -64,6 +67,9 @@ fun CustomTextField(
             disabledIndicatorColor = Color.Transparent
         ),
         modifier = modifier.fillMaxWidth(),
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = if(onlyNumberKeyboard) KeyboardType.Number else KeyboardType.Text
+        ),
         shape = RoundedCornerShape(16.dp),
         onValueChange = {
             text.value = it

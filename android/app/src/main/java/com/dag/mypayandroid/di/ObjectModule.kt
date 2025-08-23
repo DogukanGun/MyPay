@@ -11,6 +11,7 @@ import com.dag.mypayandroid.base.helper.blockchain.SolanaHelperImpl
 import com.dag.mypayandroid.base.helper.blockchain.WalletManager
 import com.dag.mypayandroid.base.helper.blockchain.Web3AuthHelper
 import com.dag.mypayandroid.base.helper.blockchain.Web3AuthHelperImpl
+import com.dag.mypayandroid.base.helper.security.NFCHelper
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
 import com.dag.mypayandroid.base.scroll.ScrollStateManager
@@ -82,5 +83,13 @@ class ObjectModules {
         @ApplicationContext context: Context
     ): WalletManager {
         return WalletManager(biometricHelper, activityHolder, context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNfcHelper(
+        activityHolder: ActivityHolder
+    ): NFCHelper {
+        return NFCHelper(activityHolder.getActivity())
     }
 }

@@ -14,13 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dag.mypayandroid.R
 import com.dag.mypayandroid.base.components.CustomButton
 import com.dag.mypayandroid.base.components.CustomTextField
 import com.dag.mypayandroid.ui.theme.*
+import org.sol4k.PublicKey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,10 +31,10 @@ fun ReceiveView(
     backgroundColor: Color = Color.Transparent,
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    onContinueClick: () -> Unit
+    onContinueClick: (amount: Int, publicKey: PublicKey) -> Unit
 ) {
-    var amount by remember { mutableStateOf("") }
-    
+    var amount by remember { mutableIntStateOf(0) }
+    var recipient by remember { mutableStateOf("") }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -104,16 +107,16 @@ fun ReceiveView(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Surface(
+                                Icon(
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clip(CircleShape),
-                                    color = PrimaryColor
-                                ) {
-                                    // Currency icon placeholder
-                                }
+                                    tint = Color.Unspecified,
+                                    painter = painterResource(R.drawable.solanalogo),
+                                    contentDescription = "Solana"
+                                )
                                 Text(
-                                    text = "SPOT",
+                                    text = "SOL",
                                     color = primaryText,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -130,7 +133,21 @@ fun ReceiveView(
                     CustomTextField(
                         modifier = Modifier.weight(0.8f),
                         label = "Amount",
-                        onTextChange = { amount = it }
+                        onlyNumberKeyboard = true,
+                        onTextChange = { amount = it.toInt() }
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Recipient",
+                        onTextChange = { recipient = it }
                     )
                 }
             }
@@ -195,9 +212,10 @@ fun ReceiveView(
             modifier = Modifier.fillMaxWidth(),
             backgroundColor = PrimaryColor,
             text = "Continue",
+            enabled = amount != 0,
             textColor = Color.Black
         ) {
-            onContinueClick()
+            onContinueClick(amount, PublicKey(recipient))
         }
         Spacer(modifier = Modifier.height(64.dp))
     }
@@ -209,5 +227,5 @@ fun ReceiveViewPreview() {
     ReceiveView(
         DarkBackground,
         onBackClick = {}
-    ) {}
+    ) { amount, publicKey -> }
 }
