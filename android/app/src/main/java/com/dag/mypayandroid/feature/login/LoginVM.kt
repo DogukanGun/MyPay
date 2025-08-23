@@ -52,8 +52,7 @@ class LoginVM @Inject constructor(
                     _isLoggedIn.emit(false)
                 }
             } else {
-
-                _viewState.value = LoginVS.StartHomePage
+                _viewState.value = LoginVS.StartLogin()
                 _isLoggedIn.emit(false)
             }
         }

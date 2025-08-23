@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dag.mypayandroid.feature.settings.data.SettingCellData
+import com.dag.mypayandroid.feature.settings.data.SettingCellType
 import com.dag.mypayandroid.feature.settings.data.Settings
 
 
@@ -19,6 +21,7 @@ import com.dag.mypayandroid.feature.settings.data.Settings
 fun SettingsView(
     settingsVM: SettingsVM = hiltViewModel()
 ){
+    val state = settingsVM.viewState.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -28,17 +31,38 @@ fun SettingsView(
             contentPadding = PaddingValues(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(Settings.entries.size) { index->
-                val setting = Settings.entries[index]
-                SettingCell(
-                    settingCellData = SettingCellData(
-                        text = setting.name,
-                        cellType = setting.cellType,
-                        onClicked = {
-                            settingsVM.executeSetting(setting)
-                        },
-                    )
-                )
+            when(state.value) {
+                SettingsVS.ShowSettings -> {
+                    items(Settings.entries.size) { index->
+                        val setting = Settings.entries[index]
+                        SettingCell(
+                            settingCellData = SettingCellData(
+                                text = setting.name,
+                                cellType = setting.cellType,
+                                onClicked = {
+                                    settingsVM.executeSetting(setting)
+                                },
+                            )
+                        )
+                    }
+                }
+                is SettingsVS.ShowPrivateKey -> {
+                    item {
+                        SettingCell(
+                            settingCellData = SettingCellData(
+                                text = (state.value as SettingsVS.ShowPrivateKey).privateKey,
+                                cellType = SettingCellType.INFO,
+                                onClicked = {
+                                    settingsVM.showList()
+                                }
+                            )
+                        )
+                    }
+                }
+
+                is SettingsVS.ExternalSource -> TODO()
+                is SettingsVS.ShowError -> TODO()
+                null -> TODO()
             }
         }
     }

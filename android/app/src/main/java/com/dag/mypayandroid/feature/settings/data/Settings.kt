@@ -8,7 +8,8 @@ enum class Settings(val cellType: SettingCellType) {
 
 enum class SettingCellType {
     SWITCH,
-    EXTERNAL_LINK
+    EXTERNAL_LINK,
+    INFO
 }
 
 data class SettingCellData(

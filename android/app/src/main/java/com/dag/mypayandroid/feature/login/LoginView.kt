@@ -15,6 +15,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +47,10 @@ fun LoginView(
     // Email input state
     var email by remember { mutableStateOf(TextFieldValue("")) }
     val loginState = viewModel.viewState.collectAsState()
+
+    LaunchedEffect(true) {
+        viewModel.initialise(web3Auth)
+    }
 
     when(loginState.value) {
         is LoginVS.StartLogin -> {
@@ -125,5 +130,4 @@ fun LoginView(
 
         }
     }
-
 }

@@ -14,6 +14,9 @@ class SettingsVM @Inject constructor(
     val walletManager: WalletManager
 ) : BaseVM<SettingsVS>(SettingsVS.ShowSettings) {
 
+    fun showList() {
+        _viewState.value = SettingsVS.ShowSettings
+    }
     fun executeSetting(selectedSetting: Settings) {
         when(selectedSetting) {
             Settings.FEEDBACK_FORM -> {

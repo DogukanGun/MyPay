@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Switch
@@ -49,8 +51,11 @@ fun SettingCell(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            settingCellData.text,
-            color = Color.White
+            text = settingCellData.text,
+            color = Color.White,
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 8.dp)
         )
         when(settingCellData.cellType) {
             SettingCellType.SWITCH -> {
@@ -64,6 +69,7 @@ fun SettingCell(
             }
             SettingCellType.EXTERNAL_LINK -> {
                 IconButton(
+                    modifier = Modifier.size(24.dp),
                     onClick = settingCellData.onClicked
                 ) {
                     Icon(
@@ -72,6 +78,18 @@ fun SettingCell(
                         tint = Color.White
                     )
                 }       
+            }
+            SettingCellType.INFO -> {
+                IconButton(
+                    modifier = Modifier.size(24.dp),
+                    onClick = settingCellData.onClicked
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Done",
+                        tint = Color.White
+                    )
+                }
             }
         }
     }
