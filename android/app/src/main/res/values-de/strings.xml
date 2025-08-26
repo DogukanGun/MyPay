@@ -3,18 +3,18 @@
     <!-- App Name -->
     <string name="app_name">MyPay</string>
 
-    <string name="alert_dialog_user_input">Please write here …</string>
+    <string name="alert_dialog_user_input">Bitte hier schreiben …</string>
     <string name="web3auth_project_id">BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ</string>
 
     <!-- Home View Strings -->
-    <string name="home_view_available_balance">Available Balance</string>
+    <string name="home_view_available_balance">Verfügbare Balance</string>
     <string name="home_view_portfolio">Portfolio</string>
     <string name="home_view_solana">Solana</string>
     <string name="home_view_usdc">USDC</string>
-    <string name="home_view_account_information">Account Information</string>
+    <string name="home_view_account_information">Kontoinformationen</string>
     <string name="home_view_name_label">Name: </string>
     <string name="home_view_wallet_label">Wallet: </string>
-    <string name="home_view_verifier_label">Verifier: </string>
+    <string name="home_view_verifier_label">Verifizierer: </string>
 
     <!-- Home View Balance -->
     <string name="home_view_usdc_balance">%1$s USDC</string>
@@ -23,25 +23,25 @@
     <!-- Home View Labels -->
     <string name="home_view_name">Name: </string>
     <string name="home_view_wallet">Wallet: </string>
-    <string name="home_view_verifier">Verifier: </string>
+    <string name="home_view_verifier">Verifizierer: </string>
 
     <!-- Home View Error -->
-    <string name="home_view_error">Error</string>
-    <string name="home_view_retry">Retry</string>
+    <string name="home_view_error">Fehler</string>
+    <string name="home_view_retry">Erneut versuchen</string>
 
     <!-- Home View Buttons -->
-    <string name="home_view_button_pay">Pay</string>
-    <string name="home_view_button_receive">Receive</string>
-    <string name="home_view_button_refresh">Refresh</string>
+    <string name="home_view_button_pay">Zahlen</string>
+    <string name="home_view_button_receive">Empfangen</string>
+    <string name="home_view_button_refresh">Aktualisieren</string>
 
     <!-- Home Error View -->
-    <string name="home_error_view_title">Error</string>
-    <string name="home_error_view_retry">Retry</string>
+    <string name="home_error_view_title">Fehler</string>
+    <string name="home_error_view_retry">Erneut versuchen</string>
 
     <!-- Payment Bottom Sheet -->
-    <string name="payment_bottom_sheet_send">Send</string>
-    <string name="payment_bottom_sheet_receive">Receive</string>
+    <string name="payment_bottom_sheet_send">Senden</string>
+    <string name="payment_bottom_sheet_receive">Empfangen</string>
 
     <!-- Content Descriptions -->
-    <string name="content_description_refresh">Refresh</string>
+    <string name="content_description_refresh">Aktualisieren</string>
 </resources>

@@ -40,6 +40,7 @@ import com.dag.mypayandroid.ui.theme.*
 import com.dag.mypayandroid.R
 import com.dag.mypayandroid.feature.home.presentation.HomeVM
 import com.dag.mypayandroid.feature.home.presentation.HomeVS
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun HomeSuccessScreen(
@@ -103,7 +104,7 @@ fun HomeSuccessScreen(
                         .padding(bottom = 24.dp)
                 ) {
                     Text(
-                        text = "Available Balance",
+                        text = stringResource(R.string.home_view_available_balance),
                         color = primaryText,
                         fontSize = 14.sp
                     )
@@ -117,7 +118,7 @@ fun HomeSuccessScreen(
                         )
                     } else {
                         Text(
-                            text = state.balance.plus(" SOL") ?: "0 SOL",
+                            text = state.balance.plus(" SOL") ?: stringResource(R.string.home_view_sol_balance, "0"),
                             color = primaryText,
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold
@@ -160,7 +161,7 @@ fun HomeSuccessScreen(
                     IconButton(onClick = onRefresh) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh"
+                            contentDescription = stringResource(R.string.content_description_refresh)
                         )
                     }
                 }
@@ -180,7 +181,7 @@ fun HomeSuccessScreen(
                     modifier = Modifier.weight(1f),
                     backgroundColor = PrimaryColor,
                     textColor = Color.Black,
-                    text = "Pay",
+                    text = stringResource(R.string.home_view_button_pay),
                     leadingIcon = painterResource(R.drawable.outgoing)
                 ) {
                     onSend()
@@ -189,7 +190,7 @@ fun HomeSuccessScreen(
                 CustomButton(
                     modifier = Modifier.weight(1f),
                     backgroundColor = SecondaryColor,
-                    text = "Receive",
+                    text = stringResource(R.string.home_view_button_receive),
                     leadingIcon = painterResource(R.drawable.incoming)
                 ) {
                     onReceive()
@@ -200,7 +201,7 @@ fun HomeSuccessScreen(
         // Portfolio Section
         item {
             Text(
-                text = "Portfolio",
+                text = stringResource(R.string.home_view_portfolio),
                 color = primaryText,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -238,7 +239,7 @@ fun HomeSuccessScreen(
                             ) { }
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Solana",
+                                text = stringResource(R.string.home_view_solana),
                                 color = primaryText,
                                 fontWeight = FontWeight.Medium
                             )
@@ -252,7 +253,7 @@ fun HomeSuccessScreen(
                             )
                         } else {
                             Text(
-                                text = state.balance.plus(" SOL") ?: "0 SOL",
+                                text = state.balance.plus(" SOL") ?: stringResource(R.string.home_view_sol_balance, "0"),
                                 color = primaryText,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
@@ -283,13 +284,13 @@ fun HomeSuccessScreen(
                             ) { }
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "USDC",
+                                text = stringResource(R.string.home_view_usdc),
                                 color = primaryText,
                                 fontWeight = FontWeight.Medium
                             )
                         }
                         Text(
-                            text = "0 USDC",
+                            text = stringResource(R.string.home_view_usdc_balance, "0"),
                             color = primaryText,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -303,7 +304,7 @@ fun HomeSuccessScreen(
         state.userInfo?.let { userInfo ->
             item {
                 Text(
-                    text = "Account Information",
+                    text = stringResource(R.string.home_view_account_information),
                     color = primaryText,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -326,7 +327,7 @@ fun HomeSuccessScreen(
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 ) {
                                     Text(
-                                        text = "Name: ",
+                                        text = stringResource(R.string.home_view_name),
                                         color = primaryText,
                                         fontWeight = FontWeight.Medium,
                                         modifier = Modifier.clickable {
@@ -349,7 +350,7 @@ fun HomeSuccessScreen(
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 ) {
                                     Text(
-                                        text = "Wallet: ",
+                                        text = stringResource(R.string.home_view_wallet),
                                         color = primaryText,
                                         fontWeight = FontWeight.Medium,
                                         modifier = Modifier.clickable {
@@ -372,7 +373,7 @@ fun HomeSuccessScreen(
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 ) {
                                     Text(
-                                        text = "Verifier: ",
+                                        text = stringResource(R.string.home_view_verifier),
                                         color = primaryText,
                                         fontWeight = FontWeight.Medium,
                                         modifier = Modifier.clickable {
@@ -413,7 +414,7 @@ fun BoxScope.HomeErrorView(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Error",
+                text = stringResource(R.string.home_view_error),
                 color = Color.Red,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
@@ -433,7 +434,7 @@ fun BoxScope.HomeErrorView(
                 shape = RoundedCornerShape(24.dp),
             ) {
                 Text(
-                    text = "Retry",
+                    text = stringResource(R.string.home_view_retry),
                     color = primaryText,
                     fontWeight = FontWeight.Medium
                 )

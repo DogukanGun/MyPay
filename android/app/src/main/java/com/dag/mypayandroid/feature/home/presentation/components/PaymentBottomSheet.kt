@@ -9,12 +9,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.dag.mypayandroid.ui.theme.DarkBackground
 import com.dag.mypayandroid.feature.home.presentation.HomeVM
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dag.mypayandroid.feature.home.presentation.NFCPaymentState
 import org.sol4k.PublicKey
+import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
+import com.dag.mypayandroid.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +36,7 @@ fun PaymentBottomSheet(
             newValue != SheetValue.PartiallyExpanded
         }
     )
+    val context = LocalContext.current
     var sendViewTitle by remember { mutableStateOf("") }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -84,7 +89,7 @@ fun PaymentBottomSheet(
                     onBackClick = { onDismiss() },
                     onContinueClick = { amount, publicKey ->
                         onDismiss()
-                        sendViewTitle = "Receive"
+                        sendViewTitle = ContextCompat.getString(context,R.string.payment_bottom_sheet_send)
                         initiateNFCPayment(amount, publicKey)
                     }
                 )
