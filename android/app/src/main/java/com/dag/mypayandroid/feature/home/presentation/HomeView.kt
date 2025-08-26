@@ -86,7 +86,11 @@ fun HomeView(
                     onDismiss = { showPaymentSheet = false },
                     nfcPaymentState = nfcPaymentState,
                     resetNFCPaymentState = { viewModel.resetNFCPaymentState() },
-                    initiateNFCPayment = { amount, pk -> viewModel.initiateNFCPayment(amount,pk) }
+                    initiateNFCPayment = { amount, pk ->
+                        isSendMode = true
+                        showPaymentSheet = true
+                        viewModel.sendNFCPayment(amount,pk)
+                    }
                 )
             }
 

@@ -8,7 +8,7 @@ import org.sol4k.Connection
 import org.sol4k.Keypair
 import org.sol4k.PublicKey
 import org.sol4k.Transaction
-import java.net.URL
+import java.net.URI
 
 class SolanaHelperImpl(
     val connection: Connection,
@@ -35,7 +35,7 @@ class SolanaHelperImpl(
 
     override fun prepareSolanaPay(
         transferRequestField: TransferRequestURLFields,
-        onUrlReady: (tx: URL)-> Unit
+        onUrlReady: (tx: URI)-> Unit
     ) {
         onUrlReady(SolanaPayURLEncoder.encodeURL(transferRequestField))
     }

@@ -83,8 +83,8 @@ fun PaymentBottomSheet(
                     modifier = Modifier.height(sheetHeight),
                     onBackClick = { onDismiss() },
                     onContinueClick = { amount, publicKey ->
+                        onDismiss()
                         sendViewTitle = "Receive"
-                        
                         initiateNFCPayment(amount, publicKey)
                     }
                 )

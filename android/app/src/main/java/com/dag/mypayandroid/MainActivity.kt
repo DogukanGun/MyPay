@@ -1,6 +1,9 @@
 package com.dag.mypayandroid
 
 import android.content.Intent
+import android.nfc.NdefMessage
+import android.nfc.NfcAdapter
+import android.nfc.NfcEvent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -41,6 +44,7 @@ import com.dag.mypayandroid.base.bottomnav.BottomNavMessageManager
 import com.dag.mypayandroid.base.bottomnav.BottomNavigationBar
 import com.dag.mypayandroid.base.components.CustomAlertDialog
 import com.dag.mypayandroid.base.data.AlertDialogModel
+import com.dag.mypayandroid.base.helper.security.NFCHelper
 import com.dag.mypayandroid.base.helper.system.ActivityHolder
 import com.dag.mypayandroid.base.helper.system.AlertDialogManager
 import com.dag.mypayandroid.base.helper.system.IntentManager
@@ -64,7 +68,7 @@ import javax.inject.Inject
 import kotlin.getValue
 
 @AndroidEntryPoint
-class MainActivity : FragmentActivity() {
+class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
 
     private val currentRoute = mutableStateOf<String?>(null)
     private val mainVM: MainVM by viewModels()
@@ -91,10 +95,13 @@ class MainActivity : FragmentActivity() {
     @Inject
     lateinit var intentManager: IntentManager
 
+    lateinit var nfcHelper: NFCHelper
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityHolder.setActivity(this)
+        nfcHelper = NFCHelper(this)
         val showAlert = mutableStateOf(false)
         val alertDialogModel = mutableStateOf<AlertDialogModel?>(null)
         // Handle user signing in when app is not alive
@@ -267,16 +274,43 @@ class MainActivity : FragmentActivity() {
             web3Auth.setResultUrl(null)
             Web3Auth.setCustomTabsClosed(false)
         }
+        if (nfcHelper.nfcAdapter != null) {
+            nfcHelper.nfcAdapter?.enableForegroundDispatch(this, nfcHelper.pendingIntent, null, null)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        nfcHelper.nfcAdapter?.disableForegroundDispatch(this)
+    }
+
+    /**
+     * This is the crucial callback! Android calls this method at the exact moment
+     * it needs a message to send to another device.
+     */
+    @Deprecated("Deprecated in Java")
+    override fun createNdefMessage(event: NfcEvent?): NdefMessage? {
+        return nfcHelper.getAndClearMessageToSend()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        web3Auth.setResultUrl(intent.data)
+        when(intent.action) {
+            NfcAdapter.ACTION_NDEF_DISCOVERED,
+            NfcAdapter.ACTION_TAG_DISCOVERED,
+            NfcAdapter.ACTION_TECH_DISCOVERED-> {
+                nfcHelper.handleIntent(intent)
+            }
+            else -> {
+                web3Auth.setResultUrl(intent.data)
+            }
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         activityHolder.clearActivity()
     }
+
 }

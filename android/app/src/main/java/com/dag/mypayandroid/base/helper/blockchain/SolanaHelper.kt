@@ -3,12 +3,13 @@ import com.dag.mypayandroid.base.solanapay.TransferRequestURLFields
 import org.sol4k.Keypair
 import org.sol4k.PublicKey
 import org.sol4k.Transaction
+import java.net.URI
 import java.net.URL
 
 interface SolanaHelper {
     fun prepareSolanaPay(
         transferRequestField: TransferRequestURLFields,
-        onUrlReady: (tx: URL)-> Unit
+        onUrlReady: (tx: URI)-> Unit
     )
     suspend fun receiveSolanaPayAndMakePayment(
         keypair: Keypair,

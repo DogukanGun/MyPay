@@ -90,6 +90,6 @@ class ObjectModules {
     fun provideNfcHelper(
         activityHolder: ActivityHolder
     ): NFCHelper {
-        return NFCHelper(activityHolder.getActivity())
+        return NFCHelper(activityHolder.getActivity() )
     }
 }
