@@ -110,9 +110,26 @@ fun CustomAlert(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                Column (
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    CustomButton(
+                        backgroundColor = Color.Red,
+                        text = alertDialogModel.positiveButton.text
+                    ) {
+                        buttonOnClick(
+                            alertDialogModel.positiveButton.type,
+                            showAlert,
+                            alertDialogModel.positiveButton.onClick,
+                            alertDialogModel.onClose
+                        ) {
+                            alertDialogModel.positiveButton.navigate?.let {
+                                coroutineScope.launch {
+                                    defaultNavigator.navigate(it)
+                                }
+                            }
+                        }
+                    }
                     AnimatedVisibility(visible = alertDialogModel.negativeButton != null) {
                         CustomButton(
                             backgroundColor = Color.Gray,
@@ -128,23 +145,6 @@ fun CustomAlert(
                                     coroutineScope.launch {
                                         defaultNavigator.navigate(it)
                                     }
-                                }
-                            }
-                        }
-                    }
-                    CustomButton(
-                        backgroundColor = Color.Red,
-                        text = alertDialogModel.positiveButton.text
-                    ) {
-                        buttonOnClick(
-                            alertDialogModel.positiveButton.type,
-                            showAlert,
-                            alertDialogModel.positiveButton.onClick,
-                            alertDialogModel.onClose
-                        ) {
-                            alertDialogModel.positiveButton.navigate?.let {
-                                coroutineScope.launch {
-                                    defaultNavigator.navigate(it)
                                 }
                             }
                         }

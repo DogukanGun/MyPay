@@ -14,9 +14,13 @@ import com.dag.mypayandroid.base.BaseVM
 import android.content.Context
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.dag.mypayandroid.base.data.AlertDialogButton
+import com.dag.mypayandroid.base.data.AlertDialogButtonType
+import com.dag.mypayandroid.base.data.AlertDialogModel
 import com.dag.mypayandroid.base.notification.NotificationStateManager
 import com.dag.mypayandroid.base.helper.system.ActivityHolder
 import com.dag.mypayandroid.base.helper.blockchain.WalletManager
+import com.dag.mypayandroid.base.helper.system.AlertDialogManager
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
 import com.dag.mypayandroid.base.solanapay.SolanaPayURLEncoder
@@ -39,6 +43,7 @@ class HomeVM @Inject constructor(
     private val activityHolder: ActivityHolder,
     private val walletManager: WalletManager,
     private val defaultNavigator: DefaultNavigator,
+    private val alertDialogManager: AlertDialogManager,
     private val notificationStateManager: NotificationStateManager,
     private val nfcHelper: NFCHelper
 ) : BaseVM<HomeVS>(initialValue = HomeVS.Companion.initial()) {
@@ -199,6 +204,23 @@ class HomeVM @Inject constructor(
                 try {
                     // Use a parser to extract details from the Solana Pay URL
                     val parsed = SolanaPayURLParser.parseURL(message)
+                    viewModelScope.launch {
+                        alertDialogManager.showAlert(
+                            AlertDialogModel(
+                                "Payment Request",
+                                "A new payment request is received.",
+                                positiveButton = AlertDialogButton(
+                                    text = "Pay",
+                                    onClick = {},
+                                    type = AlertDialogButtonType.CUSTOM
+                                ),
+                                negativeButton = AlertDialogButton(
+                                    text = "Reject",
+                                    type = AlertDialogButtonType.CLOSE
+                                )
+                            )
+                        )
+                    }
                     _nfcPaymentState.value = NFCPaymentState.RequestReceived(message, parsed.amount)
                 } catch (e: Exception) {
                     _nfcPaymentState.value = NFCPaymentState.Error("Invalid payment request received: ${e.message}")
