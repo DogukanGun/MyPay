@@ -1,6 +1,7 @@
 package com.dag.mypayandroid.feature.home.presentation
 
 import com.dag.mypayandroid.base.helper.security.NFCHelper
+import com.dag.mypayandroid.base.helper.security.NFCMode
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -43,7 +44,7 @@ class HomeVM @Inject constructor(
 ) : BaseVM<HomeVS>(initialValue = HomeVS.Companion.initial()) {
 
     private var _askForPermission = MutableStateFlow(false)
-    val askForPermission:StateFlow<Boolean> = _askForPermission
+    val askForPermission: StateFlow<Boolean> = _askForPermission
 
     lateinit var balance: String
     private var userInfoData: UserInfo? = null
@@ -51,11 +52,18 @@ class HomeVM @Inject constructor(
     private val _nfcPaymentState = MutableStateFlow<NFCPaymentState>(NFCPaymentState.Idle)
     val nfcPaymentState: StateFlow<NFCPaymentState> = _nfcPaymentState
 
+    companion object {
+        private const val TAG = "HomeVM"
+    }
+
     init {
         switchToSuccessState()
         checkPermission()
         observeNotificationState()
         setupNFCListener()
+        // Start in reader mode by default (ready to receive)
+        nfcHelper.setMode(NFCMode.READER)
+        _nfcPaymentState.value = NFCPaymentState.Receiving
     }
 
     private fun switchToSuccessState() {
@@ -100,7 +108,7 @@ class HomeVM @Inject constructor(
             userInfoData = info
             updateSuccessState(userInfo = info)
         } catch (e: Exception) {
-            Log.e("HomeVM", "Error fetching user info: ${e.message}", e)
+            Log.e(TAG, "Error fetching user info: ${e.message}", e)
         }
     }
 
@@ -127,7 +135,7 @@ class HomeVM @Inject constructor(
                 }
             } catch (e: Exception) {
                 updateSuccessState(isLoadingBalance = false)
-                Log.e("HomeVM", "Error getting balance: ${e.message}", e)
+                Log.e(TAG, "Error getting balance: ${e.message}", e)
             }
         }
     }
@@ -142,8 +150,8 @@ class HomeVM @Inject constructor(
 
     fun navigateToX(
         packageManager: PackageManager,
-        startActivity:(intent:Intent)-> Unit
-    ){
+        startActivity: (intent: Intent) -> Unit
+    ) {
         val twitterUsername = "NexArb_"
         val uri = "twitter://user?screen_name=$twitterUsername".toUri()
         val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -157,15 +165,19 @@ class HomeVM @Inject constructor(
             startActivity(intent)
         } else {
             // Fallback to browser
-            val browserIntent = Intent(Intent.ACTION_VIEW,
-                "https://twitter.com/$twitterUsername".toUri())
+            val browserIntent = Intent(
+                Intent.ACTION_VIEW,
+                "https://twitter.com/$twitterUsername".toUri()
+            )
             startActivity(browserIntent)
         }
     }
+
     private fun checkPermission() {
         if (ActivityCompat.checkSelfPermission(
                 activityHolder.getActivity() as Context,
-                Manifest.permission.POST_NOTIFICATIONS)
+                Manifest.permission.POST_NOTIFICATIONS
+            )
             != PackageManager.PERMISSION_GRANTED
         ) {
             _askForPermission.value = true
@@ -183,53 +195,108 @@ class HomeVM @Inject constructor(
         nfcHelper.setListener(object : NFCHelper.NFCListener {
             override fun onMessageReceived(message: String) {
                 // We received a payment URL from another device
-                Log.d("HomeVM", "NFC message received: $message")
+                Log.d(TAG, "NFC message received: $message")
                 try {
                     // Use a parser to extract details from the Solana Pay URL
                     val parsed = SolanaPayURLParser.parseURL(message)
                     _nfcPaymentState.value = NFCPaymentState.RequestReceived(message, parsed.amount)
                 } catch (e: Exception) {
-                    _nfcPaymentState.value = NFCPaymentState.Error("Invalid payment request received.")
-                    Log.e("HomeVM", "Error parsing NFC payment URL", e)
+                    _nfcPaymentState.value = NFCPaymentState.Error("Invalid payment request received: ${e.message}")
+                    Log.e(TAG, "Error parsing NFC payment URL", e)
                 }
             }
 
             override fun onNFCError(error: String) {
+                Log.e(TAG, "NFC Error: $error")
                 _nfcPaymentState.value = NFCPaymentState.Error(error)
+            }
+
+            override fun onNFCStateChanged(mode: NFCMode) {
+                Log.d(TAG, "NFC mode changed to: $mode")
+                when (mode) {
+                    NFCMode.TAG -> _nfcPaymentState.value = NFCPaymentState.Sending
+                    NFCMode.READER -> _nfcPaymentState.value = NFCPaymentState.Receiving
+                }
             }
         })
     }
 
     /**
-     * Resets the NFC state, for example, after a transaction is complete or cancelled.
+     * Resets the NFC state and switches back to receiver mode.
+     * Call this after completing a transaction or when cancelling.
      */
     fun resetNFCPaymentState() {
-        _nfcPaymentState.value = NFCPaymentState.Idle
+        Log.d(TAG, "Resetting NFC payment state")
+        _nfcPaymentState.value = NFCPaymentState.Receiving
+        // Switch back to reader mode after sending/completing transaction
+        nfcHelper.setMode(NFCMode.READER)
     }
 
     /**
      * Prepares and sends a payment request URL via NFC.
+     * This automatically switches to TAG mode and prepares the message for HCE transmission.
      */
     fun sendNFCPayment(amount: Int, recipient: PublicKey) {
         // Check if NFC is available first
-        if (nfcHelper.nfcAdapter?.isEnabled != true) {
+        if (!nfcHelper.isNfcEnabled()) {
             _nfcPaymentState.value = NFCPaymentState.Error("Please enable NFC in your device settings.")
             return
         }
 
-        // Create the Solana Pay URL
-        val url = SolanaPayURLEncoder.encodeURL(
-            fields = TransferRequestURLFields(
-                recipient = recipient,
-                amount = BigDecimal.valueOf(amount.toLong()),
-                tokenDecimal = 9 // Assuming SOL decimals
+        try {
+            // Create the Solana Pay URL
+            val url = SolanaPayURLEncoder.encodeURL(
+                fields = TransferRequestURLFields(
+                    recipient = recipient,
+                    amount = BigDecimal.valueOf(amount.toLong()),
+                    tokenDecimal = 9 // Assuming SOL decimals
+                )
             )
-        )
 
-        // Tell the helper to send the message
-        nfcHelper.sendMessage(url.toString())
-        _nfcPaymentState.value = NFCPaymentState.Sending
-        Log.d("HomeVM", "NFC payment message prepared for sending.")
+            Log.d(TAG, "Preparing to send payment URL via NFC: $url")
+
+            // Switch to TAG mode to enable HCE
+            nfcHelper.setMode(NFCMode.TAG)
+
+            // Tell the helper to send the message (stores in SharedPreferences)
+            nfcHelper.sendMessage(url.toString())
+
+            _nfcPaymentState.value = NFCPaymentState.Sending
+            Log.d(TAG, "NFC payment message prepared for sending via HCE - now tap devices together")
+
+        } catch (e: Exception) {
+            _nfcPaymentState.value = NFCPaymentState.Error("Failed to prepare payment: ${e.message}")
+            Log.e(TAG, "Error preparing NFC payment", e)
+        }
     }
 
+    /**
+     * Switch NFC mode manually - this is the key method for same-app P2P
+     */
+    fun switchNFCMode(mode: NFCMode) {
+        if (!nfcHelper.isNfcEnabled()) {
+            _nfcPaymentState.value = NFCPaymentState.Error("Please enable NFC in your device settings.")
+            return
+        }
+
+        Log.d(TAG, "Switching NFC mode to: $mode")
+        nfcHelper.setMode(mode)
+
+        // Update state immediately when switching modes
+        _nfcPaymentState.value = when (mode) {
+            NFCMode.READER -> {
+                Log.d(TAG, "Now in READER mode - ready to receive payments")
+                NFCPaymentState.Receiving
+            }
+            NFCMode.TAG -> {
+                Log.d(TAG, "Now in TAG mode - ready to send payments")
+                NFCPaymentState.Idle // Will be updated to Sending when message is prepared
+            }
+        }
+    }
+
+    /**
+     * Get current NFC mode
+     */
+    fun getCurrentNFCMode(): NFCMode = nfcHelper.getCurrentMode()
 }

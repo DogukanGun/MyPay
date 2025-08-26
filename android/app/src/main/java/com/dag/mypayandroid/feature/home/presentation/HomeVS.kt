@@ -23,9 +23,10 @@ sealed class HomeVS : BaseVS {
 
 sealed class NFCPaymentState {
     object Idle : NFCPaymentState()
-    data class RequestReceived(val paymentUrl: String, val amount: BigDecimal) : NFCPaymentState()
     object Sending : NFCPaymentState()
+    object Completed : NFCPaymentState()
     object Receiving : NFCPaymentState()
-    data class Completed(val transactionId: String) : NFCPaymentState()
+    data class RequestReceived(val paymentUrl: String, val amount: BigDecimal) : NFCPaymentState()
     data class Error(val message: String) : NFCPaymentState()
+    data class Success(val message: String) : NFCPaymentState()
 }

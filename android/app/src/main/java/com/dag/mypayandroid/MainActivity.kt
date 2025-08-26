@@ -1,9 +1,7 @@
 package com.dag.mypayandroid
 
 import android.content.Intent
-import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
-import android.nfc.NfcEvent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -68,7 +66,7 @@ import javax.inject.Inject
 import kotlin.getValue
 
 @AndroidEntryPoint
-class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
+class MainActivity : FragmentActivity() {
 
     private val currentRoute = mutableStateOf<String?>(null)
     private val mainVM: MainVM by viewModels()
@@ -90,12 +88,14 @@ class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
 
     companion object {
         lateinit var web3Auth: Web3Auth
+        private const val TAG = "MainActivity"
     }
 
     @Inject
     lateinit var intentManager: IntentManager
 
     lateinit var nfcHelper: NFCHelper
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +104,8 @@ class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
         nfcHelper = NFCHelper(this)
         val showAlert = mutableStateOf(false)
         val alertDialogModel = mutableStateOf<AlertDialogModel?>(null)
-        // Handle user signing in when app is not alive
+
+        // Initialize Web3Auth
         web3Auth = Web3Auth(
             Web3AuthOptions(
                 clientId = BuildConfig.web3authKey,
@@ -113,19 +114,21 @@ class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
             ), this
         )
         web3Auth.setResultUrl(intent?.data)
+
         // Call initialize() in onCreate() to check for any existing session.
         val sessionResponse: CompletableFuture<Void> = web3Auth.initialize()
         sessionResponse.whenComplete { _, error ->
             if (error == null) {
-                println("PrivKey: " + web3Auth.getPrivkey())
-                println("ed25519PrivKey: " + web3Auth.getEd25519PrivKey())
-                println("Web3Auth UserInfo" + web3Auth.getUserInfo())
+                Log.d(TAG, "Web3Auth initialized successfully")
+                Log.d(TAG, "PrivKey: " + web3Auth.getPrivkey())
+                Log.d(TAG, "ed25519PrivKey: " + web3Auth.getEd25519PrivKey())
+                Log.d(TAG, "Web3Auth UserInfo" + web3Auth.getUserInfo())
             } else {
-                Log.d("MainActivity_Web3Auth", error.message ?: "Something went wrong")
-                // Ideally, you should initiate the login function here.
+                Log.e(TAG, "Web3Auth initialization failed: ${error.message}", error)
             }
         }
-        // Initialize the lifecycle scope coroutine only after alertDialogManager is available
+
+        // Initialize alert dialog observer
         if (::alertDialogManager.isInitialized && lifecycleScope.isActive) {
             lifecycleScope.launch {
                 alertDialogManager.alertFlow.collect { model ->
@@ -134,6 +137,7 @@ class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
                 }
             }
         }
+
         setContent {
             val scrollState = scrollStateManager.scrollState.collectAsState()
             CompositionLocalProvider(
@@ -205,7 +209,7 @@ class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
                                             ) {
                                                 Icon(
                                                     painter = painterResource(R.drawable.baseline_wallet),
-                                                    contentDescription = "Sign Out",
+                                                    contentDescription = "Wallet",
                                                     tint = Color.White,
                                                     modifier = Modifier.size(24.dp)
                                                 )
@@ -274,35 +278,22 @@ class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
             web3Auth.setResultUrl(null)
             Web3Auth.setCustomTabsClosed(false)
         }
-        if (nfcHelper.nfcAdapter != null) {
-            nfcHelper.nfcAdapter?.enableForegroundDispatch(this, nfcHelper.pendingIntent, null, null)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        nfcHelper.nfcAdapter?.disableForegroundDispatch(this)
-    }
-
-    /**
-     * This is the crucial callback! Android calls this method at the exact moment
-     * it needs a message to send to another device.
-     */
-    @Deprecated("Deprecated in Java")
-    override fun createNdefMessage(event: NfcEvent?): NdefMessage? {
-        return nfcHelper.getAndClearMessageToSend()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        Log.d(TAG, "onNewIntent called with action: ${intent.action}")
+
         when(intent.action) {
             NfcAdapter.ACTION_NDEF_DISCOVERED,
             NfcAdapter.ACTION_TAG_DISCOVERED,
-            NfcAdapter.ACTION_TECH_DISCOVERED-> {
-                nfcHelper.handleIntent(intent)
+            NfcAdapter.ACTION_TECH_DISCOVERED -> {
+                Log.d(TAG, "NFC intent received, handled automatically by NFCHelper reader mode")
+                // The NFCHelper handles this automatically through reader mode callback
             }
             else -> {
+                Log.d(TAG, "Non-NFC intent received")
                 web3Auth.setResultUrl(intent.data)
             }
         }
@@ -312,5 +303,4 @@ class MainActivity : FragmentActivity(), NfcAdapter.CreateNdefMessageCallback {
         super.onDestroy()
         activityHolder.clearActivity()
     }
-
 }

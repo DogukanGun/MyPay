@@ -1,5 +1,6 @@
 package com.dag.mypayandroid.base.solanapay
 
+import android.net.Uri
 import com.dag.mypayandroid.base.solanapay.SolanaPayConstants.HTTPS_PROTOCOL
 import com.dag.mypayandroid.base.solanapay.SolanaPayConstants.SOLANA_PROTOCOL
 import org.sol4k.PublicKey
@@ -7,6 +8,7 @@ import java.math.BigDecimal
 import java.net.URI
 import java.net.URL
 import java.net.URLDecoder
+import androidx.core.net.toUri
 
 class ParseURLError(message: String) : Exception(message)
 
@@ -15,18 +17,31 @@ object SolanaPayURLParser {
         val parsedUri = if (url.length > 2048) {
             throw ParseURLError("URL length invalid")
         } else {
-            URI(url) // ✅ Use URI, supports custom protocols
+            //solana:5BUaqabshK42awJpVQyHh31wE4vNPAkjbPe9JZQXTNr7?amount=1
+            url.toUri()
         }
 
-        if (parsedUri.scheme != SOLANA_PROTOCOL) {
+        if (parsedUri.scheme != SOLANA_PROTOCOL.replace(":","")) {
             throw ParseURLError("Protocol invalid")
         }
 
-        if (parsedUri.path.isNullOrEmpty()) {
-            throw ParseURLError("Pathname missing")
+        val recipientPath = parsedUri.schemeSpecificPart
+        if (recipientPath.isNullOrEmpty()) {
+            throw ParseURLError("Recipient address is missing from URL path")
+        }
+        val recipient = try {
+            PublicKey(recipientPath.split("?")[0])
+        } catch (e: Exception) {
+            throw ParseURLError("Recipient address is invalid")
         }
 
-        return parseTransferRequestURL(parsedUri)
+        val amount = parsedUri.query?.split("=")[1]
+
+        return TransferRequestURLFields(
+            recipient = recipient,
+            amount = BigDecimal.valueOf(amount?.toLong() ?: 0),
+            tokenDecimal = 9
+        )
     }
 
     private fun parseTransferRequestURL(uri: URI): TransferRequestURLFields {

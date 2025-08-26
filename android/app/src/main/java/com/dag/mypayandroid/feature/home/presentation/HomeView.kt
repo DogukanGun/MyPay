@@ -38,10 +38,11 @@ fun HomeView(
     LaunchedEffect(true) {
         viewModel.fetchUserDataAfterAuth(web3Auth)
     }
+
     // Bottom sheet state
     var showPaymentSheet by remember { mutableStateOf(false) }
     var isSendMode by remember { mutableStateOf(true) }
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,11 +58,11 @@ fun HomeView(
                     strokeWidth = 4.dp
                 )
             }
-            
+
             is HomeVS.Error -> {
                 HomeErrorView(state)
             }
-            
+
             is HomeVS.Success -> {
                 HomeSuccessScreen(
                     state = (state as HomeVS.Success),
@@ -89,7 +90,7 @@ fun HomeView(
                     initiateNFCPayment = { amount, pk ->
                         isSendMode = true
                         showPaymentSheet = true
-                        viewModel.sendNFCPayment(amount,pk)
+                        viewModel.sendNFCPayment(amount, pk)
                     }
                 )
             }
