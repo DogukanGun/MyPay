@@ -64,6 +64,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import kotlin.getValue
+import com.dag.mypayandroid.base.data.Intent.Web3WalletManagement
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
@@ -95,7 +96,6 @@ class MainActivity : FragmentActivity() {
     lateinit var intentManager: IntentManager
 
     lateinit var nfcHelper: NFCHelper
-
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -202,7 +202,9 @@ class MainActivity : FragmentActivity() {
                                                     lifecycleScope.launch {
                                                         intentManager
                                                             .requestIntent(
-                                                                com.dag.mypayandroid.base.data.Intent.Web3WalletManagement(web3Auth)
+                                                                Web3WalletManagement(
+                                                                    web3Auth
+                                                                )
                                                             )
                                                     }
                                                 }

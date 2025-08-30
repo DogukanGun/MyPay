@@ -23,7 +23,7 @@ class IntentManager @Inject constructor(
                 intent.web3Auth.launchWalletServices(
                     ChainConfig(
                         chainNamespace = ChainNamespace.SOLANA,
-                        chainId = "0x2",
+                        chainId = "3",
                         rpcTarget = RpcUrl.DEVNET.value,
                     )
                 )

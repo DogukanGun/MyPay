@@ -44,4 +44,14 @@
 
     <!-- Content Descriptions -->
     <string name="content_description_refresh">Refresh</string>
+
+    <!-- Settings Textx -->
+    <string name="feedback_form_alert_modal_title">Send Feedback</string>
+    <string name="feedback_form_alert_modal_message">Please send your feedback via e-mail.</string>
+
+    <!-- Common Texts -->
+    <string name="okay">Okay</string>
+    <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
+
 </resources>

@@ -44,4 +44,13 @@
 
     <!-- Content Descriptions -->
     <string name="content_description_refresh">Aktualisieren</string>
+
+    <!-- Settings Text -->
+    <string name="feedback_form_alert_modal_title">Feedback senden</string>
+    <string name="feedback_form_alert_modal_message">Bitte senden Sie Ihr Feedback per E-Mail.</string>
+
+    <!-- Common Texts -->
+    <string name="okay">Okay</string>
+    <string name="send">Senden</string>
+    <string name="cancel">Abbrechen</string>
 </resources>
