@@ -26,6 +26,11 @@ class SettingsVM @Inject constructor(
     fun showList() {
         _viewState.value = SettingsVS.ShowSettings
     }
+    fun showErrorMessage() {
+        viewModelScope.launch {
+            alertDialogManager.showComingSoonMessage()
+        }
+    }
     fun executeSetting(selectedSetting: Settings,context: Context) {
         when(selectedSetting) {
             Settings.FEEDBACK_FORM -> {
@@ -59,7 +64,18 @@ class SettingsVM @Inject constructor(
                 }
             }
             Settings.LEGAL -> {
-
+                viewModelScope.launch {
+                    alertDialogManager.showAlert(
+                        AlertDialogModel(
+                            ContextCompat.getString(context,R.string.legal_title),
+                            ContextCompat.getString(context,R.string.legal_message),
+                            positiveButton = AlertDialogButton(
+                                text = ContextCompat.getString(context,R.string.okay),
+                                type = AlertDialogButtonType.CLOSE
+                            )
+                        )
+                    )
+                }
             }
             Settings.PRIVATE_KEY -> {
                 walletManager.getPrivateKey(

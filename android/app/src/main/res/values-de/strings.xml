@@ -48,6 +48,8 @@
     <!-- Settings Text -->
     <string name="feedback_form_alert_modal_title">Feedback senden</string>
     <string name="feedback_form_alert_modal_message">Bitte senden Sie Ihr Feedback per E-Mail.</string>
+    <string name="legal_title">Rechtlicher Hinweis</string>
+    <string name="legal_message">Es ist einfach, wir übernehmen keine Verantwortung.</string>
 
     <!-- Common Texts -->
     <string name="okay">Okay</string>

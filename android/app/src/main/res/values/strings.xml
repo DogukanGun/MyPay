@@ -45,9 +45,11 @@
     <!-- Content Descriptions -->
     <string name="content_description_refresh">Refresh</string>
 
-    <!-- Settings Textx -->
+    <!-- Settings Text -->
     <string name="feedback_form_alert_modal_title">Send Feedback</string>
     <string name="feedback_form_alert_modal_message">Please send your feedback via e-mail.</string>
+    <string name="legal_title">Legal Warning</string>
+    <string name="legal_message">It is easy, we do not take responsibility.</string>
 
     <!-- Common Texts -->
     <string name="okay">Okay</string>

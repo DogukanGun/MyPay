@@ -62,9 +62,11 @@ fun SettingsView(
                     }
                 }
 
-                is SettingsVS.ExternalSource -> TODO()
-                is SettingsVS.ShowError -> TODO()
-                null -> TODO()
+                is SettingsVS.ExternalSource -> {}
+                is SettingsVS.ShowError -> {
+                    settingsVM.showErrorMessage()
+                }
+                null -> {}
             }
         }
     }
