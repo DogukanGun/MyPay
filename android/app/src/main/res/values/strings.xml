@@ -51,6 +51,23 @@
     <string name="legal_title">Legal Warning</string>
     <string name="legal_message">It is easy, we do not take responsibility.</string>
 
+    <!-- NFC Payment Strings -->
+    <string name="nfc_payment_request_title">Payment Request</string>
+    <string name="nfc_payment_request_message">A new payment request is received.</string>
+    <string name="nfc_payment_pay_button">Pay</string>
+    <string name="nfc_payment_reject_button">Reject</string>
+    
+    <!-- Payment Success -->
+    <string name="payment_sent_title">Payment Sent</string>
+    <string name="payment_sent_message">Payment of {1} SOL sent successfully!\nTransaction: {2}</string>
+    
+    <!-- Payment Errors -->
+    <string name="payment_failed_title">Payment Failed</string>
+    <string name="payment_failed_send_message">Failed to send payment: {1}</string>
+    <string name="payment_failed_prepare_message">Failed to prepare payment: {1}</string>
+    <string name="authentication_failed_title">Authentication Failed</string>
+    <string name="authentication_failed_message">Could not authenticate to access wallet: {1}</string>
+
     <!-- Common Texts -->
     <string name="okay">Okay</string>
     <string name="send">Send</string>

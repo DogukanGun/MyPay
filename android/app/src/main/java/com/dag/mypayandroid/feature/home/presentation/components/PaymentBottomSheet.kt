@@ -23,6 +23,7 @@ import com.dag.mypayandroid.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentBottomSheet(
+    userWalletAddress: String,
     isVisible: Boolean,
     isSendMode: Boolean,
     nfcPaymentState: NFCPaymentState,
@@ -80,6 +81,7 @@ fun PaymentBottomSheet(
                     title = sendViewTitle,
                     backgroundColor = Color.Transparent,
                     modifier = Modifier.height(sheetHeight),
+                    userWalletAddress = userWalletAddress,
                     onBackClick = { onDismiss() }
                 )
             } else {

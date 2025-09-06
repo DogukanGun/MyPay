@@ -86,6 +86,7 @@ fun HomeView(
                     isSendMode = isSendMode,
                     onDismiss = { showPaymentSheet = false },
                     nfcPaymentState = nfcPaymentState,
+                    userWalletAddress = (state as HomeVS.Success).walletAddress ?: "",
                     resetNFCPaymentState = { viewModel.resetNFCPaymentState() },
                     initiateNFCPayment = { amount, pk ->
                         isSendMode = true

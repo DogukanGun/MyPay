@@ -62,7 +62,7 @@ fun CardView(
                     modifier = Modifier.height((rowHeight).dp)
                 )
                 Text(
-                    walletAddress.slice(1..8) +
+                    walletAddress.slice(0..8) +
                             "..." +
                             walletAddress.slice(walletAddress.length - 8..walletAddress.length - 1),
                     color = Color.Black

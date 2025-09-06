@@ -25,6 +25,7 @@ import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
 import com.dag.mypayandroid.base.solanapay.SolanaPayURLEncoder
 import com.dag.mypayandroid.base.solanapay.TransferRequestURLFields
+import com.dag.mypayandroid.base.helper.blockchain.SolanaHelper
 import com.web3auth.core.Web3Auth
 import com.web3auth.core.types.UserInfo
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,9 @@ import org.sol4k.PublicKey
 import org.sol4k.RpcUrl
 import java.math.BigDecimal
 import com.dag.mypayandroid.base.solanapay.SolanaPayURLParser
+import androidx.core.content.ContextCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
+import com.dag.mypayandroid.R
 
 @HiltViewModel
 class HomeVM @Inject constructor(
@@ -45,7 +49,9 @@ class HomeVM @Inject constructor(
     private val defaultNavigator: DefaultNavigator,
     private val alertDialogManager: AlertDialogManager,
     private val notificationStateManager: NotificationStateManager,
-    private val nfcHelper: NFCHelper
+    private val nfcHelper: NFCHelper,
+    private val solanaHelper: SolanaHelper,
+    @ApplicationContext private val context: Context
 ) : BaseVM<HomeVS>(initialValue = HomeVS.Companion.initial()) {
 
     private var _askForPermission = MutableStateFlow(false)
@@ -207,15 +213,172 @@ class HomeVM @Inject constructor(
                     viewModelScope.launch {
                         alertDialogManager.showAlert(
                             AlertDialogModel(
-                                "Payment Request",
-                                "A new payment request is received.",
+                                ContextCompat.getString(
+                                    context,
+                                    R.string.nfc_payment_request_title
+                                ),
+                                ContextCompat.getString(
+                                    context,
+                                    R.string.nfc_payment_request_message
+                                ),
                                 positiveButton = AlertDialogButton(
-                                    text = "Pay",
-                                    onClick = {},
+                                    text = ContextCompat.getString(
+                                        context,
+                                        R.string.nfc_payment_pay_button
+                                    ),
+                                    onClick = {
+                                        // Get private key and execute the payment
+                                        walletManager.getPrivateKey(
+                                            onSuccess = { privateKeyHex ->
+                                                viewModelScope.launch {
+                                                    try {
+                                                        // Create keypair from private key
+                                                        val privateKeyBytes =
+                                                            hexStringToByteArray(privateKeyHex)
+                                                        val keypair =
+                                                            Keypair.fromSecretKey(privateKeyBytes)
+
+                                                        // Execute the payment using SolanaHelper on IO thread
+                                                        viewModelScope.launch {
+                                                            solanaHelper.receiveSolanaPayAndMakePayment(
+                                                                keypair = keypair,
+                                                                paymentUrl = message,
+                                                                onSigned = { transaction ->
+                                                                // Transaction signed successfully
+                                                                viewModelScope.launch {
+                                                                    try {
+                                                                        // Send the transaction to the network on IO thread
+                                                                        val signature = withContext(Dispatchers.IO) {
+                                                                            val connection =
+                                                                                Connection(RpcUrl.DEVNET)
+                                                                            connection.sendTransaction(transaction)
+                                                                        }
+
+                                                                        // Update NFC state to indicate success
+                                                                        _nfcPaymentState.value =
+                                                                            NFCPaymentState.PaymentSent(
+                                                                                signature
+                                                                            )
+                                                                        var successMessage = ContextCompat.getString(
+                                                                            context,
+                                                                            R.string.payment_sent_message,
+                                                                        )
+                                                                        successMessage = successMessage.replace("{1}",parsed.amount.toString())
+                                                                        successMessage = successMessage.replace("{2}",signature)
+                                                                        // Show success message
+                                                                        alertDialogManager.showAlert(
+                                                                            AlertDialogModel(
+                                                                                ContextCompat.getString(
+                                                                                    context,
+                                                                                    R.string.payment_sent_title
+                                                                                ),
+                                                                                successMessage,
+                                                                                positiveButton = AlertDialogButton(
+                                                                                    text = ContextCompat.getString(
+                                                                                        context,
+                                                                                        R.string.okay
+                                                                                    ),
+                                                                                    type = AlertDialogButtonType.CLOSE
+                                                                                )
+                                                                            )
+                                                                        )
+
+                                                                        // Refresh balance after successful payment
+                                                                        getBalance()
+                                                                    } catch (e: Exception) {
+                                                                        Log.e(
+                                                                            TAG,
+                                                                            "Error sending transaction: ${e.message}",
+                                                                            e
+                                                                        )
+                                                                        _nfcPaymentState.value =
+                                                                            NFCPaymentState.Error("Failed to send payment: ${e.message}")
+                                                                        alertDialogManager.showAlert(
+                                                                            AlertDialogModel(
+                                                                                ContextCompat.getString(
+                                                                                    context,
+                                                                                    R.string.payment_failed_title
+                                                                                ),
+                                                                                ContextCompat.getString(
+                                                                                    context,
+                                                                                    R.string.payment_failed_send_message).replace("{1}","Unknown error"),
+                                                                                positiveButton = AlertDialogButton(
+                                                                                    text = ContextCompat.getString(
+                                                                                        context,
+                                                                                        R.string.okay
+                                                                                    ),
+                                                                                    type = AlertDialogButtonType.CLOSE
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                }
+                                                            }
+                                                        )
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        Log.e(
+                                                            TAG,
+                                                            "Error preparing payment: ${e.message}",
+                                                            e
+                                                        )
+                                                        _nfcPaymentState.value =
+                                                            NFCPaymentState.Error("Failed to prepare payment: ${e.message}")
+                                                        alertDialogManager.showAlert(
+                                                            AlertDialogModel(
+                                                                ContextCompat.getString(
+                                                                    context,
+                                                                    R.string.payment_failed_title
+                                                                ),
+                                                                ContextCompat.getString(
+                                                                    context,
+                                                                    R.string.payment_failed_prepare_message).replace("{1}","Unknown error"),
+                                                                positiveButton = AlertDialogButton(
+                                                                    text = ContextCompat.getString(
+                                                                        context,
+                                                                        R.string.okay
+                                                                    ),
+                                                                    type = AlertDialogButtonType.CLOSE
+                                                                )
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            },
+                                            onError = { error ->
+                                                Log.e(TAG, "Error getting private key: $error")
+                                                _nfcPaymentState.value =
+                                                    NFCPaymentState.Error("Authentication failed: $error")
+                                                viewModelScope.launch {
+                                                    alertDialogManager.showAlert(
+                                                        AlertDialogModel(
+                                                            ContextCompat.getString(
+                                                                context,
+                                                                R.string.authentication_failed_title
+                                                            ),
+                                                            ContextCompat.getString(
+                                                                context,
+                                                                R.string.authentication_failed_message).replace("{1}",error),
+                                                            positiveButton = AlertDialogButton(
+                                                                text = ContextCompat.getString(
+                                                                    context,
+                                                                    R.string.okay
+                                                                ),
+                                                                type = AlertDialogButtonType.CLOSE
+                                                            )
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        )
+                                    },
                                     type = AlertDialogButtonType.CUSTOM
                                 ),
                                 negativeButton = AlertDialogButton(
-                                    text = "Reject",
+                                    text = ContextCompat.getString(
+                                        context,
+                                        R.string.nfc_payment_reject_button
+                                    ),
                                     type = AlertDialogButtonType.CLOSE
                                 )
                             )
@@ -223,7 +386,8 @@ class HomeVM @Inject constructor(
                     }
                     _nfcPaymentState.value = NFCPaymentState.RequestReceived(message, parsed.amount)
                 } catch (e: Exception) {
-                    _nfcPaymentState.value = NFCPaymentState.Error("Invalid payment request received: ${e.message}")
+                    _nfcPaymentState.value =
+                        NFCPaymentState.Error("Invalid payment request received: ${e.message}")
                     Log.e(TAG, "Error parsing NFC payment URL", e)
                 }
             }
@@ -261,7 +425,8 @@ class HomeVM @Inject constructor(
     fun sendNFCPayment(amount: Int, recipient: PublicKey) {
         // Check if NFC is available first
         if (!nfcHelper.isNfcEnabled()) {
-            _nfcPaymentState.value = NFCPaymentState.Error("Please enable NFC in your device settings.")
+            _nfcPaymentState.value =
+                NFCPaymentState.Error("Please enable NFC in your device settings.")
             return
         }
 
@@ -284,10 +449,14 @@ class HomeVM @Inject constructor(
             nfcHelper.sendMessage(url.toString())
 
             _nfcPaymentState.value = NFCPaymentState.Sending
-            Log.d(TAG, "NFC payment message prepared for sending via HCE - now tap devices together")
+            Log.d(
+                TAG,
+                "NFC payment message prepared for sending via HCE - now tap devices together"
+            )
 
         } catch (e: Exception) {
-            _nfcPaymentState.value = NFCPaymentState.Error("Failed to prepare payment: ${e.message}")
+            _nfcPaymentState.value =
+                NFCPaymentState.Error("Failed to prepare payment: ${e.message}")
             Log.e(TAG, "Error preparing NFC payment", e)
         }
     }
@@ -297,7 +466,8 @@ class HomeVM @Inject constructor(
      */
     fun switchNFCMode(mode: NFCMode) {
         if (!nfcHelper.isNfcEnabled()) {
-            _nfcPaymentState.value = NFCPaymentState.Error("Please enable NFC in your device settings.")
+            _nfcPaymentState.value =
+                NFCPaymentState.Error("Please enable NFC in your device settings.")
             return
         }
 
@@ -310,6 +480,7 @@ class HomeVM @Inject constructor(
                 Log.d(TAG, "Now in READER mode - ready to receive payments")
                 NFCPaymentState.Receiving
             }
+
             NFCMode.TAG -> {
                 Log.d(TAG, "Now in TAG mode - ready to send payments")
                 NFCPaymentState.Idle // Will be updated to Sending when message is prepared
@@ -321,4 +492,17 @@ class HomeVM @Inject constructor(
      * Get current NFC mode
      */
     fun getCurrentNFCMode(): NFCMode = nfcHelper.getCurrentMode()
+
+    /**
+     * Helper method to convert hex string to byte array
+     */
+    private fun hexStringToByteArray(hex: String): ByteArray {
+        val len = hex.length
+        val data = ByteArray(len / 2)
+        for (i in 0 until len step 2) {
+            data[i / 2] =
+                ((Character.digit(hex[i], 16) shl 4) + Character.digit(hex[i + 1], 16)).toByte()
+        }
+        return data
+    }
 }

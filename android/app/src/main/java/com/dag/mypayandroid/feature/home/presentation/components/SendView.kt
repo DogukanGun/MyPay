@@ -25,6 +25,7 @@ import com.dag.mypayandroid.ui.theme.*
 
 @Composable
 fun SendView(
+    userWalletAddress: String,
     amount: String? = null,
     backgroundColor: Color = DarkBackground,
     modifier: Modifier = Modifier,
@@ -140,7 +141,7 @@ fun SendView(
                 .background(Color.Transparent)
                 .padding(vertical = 16.dp)
         ) {
-            CardView()
+            CardView(walletAddress = userWalletAddress)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -164,5 +165,5 @@ fun SendView(
 @Preview
 @Composable
 fun SendViewPreview() {
-    SendView(onBackClick = {})
+    SendView(userWalletAddress="",onBackClick = {})
 } 

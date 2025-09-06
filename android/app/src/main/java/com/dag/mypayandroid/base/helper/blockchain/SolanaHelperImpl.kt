@@ -9,25 +9,29 @@ import org.sol4k.Keypair
 import org.sol4k.PublicKey
 import org.sol4k.Transaction
 import java.net.URI
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class SolanaHelperImpl(
     val connection: Connection,
     val walletManager: WalletManager
 ) : SolanaHelper {
 
-    private fun makePayment(
+    private suspend fun makePayment(
         keypair: Keypair,
         transferRequestField: TransferRequestURLFields,
         onSigned: (tx: Transaction)-> Unit
     ) {
         walletManager.getPublicKey() ?: return
         walletManager.getPublicKey()?.let {
-            val tx = TransferCreator
-                .createTransfer(
+            // Move network operations to IO thread
+            val tx = withContext(Dispatchers.IO) {
+                TransferCreator.createTransfer(
                     connection = connection,
                     sender = PublicKey(it),
                     fields = transferRequestField
                 )
+            }
             tx.sign(keypair)
             onSigned(tx)
         }

@@ -27,6 +27,7 @@ sealed class NFCPaymentState {
     object Completed : NFCPaymentState()
     object Receiving : NFCPaymentState()
     data class RequestReceived(val paymentUrl: String, val amount: BigDecimal) : NFCPaymentState()
+    data class PaymentSent(val transactionSignature: String) : NFCPaymentState()
     data class Error(val message: String) : NFCPaymentState()
     data class Success(val message: String) : NFCPaymentState()
 }

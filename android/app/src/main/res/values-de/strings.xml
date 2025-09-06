@@ -51,6 +51,23 @@
     <string name="legal_title">Rechtlicher Hinweis</string>
     <string name="legal_message">Es ist einfach, wir übernehmen keine Verantwortung.</string>
 
+    <!-- NFC Payment Strings -->
+    <string name="nfc_payment_request_title">Zahlungsanfrage</string>
+    <string name="nfc_payment_request_message">Eine neue Zahlungsanfrage wurde empfangen.</string>
+    <string name="nfc_payment_pay_button">Bezahlen</string>
+    <string name="nfc_payment_reject_button">Ablehnen</string>
+    
+    <!-- Payment Success -->
+    <string name="payment_sent_title">Zahlung Gesendet</string>
+    <string name="payment_sent_message">Zahlung von %1$s SOL erfolgreich gesendet!\nTransaktion: %2$s</string>
+    
+    <!-- Payment Errors -->
+    <string name="payment_failed_title">Zahlung Fehlgeschlagen</string>
+    <string name="payment_failed_send_message">Zahlung konnte nicht gesendet werden: %1$s</string>
+    <string name="payment_failed_prepare_message">Zahlung konnte nicht vorbereitet werden: %1$s</string>
+    <string name="authentication_failed_title">Authentifizierung Fehlgeschlagen</string>
+    <string name="authentication_failed_message">Wallet-Zugriff konnte nicht authentifiziert werden: %1$s</string>
+
     <!-- Common Texts -->
     <string name="okay">Okay</string>
     <string name="send">Senden</string>
