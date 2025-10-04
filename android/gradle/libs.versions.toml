@@ -1,7 +1,7 @@
 [versions]
 agp = "8.9.2"
-githubWeb3authAndroidSdk = "9.0.4"
-githubWeb3authAndroidSdkVersion = "9.0.4"
+converterGson = "3.0.0"
+multidex = "2.0.1"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -15,13 +15,15 @@ hiltAndroid = "2.56.1"
 hiltNavigationFragment = "1.2.0"
 core = "5.0.0"
 navigationCompose = "2.9.3"
+retrofit = "3.0.0"
 sol4k = "0.5.17"
-web3authAndroidSdk = "9.0.4"
-web3authAndroidSdkVersion = "9.0.4"
-
+firebaseBom = "33.14.0"
+securityCrypto = "1.1.0-alpha06"
+datastore = "1.1.7"
+datastorePreferences = "1.1.4"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-github-web3auth-android-sdk = { module = "com.github.Web3Auth:web3auth-android-sdk", version.ref = "githubWeb3authAndroidSdkVersion" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -44,9 +46,13 @@ hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", ve
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltAndroid" }
 core = { module = "org.web3j:core", version.ref = "core" }
 hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hiltAndroid" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 sol4k = { module = "org.sol4k:sol4k", version.ref = "sol4k" }
-web3auth-android-sdk = { module = "com.github.web3auth:web3auth-android-sdk", version.ref = "web3authAndroidSdk" }
-
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

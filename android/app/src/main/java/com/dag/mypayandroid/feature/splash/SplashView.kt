@@ -15,15 +15,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import com.dag.mypayandroid.R
-import com.dag.mypayandroid.base.navigation.Destination
 import com.dag.mypayandroid.ui.theme.iconGradient
-import com.dag.mypayandroid.feature.splash.SplashVM
 
 @Composable
 fun SplashView(

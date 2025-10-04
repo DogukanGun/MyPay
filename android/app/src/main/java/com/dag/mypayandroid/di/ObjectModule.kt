@@ -2,6 +2,7 @@ package com.dag.mypayandroid.di
 
 import android.content.Context
 import android.content.pm.PackageManager
+import com.dag.mypayandroid.base.data.repository.WalletRepository
 
 import com.dag.mypayandroid.base.helper.system.ActivityHolder
 import com.dag.mypayandroid.base.helper.system.AlertDialogManager
@@ -9,13 +10,10 @@ import com.dag.mypayandroid.base.helper.security.BiometricHelper
 import com.dag.mypayandroid.base.helper.blockchain.SolanaHelper
 import com.dag.mypayandroid.base.helper.blockchain.SolanaHelperImpl
 import com.dag.mypayandroid.base.helper.blockchain.WalletManager
-import com.dag.mypayandroid.base.helper.blockchain.Web3AuthHelper
-import com.dag.mypayandroid.base.helper.blockchain.Web3AuthHelperImpl
 import com.dag.mypayandroid.base.helper.security.NFCHelper
 import com.dag.mypayandroid.base.navigation.DefaultNavigator
 import com.dag.mypayandroid.base.navigation.Destination
 import com.dag.mypayandroid.base.scroll.ScrollStateManager
-import com.web3auth.core.Web3Auth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -55,11 +53,6 @@ class ObjectModules {
         return context.packageManager
     }
 
-    @Provides
-    @Singleton
-    fun provideWeb3AuthHelperImpl(web3Auth: Web3Auth): Web3AuthHelper {
-        return Web3AuthHelperImpl(web3Auth)
-    }
 
     @Provides
     @Singleton
@@ -80,9 +73,10 @@ class ObjectModules {
     fun provideWalletManager(
         biometricHelper: BiometricHelper,
         activityHolder: ActivityHolder,
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        walletRepository: WalletRepository
     ): WalletManager {
-        return WalletManager(biometricHelper, activityHolder, context)
+        return WalletManager(biometricHelper, activityHolder, context, walletRepository)
     }
 
     @Provides

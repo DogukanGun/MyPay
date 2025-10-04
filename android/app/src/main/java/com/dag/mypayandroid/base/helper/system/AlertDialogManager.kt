@@ -17,6 +17,10 @@ class AlertDialogManager {
         _alertFlow.emit(alertDialogModel)
     }
 
+    fun showCommonErrorMessage(){
+
+    }
+
     fun showComingSoonMessage(){
         runBlocking(Dispatchers.IO) {
             _alertFlow.emit(

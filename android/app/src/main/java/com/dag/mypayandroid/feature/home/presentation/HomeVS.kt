@@ -1,7 +1,7 @@
 package com.dag.mypayandroid.feature.home.presentation
 
 import com.dag.mypayandroid.base.BaseVS
-import com.web3auth.core.types.UserInfo
+import com.dag.mypayandroid.feature.home.domain.model.UserProfile
 import java.math.BigDecimal
 
 sealed class HomeVS : BaseVS {
@@ -12,7 +12,7 @@ sealed class HomeVS : BaseVS {
         var walletAddress: String? = null,
         val shouldShowPopup: Boolean = false,
         val balance: String? = null,
-        val userInfo: UserInfo? = null,
+        val userProfile: UserProfile? = null,
         val isLoadingBalance: Boolean = false
     ) : HomeVS()
 

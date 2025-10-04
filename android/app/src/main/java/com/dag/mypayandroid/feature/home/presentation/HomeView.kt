@@ -8,23 +8,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dag.mypayandroid.feature.home.presentation.components.HomeErrorView
 import com.dag.mypayandroid.feature.home.presentation.components.HomeSuccessScreen
 import com.dag.mypayandroid.feature.home.presentation.components.PaymentBottomSheet
 import com.dag.mypayandroid.ui.theme.*
-import com.web3auth.core.Web3Auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(
-    web3Auth: Web3Auth,
     viewModel: HomeVM = hiltViewModel()
 ) {
     val state by viewModel.viewState.collectAsState()
     val askForPermission by viewModel.askForPermission.collectAsState()
     val nfcPaymentState by viewModel.nfcPaymentState.collectAsState()
+    val selectedChain by viewModel.selectedChain.collectAsState()
 
     // Animation properties
     val animatedProgress = remember { Animatable(0f) }
@@ -33,10 +31,6 @@ fun HomeView(
             targetValue = 1f,
             animationSpec = tween(800, easing = FastOutSlowInEasing)
         )
-    }
-
-    LaunchedEffect(true) {
-        viewModel.fetchUserDataAfterAuth(web3Auth)
     }
 
     // Bottom sheet state
@@ -68,6 +62,8 @@ fun HomeView(
                     state = (state as HomeVS.Success),
                     askForPermission = askForPermission,
                     animatedProgress = animatedProgress,
+                    selectedChain = selectedChain,
+                    onChainChanged = viewModel::switchChain,
                     onSend = {
                         isSendMode = true
                         showPaymentSheet = true
@@ -77,7 +73,7 @@ fun HomeView(
                         showPaymentSheet = true
                     },
                     onRefresh = {
-                        viewModel.fetchUserDataAfterAuth(web3Auth)
+
                     }
                 )
 

@@ -6,6 +6,10 @@
     <string name="alert_dialog_user_input">Please write here …</string>
     <string name="web3auth_project_id">BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ</string>
 
+    <!-- Login View -->
+    <string name="login_screen_title">Welcome to MyPay</string>
+    <string name="login_screen_text">Connect your X account to continue</string>
+
     <!-- Home View Strings -->
     <string name="home_view_available_balance">Available Balance</string>
     <string name="home_view_portfolio">Portfolio</string>

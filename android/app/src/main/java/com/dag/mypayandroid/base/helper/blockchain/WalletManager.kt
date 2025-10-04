@@ -1,15 +1,15 @@
 package com.dag.mypayandroid.base.helper.blockchain
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.dag.mypayandroid.base.extensions.toHexString
+import com.dag.mypayandroid.base.network.WalletInfo
 import com.dag.mypayandroid.base.helper.security.BiometricHelper
 import com.dag.mypayandroid.base.helper.system.ActivityHolder
+import com.dag.mypayandroid.base.data.repository.WalletRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,23 +17,16 @@ import javax.inject.Singleton
 class WalletManager @Inject constructor(
     private val biometricHelper: BiometricHelper,
     private val activityHolder: ActivityHolder,
-    private val context: Context
+    private val context: Context,
+    private val walletRepository: WalletRepository
 ) {
     companion object {
-        private const val WALLET_PREF = "WALLET_PREFERENCES"
-        private const val KEY_ENCRYPTED_PRIVATE_KEY = "ENCRYPTED_PRIVATE_KEY"
-        private const val KEY_ENCRYPTED_IV = "ENCRYPTED_IV"
-        private const val KEY_PUBLIC_KEY = "PUBLIC_KEY"
         private const val WALLET_BIOMETRIC_KEY_NAME = "WALLET_SECURE_KEY"
 
         // Default messages
         private const val DEFAULT_TITLE = "Authentication Required"
         private const val DEFAULT_SUBTITLE = "Authenticate to access your wallet"
         private const val DEFAULT_NEGATIVE_BUTTON = "Cancel"
-    }
-
-    private val preferences: SharedPreferences by lazy {
-        context.getSharedPreferences(WALLET_PREF, Context.MODE_PRIVATE)
     }
 
     private val _walletState = MutableLiveData<WalletState>(WalletState.Uninitialized)
@@ -48,11 +41,8 @@ class WalletManager @Inject constructor(
      * Check if wallet exists and update state
      */
     private fun checkWalletState() {
-        val hasEncryptedData = preferences.contains(KEY_ENCRYPTED_PRIVATE_KEY)
-        val hasPublicKey = preferences.contains(KEY_PUBLIC_KEY)
-
         _walletState.value = when {
-            hasEncryptedData && hasPublicKey -> WalletState.Locked
+            walletRepository.hasWalletData() -> WalletState.Locked
             else -> WalletState.NotCreated
         }
     }
@@ -79,14 +69,9 @@ class WalletManager @Inject constructor(
                         try {
                             val encryptedData = biometricHelper.encryptData(privateKey, cryptoObject)
                             
-                            // Store encrypted private key and IV
-                            preferences.edit().apply {
-                                putString(KEY_ENCRYPTED_PRIVATE_KEY, encryptedData.encryptedData.toHexString())
-                                putString(KEY_ENCRYPTED_IV, encryptedData.iv.toHexString())
-                                putString(KEY_PUBLIC_KEY, publicKey)
-                                putString(KEY_PUBLIC_KEY, publicKey)
-                                apply()
-                            }
+                            // Store private key and public key using WalletRepository
+                            walletRepository.savePrivateKey(privateKey)
+                            walletRepository.savePublicKey(publicKey)
                             
                             _walletState.value = WalletState.Locked
                             onSuccess()
@@ -119,17 +104,19 @@ class WalletManager @Inject constructor(
             return
         }
 
-        val encryptedPrivateKeyHex = preferences.getString(KEY_ENCRYPTED_PRIVATE_KEY, null)
-        val ivHex = preferences.getString(KEY_ENCRYPTED_IV, null)
+        val privateKeyResult = walletRepository.getPrivateKey()
 
-        if (encryptedPrivateKeyHex == null || ivHex == null) {
-            onError("Wallet data is corrupted")
+        if (privateKeyResult.isFailure) {
+            onError("Failed to access wallet data")
             return
         }
 
-        try {
-            val encryptedPrivateKey = hexStringToByteArray(encryptedPrivateKeyHex)
-            val iv = hexStringToByteArray(ivHex)
+        val privateKeyFromRepo = privateKeyResult.getOrNull()
+
+        if (privateKeyFromRepo == null) {
+            onError("Wallet data is corrupted")
+            return
+        }
 
             activity?.let { fragmentActivity ->
                 biometricHelper.setupBiometricPrompt(
@@ -140,14 +127,12 @@ class WalletManager @Inject constructor(
                     onSuccess = { cryptoObject ->
                         if (cryptoObject != null) {
                             try {
-                                val encryptedData = BiometricHelper.EncryptedData(encryptedPrivateKey, iv)
-                                val privateKey = biometricHelper.decryptData(encryptedData, cryptoObject)
-                                onSuccess(privateKey)
+                                onSuccess(privateKeyFromRepo)
                             } catch (e: Exception) {
-                                onError("Failed to decrypt wallet: ${e.message}")
+                                onError("Failed to access wallet: ${e.message}")
                             }
                         } else {
-                            onError("Decryption failed: Crypto object is null")
+                            onError("Authentication failed: Crypto object is null")
                         }
                     },
                     onError = { errorCode, errorMessage ->
@@ -155,26 +140,80 @@ class WalletManager @Inject constructor(
                     }
                 )
                 
-                biometricHelper.showDecryptionBiometricPrompt(iv)
+                biometricHelper.showBiometricPrompt()
             } ?: onError("Activity not available")
-        } catch (e: Exception) {
-            onError("Failed to access wallet: ${e.message}")
-        }
     }
 
     /**
      * Get public key without biometric authentication
      */
     fun getPublicKey(): String? {
-        return preferences.getString(KEY_PUBLIC_KEY, null)
+        return walletRepository.getPublicKey().getOrNull()
     }
 
     /**
      * Clear wallet data (for logout)
      */
     fun clearWallet() {
-        preferences.edit().clear().apply()
+        walletRepository.clearWallet()
         _walletState.value = WalletState.NotCreated
+    }
+    
+    fun clearAllWallets() {
+        clearWallet()
+    }
+
+    /**
+     * Store both ETH and Solana wallets securely with biometric authentication
+     */
+    fun storeWallets(
+        ethWallet: WalletInfo?,
+        solanaWallet: WalletInfo?,
+        onResult: (Boolean) -> Unit
+    ) {
+        if (ethWallet == null && solanaWallet == null) {
+            onResult(false)
+            return
+        }
+
+        val activity = activityHolder.getActivity() as? FragmentActivity
+        activity?.let { fragmentActivity ->
+            biometricHelper.setupBiometricPrompt(
+                activity = fragmentActivity,
+                title = DEFAULT_TITLE,
+                subtitle = "Authenticate to secure your wallets",
+                negativeButtonText = DEFAULT_NEGATIVE_BUTTON,
+                onSuccess = { cryptoObject ->
+                    if (cryptoObject != null) {
+                        try {
+                            // Store ETH wallet if provided
+                            ethWallet?.let { wallet ->
+                                walletRepository.saveEthPrivateKey(wallet.private_key)
+                                walletRepository.saveEthPublicKey(wallet.public_address)
+                            }
+                            
+                            // Store Solana wallet if provided  
+                            solanaWallet?.let { wallet ->
+                                walletRepository.saveSolanaPrivateKey(wallet.private_key)
+                                walletRepository.saveSolanaPublicKey(wallet.public_address)
+                            }
+                            
+                            _walletState.value = WalletState.Locked
+                            onResult(true)
+                        } catch (e: Exception) {
+                            onResult(false)
+                        }
+                    } else {
+                        onResult(false)
+                    }
+                },
+                onError = { errorCode, errorMessage ->
+                    onResult(false)
+                }
+            )
+            
+            biometricHelper.showBiometricPrompt()
+        } ?: onResult(false)
     }
 
     /**

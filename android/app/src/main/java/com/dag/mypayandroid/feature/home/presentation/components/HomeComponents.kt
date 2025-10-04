@@ -47,6 +47,8 @@ fun HomeSuccessScreen(
     state: HomeVS.Success,
     askForPermission: Boolean,
     animatedProgress: Animatable<Float, AnimationVector1D>,
+    selectedChain: BlockchainChain,
+    onChainChanged: (BlockchainChain) -> Unit,
     onReceive: () -> Unit,
     onSend: () -> Unit,
     onRefresh: () -> Unit
@@ -92,6 +94,15 @@ fun HomeSuccessScreen(
             .padding(16.dp)
             .alpha(animatedProgress.value),
     ) {
+        // Chain Selector
+        item {
+            ChainSelector(
+                selectedChain = selectedChain,
+                onChainChanged = onChainChanged,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+        
         // Balance Section
         item {
             Row(
@@ -142,8 +153,8 @@ fun HomeSuccessScreen(
                     }
 
                     // Show user email if available
-                    state.userInfo?.let { userInfo ->
-                        userInfo.email.let { email ->
+                    state.userProfile?.let { userProfile ->
+                        userProfile.email?.let { email ->
                             if (email.isNotEmpty()) {
                                 Text(
                                     text = email,
@@ -301,7 +312,7 @@ fun HomeSuccessScreen(
         }
         
         // User Information Section if available
-        state.userInfo?.let { userInfo ->
+        state.userProfile?.let { userProfile ->
             item {
                 Text(
                     text = stringResource(R.string.home_view_account_information),
@@ -321,7 +332,7 @@ fun HomeSuccessScreen(
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        userInfo.name.let {
+                        userProfile.name?.let {
                             if (it.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -367,7 +378,7 @@ fun HomeSuccessScreen(
                                 }
                             }
                         }
-                        userInfo.verifier.let {
+                        userProfile.typeOfLogin?.let {
                             if (it.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -486,6 +497,8 @@ fun HomeSuccessScreenPreview() {
         animatedProgress = animatedProgress,
         onSend = {},
         onReceive = {},
-        onRefresh = {}
+        onRefresh = {},
+        selectedChain = BlockchainChain.SOLANA,
+        onChainChanged = {}
     )
 }

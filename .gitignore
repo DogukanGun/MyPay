@@ -1,0 +1,20 @@
+# Ignore real environment configs
+Config/*.xcconfig
+ios/*/Config/
+ios/Config/
+
+# Firebase configuration files
+android/app/google-services.json
+ios/MyPayIos/MyPayIos/GoogleService-Info.plist
+
+# iOS specific
+ios/*/Pods/
+ios/Pods/
+ios/*/Podfile.lock
+ios/Podfile.lock
+ios/*/*.xcworkspace
+ios/*.xcworkspace
+ios/*/*.xcuserdata
+ios/*.xcuserdata
+ios/*/xcuserdata/
+ios/xcuserdata/

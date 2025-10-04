@@ -4,7 +4,6 @@ import android.content.Intent
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
@@ -30,12 +29,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.dag.mypayandroid.base.bottomnav.BottomNavMessageManager
@@ -55,16 +52,11 @@ import com.dag.mypayandroid.base.scroll.ScrollStateManager
 import com.dag.mypayandroid.ui.theme.Background
 import com.dag.mypayandroid.ui.theme.DarkBackground
 import com.dag.mypayandroid.ui.theme.MyPayAndroidTheme
-import com.web3auth.core.Web3Auth
-import com.web3auth.core.types.Network
-import com.web3auth.core.types.Web3AuthOptions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import kotlin.getValue
-import com.dag.mypayandroid.base.data.Intent.Web3WalletManagement
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
@@ -88,7 +80,6 @@ class MainActivity : FragmentActivity() {
     lateinit var activityHolder: ActivityHolder
 
     companion object {
-        lateinit var web3Auth: Web3Auth
         private const val TAG = "MainActivity"
     }
 
@@ -104,29 +95,6 @@ class MainActivity : FragmentActivity() {
         nfcHelper = NFCHelper(this)
         val showAlert = mutableStateOf(false)
         val alertDialogModel = mutableStateOf<AlertDialogModel?>(null)
-
-        // Initialize Web3Auth
-        web3Auth = Web3Auth(
-            Web3AuthOptions(
-                clientId = BuildConfig.web3authKey,
-                network = Network.SAPPHIRE_DEVNET,
-                redirectUrl = "com.dag.mypayandroid://auth".toUri(),
-            ), this
-        )
-        web3Auth.setResultUrl(intent?.data)
-
-        // Call initialize() in onCreate() to check for any existing session.
-        val sessionResponse: CompletableFuture<Void> = web3Auth.initialize()
-        sessionResponse.whenComplete { _, error ->
-            if (error == null) {
-                Log.d(TAG, "Web3Auth initialized successfully")
-                Log.d(TAG, "PrivKey: " + web3Auth.getPrivkey())
-                Log.d(TAG, "ed25519PrivKey: " + web3Auth.getEd25519PrivKey())
-                Log.d(TAG, "Web3Auth UserInfo" + web3Auth.getUserInfo())
-            } else {
-                Log.e(TAG, "Web3Auth initialization failed: ${error.message}", error)
-            }
-        }
 
         // Initialize alert dialog observer
         if (::alertDialogManager.isInitialized && lifecycleScope.isActive) {
@@ -178,11 +146,10 @@ class MainActivity : FragmentActivity() {
                                         actions = {
                                             IconButton(
                                                 onClick = {
+                                                    // Perform logout - clear all user data
                                                     lifecycleScope.launch {
-                                                        intentManager
-                                                            .requestIntent(
-                                                                com.dag.mypayandroid.base.data.Intent.Web3AuthLogout(web3Auth)
-                                                            )
+                                                        // Clear auth data and navigate
+                                                        mainVM.logout()
                                                         defaultNavigator.navigate(Destination.LoginScreen) {
                                                             launchSingleTop = true
                                                             popUpTo(0) { inclusive = true }
@@ -197,25 +164,6 @@ class MainActivity : FragmentActivity() {
                                                     modifier = Modifier.size(24.dp)
                                                 )
                                             }
-                                            IconButton(
-                                                onClick = {
-                                                    lifecycleScope.launch {
-                                                        intentManager
-                                                            .requestIntent(
-                                                                Web3WalletManagement(
-                                                                    web3Auth
-                                                                )
-                                                            )
-                                                    }
-                                                }
-                                            ) {
-                                                Icon(
-                                                    painter = painterResource(R.drawable.baseline_wallet),
-                                                    contentDescription = "Wallet",
-                                                    tint = Color.White,
-                                                    modifier = Modifier.size(24.dp)
-                                                )
-                                            }
                                         }
                                     )
                                 }
@@ -223,8 +171,7 @@ class MainActivity : FragmentActivity() {
                                 DefaultNavigationHost(
                                     navigator = defaultNavigator,
                                     modifier = Modifier.weight(1f),
-                                    startDestination = Destination.Splash,
-                                    web3Auth = web3Auth
+                                    startDestination = Destination.Splash
                                 ) {
                                     currentRoute.value = it.destination.route
                                         ?.split(".")?.last()
@@ -273,14 +220,6 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (Web3Auth.getCustomTabsClosed()) {
-            Toast.makeText(this, "User closed the browser.", Toast.LENGTH_SHORT).show()
-            web3Auth.setResultUrl(null)
-            Web3Auth.setCustomTabsClosed(false)
-        }
-    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -296,7 +235,6 @@ class MainActivity : FragmentActivity() {
             }
             else -> {
                 Log.d(TAG, "Non-NFC intent received")
-                web3Auth.setResultUrl(intent.data)
             }
         }
     }
