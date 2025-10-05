@@ -84,8 +84,8 @@ class HomeVM @Inject constructor(
     }
     
     private fun initializeWalletData() {
-        // Set the wallet address immediately
-        val walletAddress = walletManager.getPublicKey()
+        // Set the wallet address for the currently selected chain
+        val walletAddress = walletManager.getPublicKeyForChain(_selectedChain.value)
         updateSuccessState(walletAddress = walletAddress)
         
         // Get balance if wallet exists

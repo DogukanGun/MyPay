@@ -50,7 +50,6 @@ class WalletManager @Inject constructor(
     /**
      * Store wallet credentials securely with biometric authentication
      */
-    @RequiresApi(Build.VERSION_CODES.R)
     fun storeWalletCredentials(
         privateKey: String,
         publicKey: String,
@@ -92,7 +91,7 @@ class WalletManager @Inject constructor(
     }
 
     /**
-     * Get private key with biometric authentication
+     * Get private key with biometric authentication (prioritizes Solana, falls back to ETH)
      */
     fun getPrivateKey(
         activity: FragmentActivity? = activityHolder.getActivity() as? FragmentActivity,
@@ -104,63 +103,233 @@ class WalletManager @Inject constructor(
             return
         }
 
-        val privateKeyResult = walletRepository.getPrivateKey()
+        // Check for Solana wallet first, then ETH wallet, then legacy wallet
+        val solanaPrivateKeyResult = walletRepository.getSolanaPrivateKey()
+        val ethPrivateKeyResult = walletRepository.getEthPrivateKey()
+        val legacyPrivateKeyResult = walletRepository.getPrivateKey()
 
-        if (privateKeyResult.isFailure) {
-            onError("Failed to access wallet data")
-            return
+        val privateKeyFromRepo = when {
+            solanaPrivateKeyResult.isSuccess && solanaPrivateKeyResult.getOrNull() != null -> {
+                solanaPrivateKeyResult.getOrNull()
+            }
+            ethPrivateKeyResult.isSuccess && ethPrivateKeyResult.getOrNull() != null -> {
+                ethPrivateKeyResult.getOrNull()
+            }
+            legacyPrivateKeyResult.isSuccess && legacyPrivateKeyResult.getOrNull() != null -> {
+                legacyPrivateKeyResult.getOrNull()
+            }
+            else -> null
         }
-
-        val privateKeyFromRepo = privateKeyResult.getOrNull()
 
         if (privateKeyFromRepo == null) {
             onError("Wallet data is corrupted")
             return
         }
 
-            activity?.let { fragmentActivity ->
-                biometricHelper.setupBiometricPrompt(
-                    activity = fragmentActivity,
-                    title = DEFAULT_TITLE,
-                    subtitle = DEFAULT_SUBTITLE,
-                    negativeButtonText = DEFAULT_NEGATIVE_BUTTON,
-                    onSuccess = { cryptoObject ->
-                        if (cryptoObject != null) {
-                            try {
-                                onSuccess(privateKeyFromRepo)
-                            } catch (e: Exception) {
-                                onError("Failed to access wallet: ${e.message}")
-                            }
-                        } else {
-                            onError("Authentication failed: Crypto object is null")
+        activity?.let { fragmentActivity ->
+            biometricHelper.setupBiometricPrompt(
+                activity = fragmentActivity,
+                title = DEFAULT_TITLE,
+                subtitle = DEFAULT_SUBTITLE,
+                negativeButtonText = DEFAULT_NEGATIVE_BUTTON,
+                onSuccess = { cryptoObject ->
+                    if (cryptoObject != null) {
+                        try {
+                            onSuccess(privateKeyFromRepo)
+                        } catch (e: Exception) {
+                            onError("Failed to access wallet: ${e.message}")
                         }
-                    },
-                    onError = { errorCode, errorMessage ->
-                        onError("Authentication failed: $errorMessage")
+                    } else {
+                        onError("Authentication failed: Crypto object is null")
                     }
-                )
-                
-                biometricHelper.showBiometricPrompt()
-            } ?: onError("Activity not available")
+                },
+                onError = { errorCode, errorMessage ->
+                    onError("Authentication failed: $errorMessage")
+                }
+            )
+            
+            biometricHelper.showBiometricPrompt()
+        } ?: onError("Activity not available")
     }
 
     /**
-     * Get public key without biometric authentication
+     * Get public key without biometric authentication (prioritizes Solana, falls back to ETH)
      */
     fun getPublicKey(): String? {
-        return walletRepository.getPublicKey().getOrNull()
+        // Check for Solana wallet first, then ETH wallet, then legacy wallet
+        val solanaPublicKeyResult = walletRepository.getSolanaPublicKey()
+        val ethPublicKeyResult = walletRepository.getEthPublicKey()
+        val legacyPublicKeyResult = walletRepository.getPublicKey()
+
+        return when {
+            solanaPublicKeyResult.isSuccess && solanaPublicKeyResult.getOrNull() != null -> {
+                solanaPublicKeyResult.getOrNull()
+            }
+            ethPublicKeyResult.isSuccess && ethPublicKeyResult.getOrNull() != null -> {
+                ethPublicKeyResult.getOrNull()
+            }
+            legacyPublicKeyResult.isSuccess && legacyPublicKeyResult.getOrNull() != null -> {
+                legacyPublicKeyResult.getOrNull()
+            }
+            else -> null
+        }
     }
 
     /**
      * Clear wallet data (for logout)
      */
     fun clearWallet() {
+        // Clear legacy wallet
         walletRepository.clearWallet()
+        
+        // Clear new wallet storage
+        try {
+            walletRepository.saveEthPrivateKey("")
+            walletRepository.saveEthPublicKey("")
+            walletRepository.saveSolanaPrivateKey("")
+            walletRepository.saveSolanaPublicKey("")
+        } catch (e: Exception) {
+            // Ignore errors during cleanup
+        }
+        
         _walletState.value = WalletState.NotCreated
     }
     
     fun clearAllWallets() {
         clearWallet()
+    }
+
+    /**
+     * Get public key for specific chain
+     */
+    fun getPublicKeyForChain(chain: com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain): String? {
+        return when (chain) {
+            com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain.SOLANA -> {
+                walletRepository.getSolanaPublicKey().getOrNull()
+            }
+            com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain.ETHEREUM -> {
+                walletRepository.getEthPublicKey().getOrNull()
+            }
+        }
+    }
+
+    /**
+     * Get private key for specific chain with biometric authentication
+     */
+    fun getPrivateKeyForChain(
+        chain: com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain,
+        activity: FragmentActivity? = activityHolder.getActivity() as? FragmentActivity,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        if (_walletState.value != WalletState.Locked) {
+            onError("Wallet is not available")
+            return
+        }
+
+        val privateKeyResult = when (chain) {
+            com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain.SOLANA -> {
+                walletRepository.getSolanaPrivateKey()
+            }
+            com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain.ETHEREUM -> {
+                walletRepository.getEthPrivateKey()
+            }
+        }
+
+        if (privateKeyResult.isFailure || privateKeyResult.getOrNull() == null) {
+            onError("${chain.displayName} wallet not found")
+            return
+        }
+
+        val privateKeyFromRepo = privateKeyResult.getOrNull()!!
+
+        activity?.let { fragmentActivity ->
+            biometricHelper.setupBiometricPrompt(
+                activity = fragmentActivity,
+                title = DEFAULT_TITLE,
+                subtitle = "Authenticate to access your ${chain.displayName} wallet",
+                negativeButtonText = DEFAULT_NEGATIVE_BUTTON,
+                onSuccess = { cryptoObject ->
+                    if (cryptoObject != null) {
+                        try {
+                            onSuccess(privateKeyFromRepo)
+                        } catch (e: Exception) {
+                            onError("Failed to access wallet: ${e.message}")
+                        }
+                    } else {
+                        onError("Authentication failed: Crypto object is null")
+                    }
+                },
+                onError = { errorCode, errorMessage ->
+                    onError("Authentication failed: $errorMessage")
+                }
+            )
+            
+            biometricHelper.showBiometricPrompt()
+        } ?: onError("Activity not available")
+    }
+
+    /**
+     * Get all available wallets with biometric authentication
+     */
+    fun getAllWallets(
+        activity: FragmentActivity? = activityHolder.getActivity() as? FragmentActivity,
+        onSuccess: (Map<String, String>) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        if (_walletState.value != WalletState.Locked) {
+            onError("Wallet is not available")
+            return
+        }
+
+        activity?.let { fragmentActivity ->
+            biometricHelper.setupBiometricPrompt(
+                activity = fragmentActivity,
+                title = DEFAULT_TITLE,
+                subtitle = "Authenticate to access your wallets",
+                negativeButtonText = DEFAULT_NEGATIVE_BUTTON,
+                onSuccess = { cryptoObject ->
+                    if (cryptoObject != null) {
+                        try {
+                            val wallets = mutableMapOf<String, String>()
+                            
+                            // Check for Solana wallet
+                            val solanaPrivateKeyResult = walletRepository.getSolanaPrivateKey()
+                            if (solanaPrivateKeyResult.isSuccess && solanaPrivateKeyResult.getOrNull() != null) {
+                                wallets["Solana"] = solanaPrivateKeyResult.getOrNull()!!
+                            }
+                            
+                            // Check for ETH wallet
+                            val ethPrivateKeyResult = walletRepository.getEthPrivateKey()
+                            if (ethPrivateKeyResult.isSuccess && ethPrivateKeyResult.getOrNull() != null) {
+                                wallets["Ethereum"] = ethPrivateKeyResult.getOrNull()!!
+                            }
+                            
+                            // Check for legacy wallet
+                            val legacyPrivateKeyResult = walletRepository.getPrivateKey()
+                            if (legacyPrivateKeyResult.isSuccess && legacyPrivateKeyResult.getOrNull() != null) {
+                                wallets["Legacy"] = legacyPrivateKeyResult.getOrNull()!!
+                            }
+                            
+                            if (wallets.isNotEmpty()) {
+                                onSuccess(wallets)
+                            } else {
+                                onError("No wallets found")
+                            }
+                        } catch (e: Exception) {
+                            onError("Failed to access wallets: ${e.message}")
+                        }
+                    } else {
+                        onError("Authentication failed: Crypto object is null")
+                    }
+                },
+                onError = { errorCode, errorMessage ->
+                    onError("Authentication failed: $errorMessage")
+                }
+            )
+            
+            biometricHelper.showBiometricPrompt()
+        } ?: onError("Activity not available")
     }
 
     /**
@@ -186,20 +355,32 @@ class WalletManager @Inject constructor(
                 onSuccess = { cryptoObject ->
                     if (cryptoObject != null) {
                         try {
+                            var allSuccessful = true
+                            
                             // Store ETH wallet if provided
                             ethWallet?.let { wallet ->
-                                walletRepository.saveEthPrivateKey(wallet.private_key)
-                                walletRepository.saveEthPublicKey(wallet.public_address)
+                                val ethPrivateResult = walletRepository.saveEthPrivateKey(wallet.private_key)
+                                val ethPublicResult = walletRepository.saveEthPublicKey(wallet.public_address)
+                                if (ethPrivateResult.isFailure || ethPublicResult.isFailure) {
+                                    allSuccessful = false
+                                }
                             }
                             
                             // Store Solana wallet if provided  
                             solanaWallet?.let { wallet ->
-                                walletRepository.saveSolanaPrivateKey(wallet.private_key)
-                                walletRepository.saveSolanaPublicKey(wallet.public_address)
+                                val solanaPrivateResult = walletRepository.saveSolanaPrivateKey(wallet.private_key)
+                                val solanaPublicResult = walletRepository.saveSolanaPublicKey(wallet.public_address)
+                                if (solanaPrivateResult.isFailure || solanaPublicResult.isFailure) {
+                                    allSuccessful = false
+                                }
                             }
                             
-                            _walletState.value = WalletState.Locked
-                            onResult(true)
+                            if (allSuccessful) {
+                                _walletState.value = WalletState.Locked
+                                onResult(true)
+                            } else {
+                                onResult(false)
+                            }
                         } catch (e: Exception) {
                             onResult(false)
                         }

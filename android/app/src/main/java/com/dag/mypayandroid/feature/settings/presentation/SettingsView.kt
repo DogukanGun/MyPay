@@ -9,7 +9,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,6 +26,7 @@ fun SettingsView(
 ){
     val state = settingsVM.viewState.collectAsState()
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,6 +57,34 @@ fun SettingsView(
                             settingCellData = SettingCellData(
                                 text = (state.value as SettingsVS.ShowPrivateKey).privateKey,
                                 cellType = SettingCellType.INFO,
+                                onClicked = {
+                                    settingsVM.showList()
+                                }
+                            )
+                        )
+                    }
+                }
+                is SettingsVS.ShowAllWallets -> {
+                    val wallets = (state.value as SettingsVS.ShowAllWallets).wallets
+                    items(wallets.size) { index ->
+                        val walletEntry = wallets.entries.toList()[index]
+                        SettingCell(
+                            settingCellData = SettingCellData(
+                                text = "${walletEntry.key}: ${walletEntry.value}",
+                                cellType = SettingCellType.INFO,
+                                onClicked = {
+                                    // Copy to clipboard
+                                    clipboardManager.setText(AnnotatedString(walletEntry.value))
+                                }
+                            )
+                        )
+                    }
+                    // Add back button
+                    item {
+                        SettingCell(
+                            settingCellData = SettingCellData(
+                                text = "Back to Settings",
+                                cellType = SettingCellType.EXTERNAL_LINK,
                                 onClicked = {
                                     settingsVM.showList()
                                 }

@@ -78,11 +78,11 @@ class SettingsVM @Inject constructor(
                 }
             }
             Settings.PRIVATE_KEY -> {
-                walletManager.getPrivateKey(
-                    onSuccess = { privateKey ->
+                walletManager.getAllWallets(
+                    onSuccess = { wallets ->
                         viewModelScope.launch {
                             try {
-                                _viewState.value = SettingsVS.ShowPrivateKey(privateKey)
+                                _viewState.value = SettingsVS.ShowAllWallets(wallets)
                             } catch (e: Exception) {
                                 e.localizedMessage?.let {
                                     _viewState.value = SettingsVS.ShowError(it)
