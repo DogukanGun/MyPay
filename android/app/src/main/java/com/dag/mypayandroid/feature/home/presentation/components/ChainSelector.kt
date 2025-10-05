@@ -65,9 +65,9 @@ private fun ChainButton(
     isSelected: Boolean,
     onTap: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) Color(0xFF2196F3) else Color(0xFFF5F5F5)
-    val textColor = if (isSelected) Color.White else Color.Black
-    val borderColor = if (isSelected) Color(0xFF2196F3) else Color(0xFFE0E0E0)
+    val backgroundColor = if (isSelected) Color.Yellow else Color(0xFFF5F5F5)
+    val textColor = if (isSelected) Color.Black else Color.Black
+    val borderColor = if (isSelected) Color.Yellow else Color(0xFFE0E0E0)
 
     Box(
         modifier = Modifier
