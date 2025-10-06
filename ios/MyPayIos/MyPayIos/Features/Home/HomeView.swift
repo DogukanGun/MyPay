@@ -62,7 +62,8 @@ struct HomeView: View {
                         
                         // Portfolio Section
                         PortfolioSection(
-                            portfolioItems: viewModel.portfolioItems
+                            portfolioItems: viewModel.portfolioItems,
+                            selectedChain: viewModel.selectedChain
                         )
                         
                         // Account Information Section
@@ -85,6 +86,29 @@ struct HomeView: View {
         .navigationBarHidden(true)
         .onAppear {
             viewModel.loadUserData()
+        }
+        .sheet(isPresented: $viewModel.showPaymentSheet) {
+            if viewModel.isSendMode {
+                SendView(
+                    userWalletAddress: viewModel.formattedWalletAddress,
+                    amount: "",
+                    selectedChain: viewModel.selectedChain,
+                    onBackClick: viewModel.dismissPaymentSheet
+                )
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+            } else {
+                ReceiveView(
+                    selectedChain: viewModel.selectedChain,
+                    onChainChanged: viewModel.switchChain,
+                    onBackClick: viewModel.dismissPaymentSheet,
+                    onContinueClick: { amountValue, publicKey in
+                        viewModel.initiateNFCPayment(amount: amountValue, publicKey: publicKey)
+                    }
+                )
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+            }
         }
     }
 }

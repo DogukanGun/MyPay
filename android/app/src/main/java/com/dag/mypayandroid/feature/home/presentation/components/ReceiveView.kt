@@ -19,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dag.mypayandroid.R
 import com.dag.mypayandroid.base.components.CustomButton
 import com.dag.mypayandroid.base.components.CustomTextField
 import com.dag.mypayandroid.ui.theme.*
@@ -30,6 +29,8 @@ import org.sol4k.PublicKey
 fun ReceiveView(
     backgroundColor: Color = Color.Transparent,
     modifier: Modifier = Modifier,
+    selectedChain: BlockchainChain = BlockchainChain.SOLANA,
+    onChainChanged: (BlockchainChain) -> Unit = {},
     onBackClick: () -> Unit,
     onContinueClick: (amount: Int, publicKey: PublicKey) -> Unit
 ) {
@@ -70,6 +71,13 @@ fun ReceiveView(
                 modifier = Modifier.padding(start = 16.dp)
             )
         }
+
+        // Chain Selector
+        ChainSelector(
+            selectedChain = selectedChain,
+            onChainChanged = onChainChanged,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
         // Amount Input Card
         Card(
@@ -112,11 +120,11 @@ fun ReceiveView(
                                         .size(24.dp)
                                         .clip(CircleShape),
                                     tint = Color.Unspecified,
-                                    painter = painterResource(R.drawable.solanalogo),
-                                    contentDescription = "Solana"
+                                    painter = painterResource(selectedChain.iconRes),
+                                    contentDescription = selectedChain.displayName
                                 )
                                 Text(
-                                    text = "SOL",
+                                    text = selectedChain.symbol,
                                     color = primaryText,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -225,7 +233,9 @@ fun ReceiveView(
 @Preview
 fun ReceiveViewPreview() {
     ReceiveView(
-        DarkBackground,
+        backgroundColor = DarkBackground,
+        selectedChain = BlockchainChain.SOLANA,
+        onChainChanged = {},
         onBackClick = {}
     ) { amount, publicKey -> }
 }

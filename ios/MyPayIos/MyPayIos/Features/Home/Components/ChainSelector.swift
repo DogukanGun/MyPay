@@ -23,9 +23,9 @@ enum BlockchainChain: String, CaseIterable {
     var iconName: String {
         switch self {
         case .ethereum:
-            return "e.circle.fill"
+            return "ethereum_logo"
         case .solana:
-            return "s.circle.fill"
+            return "solana_logo"
         }
     }
     
@@ -69,9 +69,9 @@ struct ChainButton: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 8) {
-                Image(systemName: chain.iconName)
-                    .foregroundColor(chain.iconColor)
-                    .font(.system(size: 16, weight: .medium))
+                Image(chain.iconName)
+                    .resizable()
+                    .frame(width: 16, height: 16)
                 
                 Text(chain.rawValue)
                     .font(.system(size: 14, weight: .semibold))
@@ -81,11 +81,11 @@ struct ChainButton: View {
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(isSelected ? Color.blue : Color.gray.opacity(0.1))
+                    .fill(isSelected ? Color.yellow : Color.white)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: 1)
+                    .stroke(isSelected ? Color.yellow : Color.gray.opacity(0.3), lineWidth: 1)
             )
         }
         .buttonStyle(PlainButtonStyle())

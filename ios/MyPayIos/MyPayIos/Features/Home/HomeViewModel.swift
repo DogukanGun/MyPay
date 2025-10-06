@@ -18,6 +18,10 @@ final class HomeViewModel: BaseViewModel {
     @Published private(set) var isRefreshing: Bool = false
     @Published var selectedChain: BlockchainChain = .solana
     
+    // Payment Bottom Sheet Properties
+    @Published var showPaymentSheet: Bool = false
+    @Published var isSendMode: Bool = true
+    
     // MARK: - Computed Properties
     var displayName: String {
         userProfile?.displayName ?? userProfile?.email ?? "Unknown User"
@@ -84,13 +88,28 @@ final class HomeViewModel: BaseViewModel {
     }
     
     func handlePayAction() {
-        // TODO: Implement payment flow
-        navigate(to: .jarvis) // Temporary navigation
+        isSendMode = true
+        showPaymentSheet = true
     }
     
     func handleReceiveAction() {
-        // TODO: Implement receive flow
-        navigate(to: .settings) // Temporary navigation
+        isSendMode = false
+        showPaymentSheet = true
+    }
+    
+    func dismissPaymentSheet() {
+        showPaymentSheet = false
+    }
+    
+    func initiateNFCPayment(amount: Double, publicKey: String) {
+        // TODO: Implement NFC payment logic
+        print("Initiating NFC payment: \(amount) to \(publicKey)")
+        dismissPaymentSheet()
+    }
+    
+    func resetNFCPaymentState() {
+        // TODO: Reset NFC payment state
+        print("Resetting NFC payment state")
     }
     
     func openJarvis() {

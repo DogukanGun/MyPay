@@ -173,6 +173,7 @@ private struct ActionButton: View {
 // MARK: - Portfolio Section Component
 struct PortfolioSection: View {
     let portfolioItems: [PortfolioItem]
+    let selectedChain: BlockchainChain?
     
     var body: some View {
         VStack(alignment: .leading, spacing: AppConstants.UI.padding) {
@@ -180,7 +181,7 @@ struct PortfolioSection: View {
             
             HStack(spacing: AppConstants.UI.padding) {
                 ForEach(portfolioItems) { item in
-                    PortfolioCard(portfolioItem: item)
+                    PortfolioCard(portfolioItem: item, selectedChain: selectedChain)
                 }
             }
             .padding(.horizontal, AppConstants.UI.largePadding)
@@ -207,15 +208,43 @@ private struct SectionHeader: View {
 // MARK: - Portfolio Card Component
 struct PortfolioCard: View {
     let portfolioItem: PortfolioItem
+    let selectedChain: BlockchainChain?
     
-    var iconColor: Color = AppConstants.Colors.primary
+    var iconName: String {
+        // For USDC, use a default icon or create a USDC asset
+        if portfolioItem.symbol == "USDC" {
+            return "dollarsign.circle.fill" // System icon fallback
+        }
+        
+        // For blockchain tokens, use the actual logos
+        switch selectedChain {
+        case .ethereum:
+            return "ethereum_logo"
+        case .solana:
+            return "solana_logo"
+        case .none:
+            return "dollarsign.circle.fill"
+        }
+    }
+    
+    var useSystemIcon: Bool {
+        portfolioItem.symbol == "USDC"
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Circle()
-                    .fill(iconColor)
-                    .frame(width: 24, height: 24)
+                // Dynamic icon based on token type
+                if useSystemIcon {
+                    Image(systemName: iconName)
+                        .foregroundColor(AppConstants.Colors.secondary)
+                        .font(.system(size: 24))
+                        .frame(width: 32, height: 32)
+                } else {
+                    Image(iconName)
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                }
                 
                 Text(portfolioItem.name)
                     .font(.system(size: 16, weight: .medium))
@@ -526,7 +555,7 @@ struct BottomNavItem: View {
         )
     ]
     
-    PortfolioSection(portfolioItems: mockItems)
+    PortfolioSection(portfolioItems: mockItems, selectedChain: .solana)
         .background(AppConstants.Colors.background)
 }
 
