@@ -21,6 +21,7 @@ final class HomeViewModel: BaseViewModel {
     // Payment Bottom Sheet Properties
     @Published var showPaymentSheet: Bool = false
     @Published var isSendMode: Bool = true
+    @Published var paymentQRCodeURL: String? = nil
     
     // MARK: - Computed Properties
     var displayName: String {
@@ -54,6 +55,11 @@ final class HomeViewModel: BaseViewModel {
     override init() {
         super.init()
         setupInitialData()
+        setupNotificationObservers()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - Public Methods
@@ -99,17 +105,39 @@ final class HomeViewModel: BaseViewModel {
     
     func dismissPaymentSheet() {
         showPaymentSheet = false
+        paymentQRCodeURL = nil
     }
     
-    func initiateNFCPayment(amount: Double, publicKey: String) {
-        // TODO: Implement NFC payment logic
-        print("Initiating NFC payment: \(amount) to \(publicKey)")
-        dismissPaymentSheet()
-    }
-    
-    func resetNFCPaymentState() {
-        // TODO: Reset NFC payment state
-        print("Resetting NFC payment state")
+    func initiateQRPayment(amount: Double, publicKey: String) {
+        let transferFields = TransferRequestURLFields(
+            recipient: publicKey,
+            amount: Decimal(amount),
+            tokenDecimal: selectedChain == .solana ? 9 : 18,
+            splToken: selectedChain == .solana ? nil : "USDC_TOKEN_ADDRESS" // Replace with actual USDC token address
+        )
+        
+        // Debug the input data
+        print("DEBUG: Creating QR with amount: \(amount), publicKey: \(publicKey)")
+        print("DEBUG: TransferFields - recipient: \(transferFields.recipient), amount: \(transferFields.amount)")
+        
+        // Create Solana Pay URL for QR code
+        SolanaHelper.shared.prepareSolanaPay(transferRequestField: transferFields) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let url):
+                    print("DEBUG: Successfully created Solana Pay URL: \(url.absoluteString)")
+                    // Store the URL for QR code generation - this will trigger the UI to show the QR code
+                    self?.paymentQRCodeURL = url.absoluteString
+                case .failure(let error):
+                    print("DEBUG: Failed to create Solana Pay URL: \(error)")
+                    print("DEBUG: Error details: \(String(describing: error))")
+                    // Handle error appropriately - dismiss sheet on error
+                    self?.dismissPaymentSheet()
+                }
+            }
+        }
+        
+        // Don't dismiss the sheet here - let it stay open to show the QR code
     }
     
     func openJarvis() {
@@ -144,6 +172,11 @@ final class HomeViewModel: BaseViewModel {
         userProfile = nil
         walletBalance = nil
         portfolioItems = []
+    }
+    
+    private func setupNotificationObservers() {
+        // No longer needed since we removed NFC functionality
+        // QR code payments are handled directly through UI interactions
     }
     
     private func fetchUserData() async throws {

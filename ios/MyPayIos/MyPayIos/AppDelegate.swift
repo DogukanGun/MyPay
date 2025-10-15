@@ -35,6 +35,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
       return true
     }
     
+    // Handle Solana Pay URLs
+    if url.scheme == "solana" {
+      print("Solana Pay URL received: \(url.absoluteString)")
+      // Post notification to handle Solana Pay URL
+      NotificationCenter.default.post(
+        name: NSNotification.Name("SolanaPayURLReceived"),
+        object: url.absoluteString
+      )
+      return true
+    }
+    
     // Handle Firebase project scheme
     if url.scheme == "nwallet-dbd53" {
       print("✅ Firebase project scheme detected")

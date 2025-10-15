@@ -100,10 +100,11 @@ struct HomeView: View {
             } else {
                 ReceiveView(
                     selectedChain: viewModel.selectedChain,
+                    paymentQRCodeURL: viewModel.paymentQRCodeURL,
                     onChainChanged: viewModel.switchChain,
                     onBackClick: viewModel.dismissPaymentSheet,
                     onContinueClick: { amountValue, publicKey in
-                        viewModel.initiateNFCPayment(amount: amountValue, publicKey: publicKey)
+                        viewModel.initiateQRPayment(amount: amountValue, publicKey: publicKey)
                     }
                 )
                 .presentationDetents([.medium])
