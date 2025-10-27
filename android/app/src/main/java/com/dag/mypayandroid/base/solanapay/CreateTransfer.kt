@@ -38,7 +38,7 @@ object TransferCreator {
         recipient: PublicKey,
         amount: Long
     ): List<Instruction> {
-        return listOf(TransferInstruction(sender,recipient,amount))
+        return listOf(TransferInstruction(sender,recipient,amount * 9))
     }
 
     private fun createSPLTokenInstruction(

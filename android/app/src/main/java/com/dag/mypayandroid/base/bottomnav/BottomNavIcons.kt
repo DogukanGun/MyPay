@@ -8,6 +8,7 @@ enum class BottomNavIcon(
     @DrawableRes var icon: Int,
     var destination: Destination
 ) {
-    Home(R.drawable.baseline_home_filled, Destination.LoginScreen),
+    Home(R.drawable.baseline_home_filled, Destination.HomeScreen),
+    Jarvis(R.drawable.jarvis, Destination.JarvisScreen),
     Settings(R.drawable.baseline_settings, Destination.SettingsScreen)
 }

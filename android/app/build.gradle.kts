@@ -8,6 +8,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
     kotlin("plugin.serialization")
 }
 
@@ -29,8 +30,6 @@ android {
         if (localPropertiesFile.exists()) {
             localProperties.load(FileInputStream(localPropertiesFile))
         }
-        val web3authKey = System.getenv("web3authKey") ?: localProperties.getProperty("web3authKey")
-        buildConfigField("String", "web3authKey", "\"$web3authKey\"")
 
     }
 
@@ -92,9 +91,24 @@ dependencies {
     //web3j
     implementation(libs.core)
     implementation(libs.sol4k)
-    implementation("com.github.web3auth:web3auth-android-sdk:9.0.4")
     implementation("androidx.biometric:biometric:1.4.0-alpha03")
     implementation("com.solanamobile:web3-solana:0.2.5")
     implementation("com.solanamobile:rpc-core:0.2.7")
+
+    //Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth.ktx)
+
+    //EncryptedSharedPreferences
+    implementation(libs.androidx.security.crypto)
+    //Datastore
+    implementation(libs.androidx.datastore.preferences)
+
+    //Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    implementation(libs.androidx.multidex)
+
 
 }

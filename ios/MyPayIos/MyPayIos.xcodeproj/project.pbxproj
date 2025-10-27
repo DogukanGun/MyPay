@@ -1,0 +1,813 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1B7B92FB3F8E1AFFD1EF4D7F /* Pods_MyPayIosTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 301F84C136FEFE7A05F0839B /* Pods_MyPayIosTests.framework */; };
+		3AEC1273507B0ECEE61827BC /* Pods_MyPayIos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4EFAB0C3F29A2B8871AD5BE /* Pods_MyPayIos.framework */; };
+		85B0970AED4FD3C99B3042C4 /* Pods_MyPayIos_MyPayIosUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9050C5F989EF347CB1C61385 /* Pods_MyPayIos_MyPayIosUITests.framework */; };
+		9E7BC28B2E78CBC700AD8F94 /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 9E7BC28A2E78CBC700AD8F94 /* Functions */; };
+		9E7BC28D2E78CBC700AD8F94 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 9E7BC28C2E78CBC700AD8F94 /* PostgREST */; };
+		9E7BC28F2E78CBC700AD8F94 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 9E7BC28E2E78CBC700AD8F94 /* Realtime */; };
+		9E7BC2912E78CBC700AD8F94 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 9E7BC2902E78CBC700AD8F94 /* Storage */; };
+		9E7BC2932E78CC4700AD8F94 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 9E7BC2922E78CC4700AD8F94 /* Supabase */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9E954E142E473DF10081F2E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E954DFB2E473DF00081F2E4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9E954E022E473DF00081F2E4;
+			remoteInfo = MyPayIos;
+		};
+		9E954E1E2E473DF10081F2E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9E954DFB2E473DF00081F2E4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9E954E022E473DF00081F2E4;
+			remoteInfo = MyPayIos;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		301F84C136FEFE7A05F0839B /* Pods_MyPayIosTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyPayIosTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3277D267ACA1ABA735BC7557 /* Pods-MyPayIos.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPayIos.debug.xcconfig"; path = "Target Support Files/Pods-MyPayIos/Pods-MyPayIos.debug.xcconfig"; sourceTree = "<group>"; };
+		5512D98C8A8120C73586FC90 /* Pods-MyPayIos-MyPayIosUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPayIos-MyPayIosUITests.debug.xcconfig"; path = "Target Support Files/Pods-MyPayIos-MyPayIosUITests/Pods-MyPayIos-MyPayIosUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		55E9190994D8279E8315E432 /* Pods-MyPayIos-MyPayIosUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPayIos-MyPayIosUITests.release.xcconfig"; path = "Target Support Files/Pods-MyPayIos-MyPayIosUITests/Pods-MyPayIos-MyPayIosUITests.release.xcconfig"; sourceTree = "<group>"; };
+		9050C5F989EF347CB1C61385 /* Pods_MyPayIos_MyPayIosUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyPayIos_MyPayIosUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		94293CBFD2D910A74CFF3754 /* Pods-MyPayIosTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPayIosTests.debug.xcconfig"; path = "Target Support Files/Pods-MyPayIosTests/Pods-MyPayIosTests.debug.xcconfig"; sourceTree = "<group>"; };
+		9E954E032E473DF00081F2E4 /* MyPayIos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyPayIos.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E954E132E473DF10081F2E4 /* MyPayIosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyPayIosTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E954E1D2E473DF10081F2E4 /* MyPayIosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyPayIosUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD0C6FB5056E84B38B338AAD /* Pods-MyPayIosTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPayIosTests.release.xcconfig"; path = "Target Support Files/Pods-MyPayIosTests/Pods-MyPayIosTests.release.xcconfig"; sourceTree = "<group>"; };
+		E4EFAB0C3F29A2B8871AD5BE /* Pods_MyPayIos.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyPayIos.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF502EEA6B0D475ACD10DDE7 /* Pods-MyPayIos.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPayIos.release.xcconfig"; path = "Target Support Files/Pods-MyPayIos/Pods-MyPayIos.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9E7BC78F2E7DDDD800AD8F94 /* Exceptions for "MyPayIos" folder in "MyPayIos" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9E954E022E473DF00081F2E4 /* MyPayIos */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		9E7BC2982E797CDB00AD8F94 /* Config */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Config;
+			sourceTree = "<group>";
+		};
+		9E7BC7752E7DDDD800AD8F94 /* MyPayIos */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9E7BC78F2E7DDDD800AD8F94 /* Exceptions for "MyPayIos" folder in "MyPayIos" target */,
+			);
+			path = MyPayIos;
+			sourceTree = "<group>";
+		};
+		9E954E162E473DF10081F2E4 /* MyPayIosTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MyPayIosTests;
+			sourceTree = "<group>";
+		};
+		9E954E202E473DF10081F2E4 /* MyPayIosUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MyPayIosUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9E954E002E473DF00081F2E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E7BC2932E78CC4700AD8F94 /* Supabase in Frameworks */,
+				9E7BC2912E78CBC700AD8F94 /* Storage in Frameworks */,
+				9E7BC28D2E78CBC700AD8F94 /* PostgREST in Frameworks */,
+				9E7BC28B2E78CBC700AD8F94 /* Functions in Frameworks */,
+				9E7BC28F2E78CBC700AD8F94 /* Realtime in Frameworks */,
+				3AEC1273507B0ECEE61827BC /* Pods_MyPayIos.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E954E102E473DF10081F2E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B7B92FB3F8E1AFFD1EF4D7F /* Pods_MyPayIosTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E954E1A2E473DF10081F2E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85B0970AED4FD3C99B3042C4 /* Pods_MyPayIos_MyPayIosUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9E954DFA2E473DF00081F2E4 = {
+			isa = PBXGroup;
+			children = (
+				9E7BC7752E7DDDD800AD8F94 /* MyPayIos */,
+				9E7BC2982E797CDB00AD8F94 /* Config */,
+				9E954E162E473DF10081F2E4 /* MyPayIosTests */,
+				9E954E202E473DF10081F2E4 /* MyPayIosUITests */,
+				9E954E042E473DF00081F2E4 /* Products */,
+				D4DE7CB1400FA7D0416C8DFF /* Pods */,
+				DAA8D9BAF974873F9F33B77D /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		9E954E042E473DF00081F2E4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E954E032E473DF00081F2E4 /* MyPayIos.app */,
+				9E954E132E473DF10081F2E4 /* MyPayIosTests.xctest */,
+				9E954E1D2E473DF10081F2E4 /* MyPayIosUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D4DE7CB1400FA7D0416C8DFF /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				3277D267ACA1ABA735BC7557 /* Pods-MyPayIos.debug.xcconfig */,
+				EF502EEA6B0D475ACD10DDE7 /* Pods-MyPayIos.release.xcconfig */,
+				5512D98C8A8120C73586FC90 /* Pods-MyPayIos-MyPayIosUITests.debug.xcconfig */,
+				55E9190994D8279E8315E432 /* Pods-MyPayIos-MyPayIosUITests.release.xcconfig */,
+				94293CBFD2D910A74CFF3754 /* Pods-MyPayIosTests.debug.xcconfig */,
+				BD0C6FB5056E84B38B338AAD /* Pods-MyPayIosTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		DAA8D9BAF974873F9F33B77D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E4EFAB0C3F29A2B8871AD5BE /* Pods_MyPayIos.framework */,
+				9050C5F989EF347CB1C61385 /* Pods_MyPayIos_MyPayIosUITests.framework */,
+				301F84C136FEFE7A05F0839B /* Pods_MyPayIosTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9E954E022E473DF00081F2E4 /* MyPayIos */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E954E272E473DF10081F2E4 /* Build configuration list for PBXNativeTarget "MyPayIos" */;
+			buildPhases = (
+				DACC112AE997C60008E83848 /* [CP] Check Pods Manifest.lock */,
+				9E954DFF2E473DF00081F2E4 /* Sources */,
+				9E954E002E473DF00081F2E4 /* Frameworks */,
+				9E954E012E473DF00081F2E4 /* Resources */,
+				A4E16CC5FF032A4F42A88797 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9E7BC2982E797CDB00AD8F94 /* Config */,
+				9E7BC7752E7DDDD800AD8F94 /* MyPayIos */,
+			);
+			name = MyPayIos;
+			productName = MyPayIos;
+			productReference = 9E954E032E473DF00081F2E4 /* MyPayIos.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9E954E122E473DF10081F2E4 /* MyPayIosTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E954E2A2E473DF10081F2E4 /* Build configuration list for PBXNativeTarget "MyPayIosTests" */;
+			buildPhases = (
+				8D59850342D4DD291E88604D /* [CP] Check Pods Manifest.lock */,
+				9E954E0F2E473DF10081F2E4 /* Sources */,
+				9E954E102E473DF10081F2E4 /* Frameworks */,
+				9E954E112E473DF10081F2E4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9E954E152E473DF10081F2E4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				9E954E162E473DF10081F2E4 /* MyPayIosTests */,
+			);
+			name = MyPayIosTests;
+			productName = MyPayIosTests;
+			productReference = 9E954E132E473DF10081F2E4 /* MyPayIosTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9E954E1C2E473DF10081F2E4 /* MyPayIosUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9E954E2D2E473DF10081F2E4 /* Build configuration list for PBXNativeTarget "MyPayIosUITests" */;
+			buildPhases = (
+				9416A23C7F899D1476E18E26 /* [CP] Check Pods Manifest.lock */,
+				9E954E192E473DF10081F2E4 /* Sources */,
+				9E954E1A2E473DF10081F2E4 /* Frameworks */,
+				9E954E1B2E473DF10081F2E4 /* Resources */,
+				21A64FBD28D30646F9011FB7 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9E954E1F2E473DF10081F2E4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				9E954E202E473DF10081F2E4 /* MyPayIosUITests */,
+			);
+			name = MyPayIosUITests;
+			productName = MyPayIosUITests;
+			productReference = 9E954E1D2E473DF10081F2E4 /* MyPayIosUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9E954DFB2E473DF00081F2E4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1630;
+				LastUpgradeCheck = 1630;
+				TargetAttributes = {
+					9E954E022E473DF00081F2E4 = {
+						CreatedOnToolsVersion = 16.3;
+					};
+					9E954E122E473DF10081F2E4 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 9E954E022E473DF00081F2E4;
+					};
+					9E954E1C2E473DF10081F2E4 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 9E954E022E473DF00081F2E4;
+					};
+				};
+			};
+			buildConfigurationList = 9E954DFE2E473DF00081F2E4 /* Build configuration list for PBXProject "MyPayIos" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9E954DFA2E473DF00081F2E4;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9E588E312E78368400F9EBF9 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 9E954E042E473DF00081F2E4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9E954E022E473DF00081F2E4 /* MyPayIos */,
+				9E954E122E473DF10081F2E4 /* MyPayIosTests */,
+				9E954E1C2E473DF10081F2E4 /* MyPayIosUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9E954E012E473DF00081F2E4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E954E112E473DF10081F2E4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E954E1B2E473DF10081F2E4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		21A64FBD28D30646F9011FB7 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyPayIos-MyPayIosUITests/Pods-MyPayIos-MyPayIosUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyPayIos-MyPayIosUITests/Pods-MyPayIos-MyPayIosUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyPayIos-MyPayIosUITests/Pods-MyPayIos-MyPayIosUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8D59850342D4DD291E88604D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MyPayIosTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9416A23C7F899D1476E18E26 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MyPayIos-MyPayIosUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A4E16CC5FF032A4F42A88797 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyPayIos/Pods-MyPayIos-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyPayIos/Pods-MyPayIos-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyPayIos/Pods-MyPayIos-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DACC112AE997C60008E83848 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MyPayIos-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9E954DFF2E473DF00081F2E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E954E0F2E473DF10081F2E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E954E192E473DF10081F2E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9E954E152E473DF10081F2E4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9E954E022E473DF00081F2E4 /* MyPayIos */;
+			targetProxy = 9E954E142E473DF10081F2E4 /* PBXContainerItemProxy */;
+		};
+		9E954E1F2E473DF10081F2E4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9E954E022E473DF00081F2E4 /* MyPayIos */;
+			targetProxy = 9E954E1E2E473DF10081F2E4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		9E954E252E473DF10081F2E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9E7BC2982E797CDB00AD8F94 /* Config */;
+			baseConfigurationReferenceRelativePath = Development.xcconfig;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		9E954E262E473DF10081F2E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 9E7BC2982E797CDB00AD8F94 /* Config */;
+			baseConfigurationReferenceRelativePath = Production.xcconfig;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		9E954E282E473DF10081F2E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3277D267ACA1ABA735BC7557 /* Pods-MyPayIos.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyPayIos/MyPayIos.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LRQ65F65GJ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyPayIos/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MyPayIos;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dag.MyPayIos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.4;
+			};
+			name = Debug;
+		};
+		9E954E292E473DF10081F2E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF502EEA6B0D475ACD10DDE7 /* Pods-MyPayIos.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyPayIos/MyPayIos.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LRQ65F65GJ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyPayIos/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MyPayIos;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dag.MyPayIos;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.4;
+			};
+			name = Release;
+		};
+		9E954E2B2E473DF10081F2E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 94293CBFD2D910A74CFF3754 /* Pods-MyPayIosTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dag.MyPayIosTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyPayIos.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MyPayIos";
+				XROS_DEPLOYMENT_TARGET = 2.4;
+			};
+			name = Debug;
+		};
+		9E954E2C2E473DF10081F2E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD0C6FB5056E84B38B338AAD /* Pods-MyPayIosTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dag.MyPayIosTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyPayIos.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MyPayIos";
+				XROS_DEPLOYMENT_TARGET = 2.4;
+			};
+			name = Release;
+		};
+		9E954E2E2E473DF10081F2E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5512D98C8A8120C73586FC90 /* Pods-MyPayIos-MyPayIosUITests.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dag.MyPayIosUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = MyPayIos;
+				XROS_DEPLOYMENT_TARGET = 2.4;
+			};
+			name = Debug;
+		};
+		9E954E2F2E473DF10081F2E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 55E9190994D8279E8315E432 /* Pods-MyPayIos-MyPayIosUITests.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dag.MyPayIosUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = MyPayIos;
+				XROS_DEPLOYMENT_TARGET = 2.4;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9E954DFE2E473DF00081F2E4 /* Build configuration list for PBXProject "MyPayIos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E954E252E473DF10081F2E4 /* Debug */,
+				9E954E262E473DF10081F2E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9E954E272E473DF10081F2E4 /* Build configuration list for PBXNativeTarget "MyPayIos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E954E282E473DF10081F2E4 /* Debug */,
+				9E954E292E473DF10081F2E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9E954E2A2E473DF10081F2E4 /* Build configuration list for PBXNativeTarget "MyPayIosTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E954E2B2E473DF10081F2E4 /* Debug */,
+				9E954E2C2E473DF10081F2E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9E954E2D2E473DF10081F2E4 /* Build configuration list for PBXNativeTarget "MyPayIosUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9E954E2E2E473DF10081F2E4 /* Debug */,
+				9E954E2F2E473DF10081F2E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9E588E312E78368400F9EBF9 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9E7BC28A2E78CBC700AD8F94 /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Functions;
+		};
+		9E7BC28C2E78CBC700AD8F94 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PostgREST;
+		};
+		9E7BC28E2E78CBC700AD8F94 /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Realtime;
+		};
+		9E7BC2902E78CBC700AD8F94 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Storage;
+		};
+		9E7BC2922E78CC4700AD8F94 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9E588E312E78368400F9EBF9 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 9E954DFB2E473DF00081F2E4 /* Project object */;
+}

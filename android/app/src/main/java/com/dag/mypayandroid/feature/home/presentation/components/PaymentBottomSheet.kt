@@ -27,6 +27,8 @@ fun PaymentBottomSheet(
     isVisible: Boolean,
     isSendMode: Boolean,
     nfcPaymentState: NFCPaymentState,
+    selectedChain: BlockchainChain,
+    onChainChanged: (BlockchainChain) -> Unit,
     onDismiss: () -> Unit,
     resetNFCPaymentState: () -> Unit,
     initiateNFCPayment: (Int, PublicKey) -> Unit
@@ -88,6 +90,8 @@ fun PaymentBottomSheet(
                 ReceiveView(
                     backgroundColor = Color.Transparent,
                     modifier = Modifier.height(sheetHeight),
+                    selectedChain = selectedChain,
+                    onChainChanged = onChainChanged,
                     onBackClick = { onDismiss() },
                     onContinueClick = { amount, publicKey ->
                         onDismiss()

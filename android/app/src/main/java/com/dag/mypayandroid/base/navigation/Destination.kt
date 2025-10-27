@@ -13,6 +13,9 @@ sealed interface Destination {
     data object LoginScreen: Destination
 
     @Serializable
+    data object JarvisScreen: Destination
+
+    @Serializable
     data object SettingsScreen: Destination
 
     companion object {

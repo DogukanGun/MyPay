@@ -9,4 +9,6 @@ sealed class LoginVS: BaseVS {
     ) : LoginVS()
 
     object StartHomePage: LoginVS()
+
+    data class Error(val errorMessage: String): LoginVS()
 }

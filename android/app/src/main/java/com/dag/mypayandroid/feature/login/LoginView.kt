@@ -1,10 +1,8 @@
 package com.dag.mypayandroid.feature.login
 
-import android.os.Build
-import android.widget.Space
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,44 +13,36 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.dag.mypayandroid.base.components.CustomTextField
+import androidx.navigation.compose.rememberNavController
 import com.dag.mypayandroid.base.navigation.Destination
-import com.dag.mypayandroid.ui.theme.gradientStart
 import com.dag.mypayandroid.ui.theme.primaryText
-import com.web3auth.core.Web3Auth
+import com.dag.mypayandroid.R
+import com.dag.mypayandroid.ui.theme.DarkBackground
+import com.dag.mypayandroid.ui.theme.MyPayAndroidTheme
 
-@RequiresApi(Build.VERSION_CODES.R)
 @Composable
 fun LoginView(
     viewModel: LoginVM = hiltViewModel(),
-    web3Auth: Web3Auth,
     navController: NavHostController
 ){
     // Email input state
-    var email by remember { mutableStateOf(TextFieldValue("")) }
     val loginState = viewModel.viewState.collectAsState()
-
-    LaunchedEffect(true) {
-        viewModel.initialise(web3Auth)
-    }
 
     when(loginState.value) {
         is LoginVS.StartLogin -> {
@@ -62,48 +52,42 @@ fun LoginView(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceAround
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(modifier = Modifier.weight(1f))
+                
                 Column(
-                    modifier = Modifier
-                        .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "Welcome to MyPay",
+                        text = stringResource(R.string.login_screen_title),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = primaryText,
-                        modifier = Modifier.padding(bottom = 32.dp)
+                        modifier = Modifier.padding(bottom = 16.dp)
                     )
 
                     Text(
-                        text = "Please enter your email to continue",
+                        text = stringResource(R.string.login_screen_text),
                         fontSize = 16.sp,
                         color = primaryText,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 32.dp)
+                        modifier = Modifier.padding(bottom = 64.dp)
                     )
-
-                    CustomTextField(
-                        modifier = Modifier
-                            .padding(bottom = 32.dp),
-                        label = "Email Address",
-                        isPassword = false
-                    ) { email = email.copy(text = it) }
-
                 }
+                
+                Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        viewModel.login(web3Auth, email.text)
+                        viewModel.loginWithX()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = gradientStart
+                        containerColor = DarkBackground,
+                        contentColor = Color.White
                     ),
                     enabled = !currentState.isLoading
                 ) {
@@ -114,14 +98,24 @@ fun LoginView(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text(
-                            text = "Continue",
-                            fontSize = 16.sp,
-                            color = primaryText,
-                            textAlign = TextAlign.Center
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Login via",
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                            Icon(
+                                painter = painterResource(R.drawable.x_logo_black),
+                                contentDescription = "X Logo",
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
+                Spacer(modifier = Modifier.size(16.dp))
             }
         }
 
@@ -131,5 +125,16 @@ fun LoginView(
         null -> {
 
         }
+
+        is LoginVS.Error -> TODO()
+    }
+}
+
+
+@Preview
+@Composable
+fun LoginViewPreview(){
+    MyPayAndroidTheme {
+        LoginView(navController=rememberNavController())
     }
 }

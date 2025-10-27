@@ -10,6 +10,8 @@ import com.dag.mypayandroid.base.BaseVM
 import com.dag.mypayandroid.base.data.AlertDialogButton
 import com.dag.mypayandroid.base.data.AlertDialogButtonType
 import com.dag.mypayandroid.base.data.AlertDialogModel
+import com.dag.mypayandroid.base.data.repository.AuthRepository
+import com.dag.mypayandroid.base.helper.blockchain.WalletManager
 import com.dag.mypayandroid.base.navigation.Destination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -20,7 +22,9 @@ import javax.inject.Inject
 class SplashVM @Inject constructor(
     private val packageManager: PackageManager,
     private val alertDialogManager: AlertDialogManager,
-    private val activityHolder: ActivityHolder
+    private val activityHolder: ActivityHolder,
+    private val authRepository: AuthRepository,
+    private val walletManager: WalletManager
 ): BaseVM<SplashVS>(){
 
     init {
@@ -61,10 +65,14 @@ class SplashVM @Inject constructor(
 
     fun startApp() {
         viewModelScope.launch {
-            delay(SPLASH_DELAY) // Wait for 3 seconds
-            val isAuthenticated = MainActivity.web3Auth.getPrivkey().isNotEmpty()
-            val destination = if (!isAuthenticated) Destination.LoginScreen else Destination.HomeScreen
-            _viewState.value = SplashVS.StartApp(destination)
+            delay(SPLASH_DELAY)
+            
+            // Force login on every app startup to ensure fresh token
+            // Clear any existing auth token to prevent Firebase API issues
+            authRepository.clearAuthToken()
+            
+            // Always go to login screen to ensure fresh authentication
+            _viewState.value = SplashVS.StartApp(Destination.LoginScreen)
         }
     }
 

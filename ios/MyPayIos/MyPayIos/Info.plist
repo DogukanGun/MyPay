@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string></string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to scan Solana Pay QR codes for payments</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Jarvis needs access to your microphone to listen to voice commands</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Jarvis uses speech recognition to understand your voice commands</string>
+	<key>UILaunchStoryboardName</key>
+	<string>Launch Screen.storyboard</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>firebase-auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>app-1-473257173814-ios-40cca2f5aa92bc538f0997</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>firebase-project</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>nwallet-dbd53</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.dag.MyPayIos.oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mypayios</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.dag.MyPayIos.solanapay</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>solana</string>
+			</array>
+		</dict>
+	</array>
+	<key>SUPABASE_KEY</key>
+	<string>$(SUPABASE_KEY)</string>
+	<key>SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<true/>
+	</dict>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>X_CALLBACK</key>
+	<string>$(X_CALLBACK)</string>
+</dict>
+</plist>

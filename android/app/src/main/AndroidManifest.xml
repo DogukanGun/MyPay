@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- NFC Permissions -->
     <uses-permission android:name="android.permission.NFC" />
+    <!-- Audio Recording Permission for Jarvis -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <!-- Require NFC feature (optional - remove if you want to support non-NFC devices) -->
     <uses-feature

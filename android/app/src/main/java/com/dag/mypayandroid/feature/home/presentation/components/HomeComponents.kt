@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +48,8 @@ fun HomeSuccessScreen(
     state: HomeVS.Success,
     askForPermission: Boolean,
     animatedProgress: Animatable<Float, AnimationVector1D>,
+    selectedChain: BlockchainChain,
+    onChainChanged: (BlockchainChain) -> Unit,
     onReceive: () -> Unit,
     onSend: () -> Unit,
     onRefresh: () -> Unit
@@ -92,6 +95,15 @@ fun HomeSuccessScreen(
             .padding(16.dp)
             .alpha(animatedProgress.value),
     ) {
+        // Chain Selector
+        item {
+            ChainSelector(
+                selectedChain = selectedChain,
+                onChainChanged = onChainChanged,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+        
         // Balance Section
         item {
             Row(
@@ -118,7 +130,7 @@ fun HomeSuccessScreen(
                         )
                     } else {
                         Text(
-                            text = state.balance.plus(" SOL") ?: stringResource(R.string.home_view_sol_balance, "0"),
+                            text = state.balance ?: "N/A",
                             color = primaryText,
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Bold
@@ -142,8 +154,8 @@ fun HomeSuccessScreen(
                     }
 
                     // Show user email if available
-                    state.userInfo?.let { userInfo ->
-                        userInfo.email.let { email ->
+                    state.userProfile?.let { userProfile ->
+                        userProfile.email?.let { email ->
                             if (email.isNotEmpty()) {
                                 Text(
                                     text = email,
@@ -217,7 +229,7 @@ fun HomeSuccessScreen(
                     .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Solana Card
+                // Selected Chain Card
                 Card(
                     modifier = Modifier
                         .weight(1f)
@@ -231,15 +243,14 @@ fun HomeSuccessScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(bottom = 8.dp)
                         ) {
-                            Surface(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape),
-                                color = PrimaryColor
-                            ) { }
+                            Image(
+                                painter = painterResource(id = selectedChain.iconRes),
+                                contentDescription = "${selectedChain.displayName} logo",
+                                modifier = Modifier.size(32.dp)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = stringResource(R.string.home_view_solana),
+                                text = selectedChain.displayName,
                                 color = primaryText,
                                 fontWeight = FontWeight.Medium
                             )
@@ -253,7 +264,7 @@ fun HomeSuccessScreen(
                             )
                         } else {
                             Text(
-                                text = state.balance.plus(" SOL") ?: stringResource(R.string.home_view_sol_balance, "0"),
+                                text = "${state.balance ?: "0"} ${selectedChain.symbol}",
                                 color = primaryText,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
@@ -262,7 +273,7 @@ fun HomeSuccessScreen(
                     }
                 }
 
-                // Additional Card - Could be other tokens
+                // USDC Card (static for now)
                 Card(
                     modifier = Modifier
                         .weight(1f)
@@ -276,12 +287,11 @@ fun HomeSuccessScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(bottom = 8.dp)
                         ) {
-                            Surface(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape),
-                                color = SecondaryColor
-                            ) { }
+                            Image(
+                                painter = painterResource(id = R.drawable.usdc_logo),
+                                contentDescription = "USDC logo",
+                                modifier = Modifier.size(32.dp)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = stringResource(R.string.home_view_usdc),
@@ -301,7 +311,7 @@ fun HomeSuccessScreen(
         }
         
         // User Information Section if available
-        state.userInfo?.let { userInfo ->
+        state.userProfile?.let { userProfile ->
             item {
                 Text(
                     text = stringResource(R.string.home_view_account_information),
@@ -321,7 +331,7 @@ fun HomeSuccessScreen(
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        userInfo.name.let {
+                        userProfile.name?.let {
                             if (it.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -367,7 +377,7 @@ fun HomeSuccessScreen(
                                 }
                             }
                         }
-                        userInfo.verifier.let {
+                        userProfile.typeOfLogin?.let {
                             if (it.isNotEmpty()) {
                                 Row(
                                     modifier = Modifier.padding(bottom = 8.dp)
@@ -486,6 +496,8 @@ fun HomeSuccessScreenPreview() {
         animatedProgress = animatedProgress,
         onSend = {},
         onReceive = {},
-        onRefresh = {}
+        onRefresh = {},
+        selectedChain = BlockchainChain.SOLANA,
+        onChainChanged = {}
     )
 }

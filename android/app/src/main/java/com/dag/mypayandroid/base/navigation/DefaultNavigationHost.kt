@@ -10,16 +10,15 @@ import androidx.navigation.compose.rememberNavController
 import com.dag.mypayandroid.feature.splash.SplashView
 import com.dag.mypayandroid.feature.home.presentation.HomeView
 import com.dag.mypayandroid.base.extensions.ObserveAsEvents
+import com.dag.mypayandroid.feature.jarvis.presentation.JarvisView
 import com.dag.mypayandroid.feature.login.LoginView
 import com.dag.mypayandroid.feature.settings.presentation.SettingsView
-import com.web3auth.core.Web3Auth
 
 @Composable
 fun DefaultNavigationHost(
     modifier: Modifier = Modifier,
     startDestination: Destination = Destination.Splash,
     navigator: DefaultNavigator,
-    web3Auth: Web3Auth,
     navBackStackEntryState: (NavBackStackEntry) -> Unit,
 ) {
     val navController = rememberNavController()
@@ -47,20 +46,21 @@ fun DefaultNavigationHost(
             }
 
             composableWithAnimations<Destination.HomeScreen> {
-                HomeView(
-                    web3Auth = web3Auth
-                )
+                HomeView()
             }
 
             composableWithAnimations<Destination.LoginScreen> {
                 LoginView(
-                    web3Auth = web3Auth,
                     navController = navController
                 )
             }
 
             composableWithAnimations<Destination.SettingsScreen> {
                 SettingsView()
+            }
+
+            composableWithAnimations<Destination.JarvisScreen> {
+                JarvisView()
             }
         }
     }
