@@ -34,7 +34,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.nexarb.com")
+            .baseUrl("https://smartwallet.solutions")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -44,5 +44,11 @@ object NetworkModule {
     @Singleton
     fun provideAuthApi(retrofit: Retrofit): AuthApi {
         return retrofit.create(AuthApi::class.java)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideJarvisApi(retrofit: Retrofit): JarvisApi {
+        return retrofit.create(JarvisApi::class.java)
     }
 }

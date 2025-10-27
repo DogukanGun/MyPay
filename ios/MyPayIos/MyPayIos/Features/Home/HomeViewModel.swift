@@ -208,7 +208,7 @@ final class HomeViewModel: BaseViewModel {
             email: UserStorage.shared.getDisplayName() ?? "",
             solanaWalletAddress: solanaAddress,
             ethWalletAddress: ethAddress,
-            verifier: "Nexarb"
+            verifier: "MyPay"
         )
         
         await MainActor.run {

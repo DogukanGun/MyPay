@@ -102,7 +102,6 @@ class AuthApi: BaseApi {
         return "fallback_\(model)_\(systemVersion)_\(Int.random(in: 1000...9999))"
     }
     
-    // FIXED: Changed from GET to POST with device_identifier
     func checkIfUserExists(completion: @escaping (Result<CheckIfUserResponse, AppError>) -> Void) {
         let request = CheckIfUserRequest(device_identifier: getDeviceIdentifier())
         performPostRequest<CheckIfUserRequest, CheckIfUserResponse>(
@@ -113,7 +112,6 @@ class AuthApi: BaseApi {
         }
     }
     
-    // FIXED: Added device_identifier to request
     func registerUser(twitterId: String, username: String, completion: @escaping (Result<RegisterUserResponse, AppError>) -> Void) {
         let request = RegisterUserRequest(
             device_identifier: getDeviceIdentifier(),
@@ -128,7 +126,6 @@ class AuthApi: BaseApi {
         }
     }
     
-    // NEW: Added newSession endpoint for device changes
     func newSession(completion: @escaping (Result<NewSessionResponse, AppError>) -> Void) {
         let request = NewSessionRequest(device_identifier: getDeviceIdentifier())
         performPostRequest<NewSessionRequest, NewSessionResponse>(

@@ -5,11 +5,11 @@ import java.io.File
 
 
 sealed class JarvisVS: BaseVS {
-    data object Welcome: JarvisVS()
     object Idle : JarvisVS()
     object AskPermission : JarvisVS()
     object Listening : JarvisVS()
+    data class Confirming(val transcription: String) : JarvisVS()
     object Processing : JarvisVS()
-    data class Ready(val audioFile: File, val audioData: ByteArray) : JarvisVS()
+    data class Success(val message: String) : JarvisVS()
     data class Error(val message: String) : JarvisVS()
 }

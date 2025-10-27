@@ -75,23 +75,17 @@ fun JarvisView(
         label = "pulse"
     )
     
-    // Handle automatic backend sending when processing starts
+    // Handle state changes
     LaunchedEffect(jarvisState) {
         when (val state = jarvisState) {
             is JarvisVS.Processing -> {
                 viewModel.processHandler.show("Handling...")
-            }
-            is JarvisVS.Ready -> {
-                viewModel.sendToBackend()
             }
             is JarvisVS.Error -> {
                 viewModel.processHandler.show("Error: ${state.message}", duration = 3000L)
             }
             is JarvisVS.AskPermission -> {
                 requestLocationPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-            }
-            is JarvisVS.Idle -> {
-                viewModel.checkPermission()
             }
             else -> {}
         }
@@ -131,8 +125,11 @@ fun JarvisView(
                                     is JarvisVS.Idle -> {
                                         viewModel.startListening()
                                     }
+                                    is JarvisVS.Success, is JarvisVS.Error -> {
+                                        viewModel.resetToIdle()
+                                    }
                                     else -> {
-                                        // Do nothing if processing or in error state
+                                        // Do nothing if processing or confirming
                                     }
                                 }
                             }
@@ -156,10 +153,11 @@ fun JarvisView(
             Text(
                 text = when (jarvisState) {
                     is JarvisVS.Listening -> "Listening..."
+                    is JarvisVS.Confirming -> "Review your message"
                     is JarvisVS.Processing -> "Handling..."
+                    is JarvisVS.Success -> "Success"
                     is JarvisVS.Error -> "Error occurred"
-                    is JarvisVS.Ready -> "Ready to send"
-                    else -> if (currentCard != null) "" else "Tap to speak with Jarvis"
+                    else -> if (currentCard != null) "" else "Tap the circle to speak with Jarvis"
                 },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
@@ -174,8 +172,11 @@ fun JarvisView(
                         is JarvisVS.Idle -> {
                             viewModel.startListening()
                         }
+                        is JarvisVS.Success, is JarvisVS.Error -> {
+                            viewModel.resetToIdle()
+                        }
                         else -> {
-                            // Do nothing if processing or in error state
+                            // Do nothing if processing or confirming
                         }
                     }
                 }

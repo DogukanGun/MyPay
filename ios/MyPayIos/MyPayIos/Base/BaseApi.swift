@@ -23,11 +23,11 @@ open class BaseApi {
     private var baseURL: String {
         switch configManager.environment {
         case .development:
-            return "https://api.nexarb.com"
+            return "https://smartwallet.solutions"
         case .staging:
-            return "https://api.nexarb.com"
+            return "https://smartwallet.solutions"
         case .production:
-            return "https://api.nexarb.com"
+            return "https://smartwallet.solutions"
         }
     }
     
@@ -37,25 +37,47 @@ open class BaseApi {
         completion: @escaping (Result<R, AppError>) -> Void
     ) {
         let url = baseURL + endpoint
+        let headers = getHeaders()
+        
+        // Debug logging
+        print("DEBUG BaseApi: POST \(url)")
+        print("DEBUG BaseApi: Headers: \(headers.dictionary)")
+        if let jsonData = try? JSONEncoder().encode(requestBody),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print("DEBUG BaseApi: Body: \(jsonString)")
+        }
         
         session.request(
             url,
             method: .post,
             parameters: requestBody,
             encoder: JSONParameterEncoder.default,
-            headers: getHeaders()
+            headers: headers
         )
         .validate(statusCode: 200..<300)
         .responseData { response in
+            // Log status code
+            if let statusCode = response.response?.statusCode {
+                print("DEBUG BaseApi: Response status: \(statusCode)")
+            }
+            
             switch response.result {
             case .success(let data):
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("DEBUG BaseApi: Response body: \(jsonString)")
+                }
                 do {
                     let decodedResponse = try JSONDecoder().decode(R.self, from: data)
                     completion(.success(decodedResponse))
                 } catch {
+                    print("DEBUG BaseApi: Decoding error: \(error)")
                     completion(.failure(AppError.network(.decodingError)))
                 }
             case .failure(let error):
+                // Log error response body
+                if let data = response.data, let errorBody = String(data: data, encoding: .utf8) {
+                    print("DEBUG BaseApi: Error response body: \(errorBody)")
+                }
                 let appError = self.mapAlamofireError(error)
                 completion(.failure(appError))
             }

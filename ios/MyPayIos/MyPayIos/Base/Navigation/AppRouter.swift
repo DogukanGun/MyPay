@@ -127,10 +127,3 @@ struct DestinationFactory {
     }
 }
 
-// MARK: - Placeholder Views
-private struct JarvisView: View {
-    var body: some View {
-        Text("Jarvis View")
-            .navigationTitle("Jarvis")
-    }
-}

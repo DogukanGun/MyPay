@@ -6,6 +6,10 @@
 	<string></string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app uses the camera to scan Solana Pay QR codes for payments</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Jarvis needs access to your microphone to listen to voice commands</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Jarvis uses speech recognition to understand your voice commands</string>
 	<key>UILaunchStoryboardName</key>
 	<string>Launch Screen.storyboard</string>
 	<key>CFBundleURLTypes</key>

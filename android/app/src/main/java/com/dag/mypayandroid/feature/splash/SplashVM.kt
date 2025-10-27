@@ -67,17 +67,12 @@ class SplashVM @Inject constructor(
         viewModelScope.launch {
             delay(SPLASH_DELAY)
             
-            // Check if user is already authenticated and has wallet
-            val hasAuth = authRepository.hasAuthToken()
-            val hasWallet = walletManager.getPublicKey() != null
+            // Force login on every app startup to ensure fresh token
+            // Clear any existing auth token to prevent Firebase API issues
+            authRepository.clearAuthToken()
             
-            val destination = if (hasAuth && hasWallet) {
-                Destination.HomeScreen // User is already logged in
-            } else {
-                Destination.LoginScreen // User needs to log in
-            }
-            
-            _viewState.value = SplashVS.StartApp(destination)
+            // Always go to login screen to ensure fresh authentication
+            _viewState.value = SplashVS.StartApp(Destination.LoginScreen)
         }
     }
 
