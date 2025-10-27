@@ -1,10 +1,10 @@
 # Solana Pay with NFC
 
-Android application that combines Solana Pay protocol with NFC technology. Tap two phones together to transfer SOL without QR codes or manual wallet addresses.
+Cross-platform application that combines Solana Pay protocol with NFC technology and AI assistance. Tap two phones together to transfer SOL without QR codes or manual wallet addresses, with Jarvis AI to help manage your crypto operations.
 
 ## Overview
 
-This project was built for the Web3Auth Hackathon focusing on Solana Pay. It demonstrates how NFC can make cryptocurrency payments work like contactless card payments.
+This project demonstrates how NFC can make cryptocurrency payments work like contactless card payments, submitted to Solana Colosseum.
 
 ### Problem
 
@@ -20,16 +20,23 @@ Tap two phones together to initiate a Solana Pay transaction. NFC transmits the 
 
 ## Key Features
 
-- Web3Auth Integration: Email-based authentication with wallet generation
-- NFC Payments: Tap phones together to transfer SOL
-- Biometric Security: Hardware-backed encryption with biometric authentication
-- Solana Pay Protocol: Transactions on Solana blockchain  
-- UI: Interface built with Jetpack Compose
-- Multi-language Support: English and German
+- **Cross-Platform Support**: Available on both Android and iOS
+- **Twitter Authentication**: Social login with unified wallet management through XReplyAgent
+- **NFC Payments**: Tap phones together to transfer SOL (Android with full NFC support)
+- **QR Code Payments**: Camera-based payment scanning (iOS implementation while awaiting Apple Wallet integration)
+- **Biometric Security**: Hardware-backed encryption with biometric authentication
+- **Solana Pay Protocol**: Transactions on Solana blockchain
+- **Jarvis AI Assistant**: Voice-powered AI to help with crypto operations and Twitter wallet management
+- **Twitter Wallet Integration**: Manage wallets and transactions via Twitter through XReplyAgent
+- **Multi-Chain Wallet Management**: Support for multiple blockchain networks
+- **Modern UI**: Jetpack Compose (Android) and SwiftUI (iOS)
+- **Multi-language Support**: English and German
 
 ## Technical Architecture
 
-The application follows clean architecture principles:
+The application follows clean architecture principles across both platforms:
+
+### Android (`android/app/src/main/java/com/dag/mypayandroid/`)
 
 ```
 com.dag.mypayandroid/
@@ -37,28 +44,55 @@ com.dag.mypayandroid/
 │   ├── helper/
 │   │   ├── blockchain/           # Web3Auth & Solana integration
 │   │   ├── security/            # NFC, Biometric & cryptographic operations
+│   │   ├── audio/               # Speech recognition for Jarvis
 │   │   └── system/              # System-level utilities
 │   └── solanapay/               # Solana Pay protocol implementation
 ├── feature/                      # Feature-specific modules
 │   ├── home/                    # Main payment interface
 │   ├── login/                   # Authentication flow
-│   └── settings/                # App configuration
+│   ├── settings/                # App configuration
+│   └── jarvis/                  # AI assistant feature
 └── ui/                          # Design system & themes
+```
+
+### iOS (`ios/MyPayIos/MyPayIos/`)
+
+```
+MyPayIos/
+├── Base/                         # Core infrastructure & shared components
+│   ├── Components/              # Shared UI components
+│   ├── Configuration/           # App configuration
+│   ├── Navigation/              # Navigation system
+│   ├── Network/                 # API clients
+│   ├── Security/                # Biometric authentication
+│   ├── SolanaPay/              # Solana Pay protocol implementation
+│   ├── Storage/                 # Data storage
+│   ├── ViewModels/              # Base view models
+│   └── Wallet/                  # Wallet management
+├── Features/                     # Feature-specific modules
+│   ├── Home/                    # Main payment interface
+│   ├── Login/                   # Authentication flow
+│   ├── Settings/                # App configuration
+│   ├── Splash/                  # App initialization
+│   └── Jarvis/                  # AI assistant feature
+└── Resources/                    # Assets and configurations
 ```
 
 ### Core Components
 
-#### Blockchain Integration (`base/helper/blockchain/`)
+#### Blockchain Integration
 
-**Web3Auth Helper** (`Web3AuthHelper.kt`, `Web3AuthHelperImpl.kt`):
-- Web3Auth SDK integration for email-based authentication
+**Android** (`base/helper/blockchain/`):
+
+**Authentication Helper** (`AuthHelper.kt`, `AuthHelperImpl.kt`):
+- Twitter OAuth integration for social authentication
 - Ed25519 private key generation for Solana
-- Session management
-- Social login providers
+- Session management with XReplyAgent backend
+- Unified wallet management across Twitter and mobile app
 
 ```kotlin
-interface Web3AuthHelper {
-    suspend fun login(loginParams: LoginParams): CompletableFuture<Web3AuthResponse>
+interface AuthHelper {
+    suspend fun loginWithTwitter(): CompletableFuture<AuthResponse>
     suspend fun logOut(): CompletableFuture<Void>
     fun getSolanaPrivateKey(): String
     fun getUserInfo(): UserInfo
@@ -86,13 +120,23 @@ interface SolanaHelper {
 }
 ```
 
-**Wallet Manager** (`WalletManager.kt`):
-- Storage of private keys using Android Keystore
-- Biometric authentication for key access
-- Hardware-backed encryption with AES-256
-- Wallet lifecycle management (creation, locking, unlocking)
+**iOS** (`Base/SolanaPay/`, `Base/Wallet/`):
 
-#### Security Layer (`base/helper/security/`)
+**SolanaHelper** (`SolanaHelper.swift`):
+- Solana Pay URL creation and parsing
+- Transaction building and signing
+- RPC integration for blockchain interaction
+- Multi-chain support
+
+**WalletManager** (`WalletManager.swift`):
+- Secure key storage using iOS Keychain
+- Biometric authentication integration
+- Multi-chain wallet support
+- Hardware-backed security
+
+#### Security Layer
+
+**Android** (`base/helper/security/`):
 
 **NFC Communication** (`NFCHelper.kt`, `MyHostApduService.kt`):
 - Host Card Emulation (HCE) - converts phone to card terminal via HostApduService
@@ -116,7 +160,23 @@ interface NFCListener {
 - AES-256-CBC encryption with biometric-protected keys
 - Key generation with `setUserAuthenticationRequired(true)`
 
-#### Solana Pay Implementation (`base/solanapay/`)
+**iOS** (`Base/NfcHelper.swift`, `Base/Security/`):
+
+**NFC Communication** (`NfcHelper.swift`):
+- CoreNFC framework integration
+- ISO14443 and NDEF support
+- HCE communication with Android devices
+- Custom media type for payment data: `application/vnd.mypayios.solanapay`
+
+**Biometric Security** (`BiometricHelper.swift`):
+- iOS Keychain Services integration
+- Touch ID, Face ID, and passcode support
+- Hardware-backed encryption
+- Secure Enclave protection
+
+#### Solana Pay Implementation
+
+**Android** (`base/solanapay/`):
 
 **URL Encoding/Decoding** (`EncodeURL.kt`, `ParseURL.kt`):
 - Solana Pay URL generation
@@ -143,7 +203,80 @@ data class TransferRequestURLFields(
 )
 ```
 
-#### System Integration (`base/helper/system/`)
+**iOS** (`Base/SolanaPay/`):
+
+**URL Encoding/Decoding** (`SolanaPayURLEncoder.swift`, `SolanaPayURLParser.swift`):
+- Solana Pay URL generation and parsing
+- Transfer request validation
+- Error handling and type safety
+- Protocol compliance
+
+**Transaction Creation** (`SolanaPayTransferCreator.swift`):
+- Transaction building for SOL transfers
+- Multi-chain transaction support
+- Fee calculation and optimization
+- Signature management
+
+#### Jarvis AI Assistant
+
+**Android** (`feature/jarvis/`):
+
+**JarvisViewModel** (`JarvisVM.kt`):
+- Speech recognition management using Android Speech API
+- Voice transcription and confirmation flow
+- Backend communication with Jarvis API
+- State management for listening, processing, and response states
+
+**JarvisView** (`JarvisView.kt`):
+- Voice wave animation during listening
+- Touch-to-talk interface with visual feedback
+- Status cards for user feedback
+- Permission handling for microphone access
+
+```kotlin
+@HiltViewModel
+class JarvisVM : BaseVM<JarvisVS> {
+    fun startListening()
+    fun stopListening()
+    fun confirmAndSend()
+    fun sendToBackend(input: String)
+}
+```
+
+**iOS** (`Features/Jarvis/`):
+
+**JarvisViewModel** (`JarvisViewModel.swift`):
+- Speech recognition using iOS Speech framework
+- Audio session management with AVFoundation
+- Real-time transcription and processing
+- Backend API integration
+
+**JarvisView** (`JarvisView.swift`):
+- SwiftUI voice interface with animations
+- Biometric authentication integration
+- Voice wave visualization
+- Alert-based confirmation dialogs
+
+```swift
+final class JarvisViewModel: BaseViewModel {
+    func startListening()
+    func stopListening()
+    func confirmAndSend()
+    func sendToBackend(transcription: String)
+}
+```
+
+**Backend Integration**:
+- RESTful API communication with [XReplyAgent](https://github.com/DogukanGun/XReplyAgent)
+- Twitter OAuth authentication and wallet management
+- Real-time AI responses for crypto operations
+- Twitter-based wallet operations and transaction management
+- Secure token-based authentication
+- Error handling and retry mechanisms
+
+#### System Integration
+
+**Android** (`base/helper/system/`):
 
 **Activity Management** (`ActivityHolder.kt`):
 - Activity lifecycle management
@@ -155,11 +288,23 @@ data class TransferRequestURLFields(
 - Error handling and user feedback
 - Various dialog types and actions
 
+**iOS** (`Base/Navigation/`, `Base/ViewModels/`):
+
+**Navigation System** (`NavigationCoordinator.swift`, `AppRouter.swift`):
+- SwiftUI navigation management
+- Deep linking support
+- Route coordination between features
+
+**Base ViewModels** (`BaseViewModel.swift`):
+- Common ViewModel functionality
+- State management patterns
+- Error handling infrastructure
+
 ## Payment Flow
 
 ### Sending Money (Initiating Payment)
 
-1. **User Authentication**: User logs in via Web3Auth with email
+1. **User Authentication**: User logs in via Twitter OAuth through XReplyAgent
 2. **Amount Entry**: User specifies amount to send in the ReceiveView
 3. **NFC Tag Mode**: App switches to NFC Tag mode (HCE)
 4. **Solana Pay URL Generation**: Creates standardized payment URL
@@ -185,7 +330,7 @@ data class TransferRequestURLFields(
 1. **Hardware Security Module**: Android Keystore for key protection
 2. **Biometric Authentication**: Required for sensitive operations
 3. **Encrypted Storage**: Private keys encrypted with hardware-backed keys
-4. **Session Management**: Web3Auth session handling
+4. **Session Management**: Twitter OAuth session handling through XReplyAgent
 5. **Input Validation**: Validation of user inputs and URLs
 6. **Error Handling**: Error handling without exposing data
 
@@ -200,25 +345,58 @@ data class TransferRequestURLFields(
 
 ### Prerequisites
 
+#### Android
 - Android 6.0+ (API level 23+)
 - NFC-enabled Android device
+- Microphone permission for Jarvis AI
 - Active internet connection
 - Biometric authentication or device PIN set up
 
+#### iOS  
+- iOS 13.0+
+- NFC-enabled iPhone (iPhone 7 or newer)
+- Microphone permission for Jarvis AI
+- Camera permission for QR code scanning
+- Active internet connection
+- Touch ID, Face ID, or device passcode set up
+
 ### Installation
 
+#### Android Development
 1. Clone the repository
-2. Open in Android Studio
-3. Configure Web3Auth credentials in your build configuration
+2. Open Android project in Android Studio
+3. Configure Twitter OAuth credentials in your build configuration
 4. Set up Solana RPC endpoint (Mainnet/Devnet/Testnet)
-5. Build and install on NFC-enabled Android devices
+5. Configure XReplyAgent API endpoint
+6. Build and install on NFC-enabled Android devices
+
+#### iOS Development
+1. Clone the repository
+2. Open `ios/MyPayIos.xcodeproj` in Xcode
+3. Configure App ID with NFC capability in Apple Developer Portal
+4. Set up Twitter OAuth credentials in app configuration
+5. Configure XReplyAgent API endpoint
+6. Build and install on NFC-enabled iOS devices (iPhone 7 or newer)
 
 ### Configuration
 
+#### Android
 Update your `local.properties` or build configuration with:
 ```properties
-WEB3AUTH_CLIENT_ID=your_web3auth_client_id
+TWITTER_API_KEY=your_twitter_api_key
+TWITTER_API_SECRET=your_twitter_api_secret
 SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+XREPLYAGENT_API_URL=your_xreplyagent_backend_url
+```
+
+#### iOS
+Update your app configuration with:
+```swift
+// Configuration constants
+TWITTER_API_KEY = "your_twitter_api_key"
+TWITTER_API_SECRET = "your_twitter_api_secret"
+SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com"
+XREPLYAGENT_API_URL = "your_xreplyagent_backend_url"
 ```
 
 ## Testing
@@ -231,26 +409,50 @@ The application supports testing on Mainnet and Devnet:
 
 ## Supported Features
 
-- SOL transfers via NFC tap
-- Email-based authentication (Web3Auth)
-- Biometric wallet security
-- Multi-language support (EN/DE)
-- Transaction history
-- Settings management
-- SPL token support (implemented, testing in progress)
-- Transaction metadata and memos
-- Reference tracking for payments
+### Core Features (Both Platforms)
+- **SOL transfers via NFC tap**: Seamless phone-to-phone payments
+- **Twitter-based authentication**: Social login integration through XReplyAgent for user onboarding
+- **Twitter wallet management**: Manage wallets and execute transactions via Twitter
+- **Biometric wallet security**: Hardware-backed key protection
+- **Multi-language support**: English and German
+- **Settings management**: Customizable app preferences
+- **Transaction metadata and memos**: Rich payment information
+- **Reference tracking for payments**: Transaction monitoring
+
+### Android Features
+- **Jarvis AI Assistant**: Voice-powered crypto assistant
+- **Host Card Emulation (HCE)**: Advanced NFC communication for tapless payments
+- **SPL token support**: Multi-token transactions (testing in progress)
+- **Material Design 3**: Modern Android UI with Jetpack Compose
+- **Google Play Store**: Currently in the publishing process
+
+### iOS Features  
+- **Jarvis AI Assistant**: Voice-powered crypto assistant with Speech framework
+- **QR Code scanning**: Camera-based payment initiation (temporary solution)
+- **Multi-chain wallet management**: Support for multiple blockchain networks
+- **CoreNFC integration**: Limited NFC capabilities (pending Apple Wallet integration)
+- **SwiftUI interface**: Modern iOS UI patterns
+
+**Note**: iOS app currently uses QR code scanning as we are planning to secure funding or grants to cover the licensing fees required for Apple Wallet integration, which would enable full tapless payment functionality similar to the Android version.
+
+## Project Status
+
+### Current Development
+- **Android**: Full NFC implementation with Host Card Emulation, currently in Google Play Store publishing process
+- **iOS**: QR code-based implementation while pursuing funding for Apple Wallet integration licensing
+- **Jarvis AI**: Voice assistant integrated on both platforms with backend API support
+
+### Future Plans
+- Secure grants or funding to cover Apple Wallet integration licensing fees
+- Enable full tapless payment functionality on iOS matching Android capabilities
+- Expand multi-chain support across additional blockchain networks
 
 ## License
 
-This project is built for hackathon purposes and demonstrates the integration of Web3Auth, Solana Pay, and NFC technologies.
+This project demonstrates the integration of Twitter authentication, Solana Pay, and NFC technologies through XReplyAgent, submitted to Solana Colosseum.
 
 ### Why This Matters
 
 This project bridges the gap between contactless payments and decentralized finance. By making crypto payments work through phone tapping, it removes barriers to cryptocurrency adoption and creates an intuitive payment experience.
 
-The combination of Web3Auth authentication, Solana transactions, and NFC availability creates a foundation for peer-to-peer payments.
-
----
-
-Built for the Web3Auth Hackathon - Making crypto payments work through phone tapping
+The combination of Twitter authentication through XReplyAgent, Solana transactions, and NFC/QR capabilities creates a foundation for peer-to-peer payments across different platforms and technical constraints, enabling users to manage their crypto wallets both through the mobile app and Twitter interactions.
