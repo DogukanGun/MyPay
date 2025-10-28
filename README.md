@@ -36,6 +36,15 @@ Tap two phones together to initiate a Solana Pay transaction. NFC transmits the 
 
 The application follows clean architecture principles across both platforms:
 
+### Project Structure
+```
+solana_pay_with_nfc/
+├── android/                    # Android application
+├── ios/                        # iOS application  
+├── XReplyAgent/               # Backend API (git submodule)
+└── README.md                  # This documentation
+```
+
 ### Android (`android/app/src/main/java/com/dag/mypayandroid/`)
 
 ```
@@ -267,7 +276,7 @@ final class JarvisViewModel: BaseViewModel {
 ```
 
 **Backend Integration**:
-- RESTful API communication with [XReplyAgent](https://github.com/DogukanGun/XReplyAgent)
+- RESTful API communication with [XReplyAgent](https://github.com/DogukanGun/XReplyAgent) (included as git submodule in `XReplyAgent/`)
 - Twitter OAuth authentication and wallet management
 - Real-time AI responses for crypto operations
 - Twitter-based wallet operations and transaction management
@@ -362,21 +371,35 @@ final class JarvisViewModel: BaseViewModel {
 
 ### Installation
 
+#### Clone Repository with Submodules
+```bash
+git clone --recursive https://github.com/DogukanGun/solana_pay_with_nfc.git
+cd solana_pay_with_nfc
+```
+
+If you already cloned the repository, initialize the submodules:
+```bash
+git submodule update --init --recursive
+```
+
+#### XReplyAgent Backend Setup
+1. Navigate to the XReplyAgent directory: `cd XReplyAgent/`
+2. Follow the setup instructions in `XReplyAgent/README.md`
+3. Run the backend server to enable Jarvis AI functionality
+
 #### Android Development
-1. Clone the repository
-2. Open Android project in Android Studio
-3. Configure Twitter OAuth credentials in your build configuration
-4. Set up Solana RPC endpoint (Mainnet/Devnet/Testnet)
-5. Configure XReplyAgent API endpoint
-6. Build and install on NFC-enabled Android devices
+1. Open Android project in Android Studio
+2. Configure Twitter OAuth credentials in your build configuration
+3. Set up Solana RPC endpoint (Mainnet/Devnet/Testnet)
+4. Configure XReplyAgent API endpoint (your local or deployed backend)
+5. Build and install on NFC-enabled Android devices
 
 #### iOS Development
-1. Clone the repository
-2. Open `ios/MyPayIos.xcodeproj` in Xcode
-3. Configure App ID with NFC capability in Apple Developer Portal
-4. Set up Twitter OAuth credentials in app configuration
-5. Configure XReplyAgent API endpoint
-6. Build and install on NFC-enabled iOS devices (iPhone 7 or newer)
+1. Open `ios/MyPayIos.xcodeproj` in Xcode
+2. Configure App ID with NFC capability in Apple Developer Portal
+3. Set up Twitter OAuth credentials in app configuration
+4. Configure XReplyAgent API endpoint (your local or deployed backend)
+5. Build and install on NFC-enabled iOS devices (iPhone 7 or newer)
 
 ### Configuration
 
