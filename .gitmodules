@@ -1,0 +1,3 @@
+[submodule "XReplyAgent"]
+	path = XReplyAgent
+	url = https://github.com/DogukanGun/XReplyAgent.git
