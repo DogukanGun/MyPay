@@ -45,6 +45,30 @@ solana_pay_with_nfc/
 └── README.md                  # This documentation
 ```
 
+### Complete Technology Stack
+
+![Technology Stack](images/TechStck.png)
+
+The above diagram illustrates our comprehensive technology stack, showing how different components integrate:
+
+- **Mobile Apps** (iOS/Android) with platform-specific technologies
+- **Backend Infrastructure** powered by Docker and Kubernetes
+- **AI & Analytics** featuring Jarvis Core with machine learning capabilities
+- **Blockchain Integration** supporting multi-chain operations
+- **Security & Compliance** with hardware-backed authentication
+
+### Jarvis Container Architecture
+
+![Jarvis Architecture](images/jarvis_arch.png)
+
+Our revolutionary Jarvis system provides each user with isolated Docker containers containing:
+
+- **Personal AI Agents** with individual learning capabilities
+- **Crypto Operations Engine** for automated portfolio management
+- **Portfolio Analytics** with real-time insights
+- **Trading Bots** for automated strategy execution
+- **Secure Data Storage** isolated per user
+
 ### Android (`android/app/src/main/java/com/dag/mypayandroid/`)
 
 ```
@@ -464,6 +488,22 @@ The application supports testing on Mainnet and Devnet:
 - **Android**: Full NFC implementation with Host Card Emulation, currently in Google Play Store publishing process
 - **iOS**: QR code-based implementation while pursuing funding for Apple Wallet integration licensing
 - **Jarvis AI**: Voice assistant integrated on both platforms with backend API support
+
+### Development Roadmap
+
+![Development Milestones](images/development_milestone.png)
+
+Our comprehensive development timeline spans from Q1 2025 through Q1 2026, featuring:
+
+**Q1 2025**: iOS wallet implementation with Apple Developer setup, Apple Wallet integration, and Secure Enclave implementation
+
+**Q2 2025**: Jarvis container MVP launch with Kubernetes cluster setup and AI core integration
+
+**Q3 2025**: Advanced AI features, multi-user container testing, and enterprise beta release
+
+**Q4 2025**: Global scaling implementation, enterprise dashboard, and performance optimization
+
+**Q1 2026**: Predictive AI models, cross-platform expansion, and full market launch
 
 ### Future Plans
 - Secure grants or funding to cover Apple Wallet integration licensing fees
