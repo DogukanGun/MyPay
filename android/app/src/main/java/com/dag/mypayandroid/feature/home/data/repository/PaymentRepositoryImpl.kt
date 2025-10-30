@@ -23,8 +23,20 @@ class PaymentRepositoryImpl @Inject constructor(
     ): Result<PaymentResult> {
         return try {
             withContext(Dispatchers.IO) {
-                val privateKeyBytes = hexStringToByteArray(privateKey)
-                val keypair = Keypair.fromSecretKey(privateKeyBytes)
+                // Create keypair from private key - try different formats
+                val keypair = try {
+                    // First try as Base58 string (Solana standard)
+                    Keypair.fromSecretKey(privateKey.toByteArray())
+                } catch (e: Exception) {
+                    try {
+                        // If that fails, try as hex string
+                        val privateKeyBytes = hexStringToByteArray(privateKey)
+                        Keypair.fromSecretKey(privateKeyBytes)
+                    } catch (e2: Exception) {
+                        // If both fail, try direct byte conversion
+                        Keypair.fromSecretKey(privateKey.toByteArray())
+                    }
+                }
                 
                 var transactionSignature: String? = null
                 var error: Exception? = null
