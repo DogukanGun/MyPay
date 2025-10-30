@@ -152,20 +152,6 @@ fun HomeSuccessScreen(
                             )
                         }
                     }
-
-                    // Show user email if available
-                    state.userProfile?.let { userProfile ->
-                        userProfile.email?.let { email ->
-                            if (email.isNotEmpty()) {
-                                Text(
-                                    text = email,
-                                    color = primaryText,
-                                    fontSize = 14.sp,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
-                        }
-                    }
                 }
                 Column(
                     modifier = Modifier.width(32.dp)

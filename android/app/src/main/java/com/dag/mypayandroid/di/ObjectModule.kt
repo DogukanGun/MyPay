@@ -59,7 +59,7 @@ class ObjectModules {
     fun provideSolanaHelper(
         walletManager: WalletManager
     ): SolanaHelper {
-        return SolanaHelperImpl(Connection(RpcUrl.DEVNET),walletManager)
+        return SolanaHelperImpl(Connection(RpcUrl.DEVNET), walletManager)
     }
 
     @Provides

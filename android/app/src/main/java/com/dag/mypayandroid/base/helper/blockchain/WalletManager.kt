@@ -218,7 +218,6 @@ class WalletManager @Inject constructor(
      */
     fun getPrivateKeyForChain(
         chain: com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain,
-        activity: FragmentActivity? = activityHolder.getActivity() as? FragmentActivity,
         onSuccess: (String) -> Unit,
         onError: (String) -> Unit
     ) {
@@ -242,31 +241,7 @@ class WalletManager @Inject constructor(
         }
 
         val privateKeyFromRepo = privateKeyResult.getOrNull()!!
-
-        activity?.let { fragmentActivity ->
-            biometricHelper.setupBiometricPrompt(
-                activity = fragmentActivity,
-                title = DEFAULT_TITLE,
-                subtitle = "Authenticate to access your ${chain.displayName} wallet",
-                negativeButtonText = DEFAULT_NEGATIVE_BUTTON,
-                onSuccess = { cryptoObject ->
-                    if (cryptoObject != null) {
-                        try {
-                            onSuccess(privateKeyFromRepo)
-                        } catch (e: Exception) {
-                            onError("Failed to access wallet: ${e.message}")
-                        }
-                    } else {
-                        onError("Authentication failed: Crypto object is null")
-                    }
-                },
-                onError = { errorCode, errorMessage ->
-                    onError("Authentication failed: $errorMessage")
-                }
-            )
-            
-            biometricHelper.showBiometricPrompt()
-        } ?: onError("Activity not available")
+        onSuccess(privateKeyFromRepo)
     }
 
     /**
@@ -404,26 +379,10 @@ class WalletManager @Inject constructor(
         return BiometricHelper.Companion.isBiometricAvailable(context)
     }
 
-    /**
-     * Check if the device has biometric hardware
-     */
-    fun isBiometricHardwareSupported(): Boolean {
-        return BiometricHelper.Companion.isHardwareSupported(context)
-    }
-
-    private fun hexStringToByteArray(hex: String): ByteArray {
-        val len = hex.length
-        val data = ByteArray(len / 2)
-        for (i in 0 until len step 2) {
-            data[i / 2] = ((Character.digit(hex[i], 16) shl 4) + Character.digit(hex[i + 1], 16)).toByte()
-        }
-        return data
-    }
 
     sealed class WalletState {
         object Uninitialized : WalletState()
         object NotCreated : WalletState() // Wallet doesn't exist
         object Locked : WalletState() // Wallet exists but needs authentication
-        data class Unlocked(val publicKey: String) : WalletState() // Temporarily authenticated
     }
 }

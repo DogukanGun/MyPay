@@ -110,5 +110,4 @@ dependencies {
 
     implementation(libs.androidx.multidex)
 
-
 }

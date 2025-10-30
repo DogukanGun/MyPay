@@ -17,26 +17,6 @@ class SolanaHelperImpl(
     val walletManager: WalletManager
 ) : SolanaHelper {
 
-    private suspend fun makePayment(
-        keypair: Keypair,
-        transferRequestField: TransferRequestURLFields,
-        onSigned: (tx: Transaction)-> Unit
-    ) {
-        walletManager.getPublicKey() ?: return
-        walletManager.getPublicKey()?.let {
-            // Move network operations to IO thread
-            val tx = withContext(Dispatchers.IO) {
-                TransferCreator.createTransfer(
-                    connection = connection,
-                    sender = PublicKey(it),
-                    fields = transferRequestField
-                )
-            }
-            tx.sign(keypair)
-            onSigned(tx)
-        }
-    }
-
     override fun prepareSolanaPay(
         transferRequestField: TransferRequestURLFields,
         onUrlReady: (tx: URI)-> Unit
@@ -51,16 +31,26 @@ class SolanaHelperImpl(
     ) {
         val tx = SolanaPayURLParser.parseURL(paymentUrl)
         if (tx is TransferRequestURLFields) {
-            makePayment(
-                keypair,
-                TransferRequestURLFields(
-                    recipient = tx.recipient,
-                    amount = tx.amount,
-                    tokenDecimal = tx.tokenDecimal,
-                    splToken = tx.splToken,
-                ),
-                onSigned = onSigned
-            )
+            try {
+                // Use the already provided keypair (which was created from stored wallet data)
+                // Move network operations to IO thread
+                val transaction = withContext(Dispatchers.IO) {
+                    TransferCreator.createTransfer(
+                        connection = connection,
+                        sender = keypair.publicKey,
+                        fields = TransferRequestURLFields(
+                            recipient = tx.recipient,
+                            amount = tx.amount,
+                            tokenDecimal = tx.tokenDecimal,
+                            splToken = tx.splToken,
+                        )
+                    )
+                }
+                transaction.sign(keypair)
+                onSigned(transaction)
+            } catch (e: Exception) {
+                throw Exception("Failed to create transaction: ${e.message}")
+            }
         }
     }
 

@@ -18,7 +18,9 @@ class UserRepositoryImpl @Inject constructor(
         return try {
             // Get locally stored user info first
             val (twitterId, displayName) = authRepository.getUserInfo()
-            val walletAddress = walletManager.getPublicKey()
+            val walletAddress = walletManager.getPublicKeyForChain(
+                com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain.SOLANA
+            )
             
             if (displayName != null && twitterId != null) {
                 // Use local data if available

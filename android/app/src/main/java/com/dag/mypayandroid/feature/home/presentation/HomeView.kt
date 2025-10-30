@@ -73,7 +73,7 @@ fun HomeView(
                         showPaymentSheet = true
                     },
                     onRefresh = {
-
+                        viewModel.getBalance()
                     }
                 )
 

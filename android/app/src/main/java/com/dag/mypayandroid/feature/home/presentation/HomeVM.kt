@@ -13,6 +13,7 @@ import androidx.core.net.toUri
 import com.dag.mypayandroid.base.BaseVM
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.input.key.Key
 import androidx.core.app.ActivityCompat
 import com.dag.mypayandroid.base.data.AlertDialogButton
 import com.dag.mypayandroid.base.data.AlertDialogButtonType
@@ -42,6 +43,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import com.dag.mypayandroid.R
 import com.dag.mypayandroid.feature.home.domain.model.UserProfile
 import com.dag.mypayandroid.feature.home.presentation.components.BlockchainChain
+import org.sol4k.Base58
+
 @HiltViewModel
 class HomeVM @Inject constructor(
     private val activityHolder: ActivityHolder,
@@ -108,7 +111,7 @@ class HomeVM @Inject constructor(
         val currentState = _viewState.value
         if (currentState is HomeVS.Success) {
             _viewState.value = currentState.copy(
-                walletAddress = walletAddress ?: walletManager.getPublicKey(),
+                walletAddress = walletAddress ?: walletManager.getPublicKeyForChain(_selectedChain.value),
                 shouldShowPopup = shouldShowPopup ?: currentState.shouldShowPopup,
                 balance = balance ?: currentState.balance,
                 userProfile = userProfile ?: currentState.userProfile,
@@ -116,7 +119,7 @@ class HomeVM @Inject constructor(
             )
         } else {
             _viewState.value = HomeVS.Success(
-                walletAddress = walletAddress ?: walletManager.getPublicKey(),
+                walletAddress = walletAddress ?: walletManager.getPublicKeyForChain(_selectedChain.value),
                 shouldShowPopup = shouldShowPopup == true,
                 balance = balance,
                 userProfile = userProfile,
@@ -168,7 +171,7 @@ class HomeVM @Inject constructor(
     }
     
     private suspend fun getSolanaBalance() {
-        walletManager.getPublicKey()?.let { publicKey ->
+        walletManager.getPublicKeyForChain(BlockchainChain.SOLANA)?.let { publicKey ->
             Log.d(TAG, "Getting Solana balance for wallet: $publicKey")
             withContext(Dispatchers.IO) {
                 val connection = Connection(RpcUrl.DEVNET)
@@ -189,7 +192,7 @@ class HomeVM @Inject constructor(
     private suspend fun getEthereumBalance() {
         // For now, we'll get the same public key and show ETH balance as 0
         // In a real implementation, you would have separate ETH addresses
-        walletManager.getPublicKey()?.let { publicKey ->
+        walletManager.getPublicKeyForChain(BlockchainChain.ETHEREUM)?.let { publicKey ->
             Log.d(TAG, "Getting Ethereum balance for wallet: $publicKey")
             withContext(Dispatchers.IO) {
                 try {
@@ -236,31 +239,6 @@ class HomeVM @Inject constructor(
         }
     }
 
-    fun navigateToX(
-        packageManager: PackageManager,
-        startActivity: (intent: Intent) -> Unit
-    ) {
-        val twitterUsername = "NexArb_"
-        val uri = "twitter://user?screen_name=$twitterUsername".toUri()
-        val intent = Intent(Intent.ACTION_VIEW, uri)
-
-        val packageManager = packageManager
-        val launchIntent = packageManager.getLaunchIntentForPackage("com.twitter.android")
-
-        if (launchIntent != null) {
-            // Twitter app is installed
-            intent.setPackage("com.twitter.android")
-            startActivity(intent)
-        } else {
-            // Fallback to browser
-            val browserIntent = Intent(
-                Intent.ACTION_VIEW,
-                "https://twitter.com/$twitterUsername".toUri()
-            )
-            startActivity(browserIntent)
-        }
-    }
-
     private fun checkPermission() {
         if (ActivityCompat.checkSelfPermission(
                 activityHolder.getActivity() as Context,
@@ -270,10 +248,6 @@ class HomeVM @Inject constructor(
         ) {
             _askForPermission.value = true
         }
-    }
-
-    fun processNFCPaymentRequest(paymentUrl: String, amount: BigDecimal) {
-        _nfcPaymentState.value = NFCPaymentState.RequestReceived(paymentUrl, amount)
     }
 
     /**
@@ -304,18 +278,14 @@ class HomeVM @Inject constructor(
                                         R.string.nfc_payment_pay_button
                                     ),
                                     onClick = {
-                                        // Get private key and execute the payment
-                                        walletManager.getPrivateKey(
-                                            onSuccess = { privateKeyHex ->
+                                        // Get Solana private key specifically and execute the payment
+                                        walletManager.getPrivateKeyForChain(
+                                            BlockchainChain.SOLANA,
+                                            onSuccess = { privateKeyString ->
                                                 viewModelScope.launch {
                                                     try {
-                                                        // Create keypair from private key
-                                                        val privateKeyBytes =
-                                                            hexStringToByteArray(privateKeyHex)
-                                                        val keypair =
-                                                            Keypair.fromSecretKey(privateKeyBytes)
-
-                                                        // Execute the payment using SolanaHelper on IO thread
+                                                        val privateKeyBytes = Base58.decode(privateKeyString)
+                                                        val keypair = Keypair.fromSecretKey(privateKeyBytes)
                                                         viewModelScope.launch {
                                                             solanaHelper.receiveSolanaPayAndMakePayment(
                                                                 keypair = keypair,

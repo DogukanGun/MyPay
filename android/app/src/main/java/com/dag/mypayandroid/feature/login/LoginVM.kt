@@ -166,7 +166,6 @@ class LoginVM @Inject constructor(
     }
 
     private fun storeWalletsFromApiResponse(response: com.dag.mypayandroid.base.network.RegisterUserResponse) {
-        // Store both wallets using WalletManager (accessing from wallets object)
         walletManager.storeWallets(
             ethWallet = response.wallets?.eth_wallet,
             solanaWallet = response.wallets?.solana_wallet
@@ -180,7 +179,6 @@ class LoginVM @Inject constructor(
     }
 
     private fun storeWalletsFromNewSession(response: com.dag.mypayandroid.base.network.NewSessionResponse) {
-        // Store both wallets using WalletManager (accessing from wallets object)
         walletManager.storeWallets(
             ethWallet = response.wallets.eth_wallet,
             solanaWallet = response.wallets.solana_wallet
